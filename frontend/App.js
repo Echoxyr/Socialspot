@@ -1,3 +1,20 @@
+```
+<!DOCTYPE html>
+<html>
+<head>
+<title>SocialSpot</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { Home, Search, Plus, MessageCircle, User, MapPin, Calendar, Clock, Users, Star, Send, Filter, Bell, Settings, Camera, Share2, Coffee, Film, Dumbbell, Palette, X, Edit, LogOut, Check, AlertCircle } = lucide;
+
 import React, { useState, useEffect } from ‘react’;
 import {
 Home, Search, Plus, MessageCircle, User, MapPin, Calendar,
@@ -1265,4 +1282,10 @@ const handleSendMessage = () => {
 
 return (
   <div className="fixed inset-0 bg-black bg-opacity
-  ```
+```
+
+ReactDOM.render(React.createElement(SocialSpot), document.getElementById('root'));
+</script>
+</body>
+</html>
+```
