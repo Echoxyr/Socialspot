@@ -1,0 +1,1270 @@
+
+
+import React, { useState, useEffect } from ‘react’;
+import {
+Home, Search, Plus, MessageCircle, User, MapPin, Calendar,
+Clock, Users, Heart, Star, Send, Filter, Bell, Settings,
+Camera, Share2, Coffee, Film, Dumbbell, Palette, X, Edit,
+Navigation, Phone, Mail, LogOut, Check, AlertCircle
+} from ‘lucide-react’;
+
+const SocialSpot = () => {
+const [currentView, setCurrentView] = useState(‘home’);
+const [user, setUser] = useState({
+id: 1,
+name: “Sofia Martini”,
+email: “sofia.martini@email.com”,
+city: “Milano”,
+district: “Navigli”,
+avatar: “SM”,
+rating: 4.8,
+eventsCreated: 12,
+eventsJoined: 47,
+friends: 156,
+interests: [‘Aperitivi’, ‘Cinema d'autore’, ‘Corsa’, ‘Arte contemporanea’, ‘Cucina etnica’, ‘Jazz’],
+joinedAt: “2024-03-15”
+});
+
+const [events, setEvents] = useState([]);
+const [messages, setMessages] = useState([]);
+const [selectedEvent, setSelectedEvent] = useState(null);
+const [showCreateEvent, setShowCreateEvent] = useState(false);
+const [showLogin, setShowLogin] = useState(false);
+const [showProfile, setShowProfile] = useState(false);
+const [searchQuery, setSearchQuery] = useState(’’);
+const [selectedCategory, setSelectedCategory] = useState(‘all’);
+const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
+const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+// Mock data initialization
+useEffect(() => {
+const mockEvents = [
+{
+id: 1,
+title: “Aperitivo sui Navigli 🍹”,
+description: “Aperitivo rilassante al tramonto con vista canale. Perfetto per conoscere nuove persone! Porterò anche alcune specialità siciliane da condividere.”,
+category: “aperitivo”,
+location: “Mag Cafè, Naviglio Grande”,
+address: “Via Naviglio Grande, 12 - Milano”,
+date: “2025-06-27”,
+time: “19:00”,
+maxParticipants: 8,
+currentParticipants: 3,
+organizer: “Sofia M.”,
+organizerId: 1,
+distance: “0.8 km”,
+rating: 4.8,
+price: “15-25€”,
+ageRange: “25-35”,
+participants: [
+{ id: 1, name: “Sofia M.”, avatar: “SM”, isOrganizer: true },
+{ id: 2, name: “Marco R.”, avatar: “MR” },
+{ id: 3, name: “Elena T.”, avatar: “ET” }
+],
+tags: [“relax”, “networking”, “sunset”, “navigli”],
+photos: [],
+weatherFriendly: true,
+accessibility: true,
+createdAt: “2025-06-25T10:00:00Z”
+},
+{
+id: 2,
+title: “Cinema all’aperto - La Dolce Vita”,
+description: “Serata cinematografica nel parco con proiezione del capolavoro di Fellini. Proiezione in alta definizione con sistema audio professionale.”,
+category: “cinema”,
+location: “Parco Lambro”,
+address: “Via Feltre - Milano”,
+date: “2025-06-28”,
+time: “21:00”,
+maxParticipants: 15,
+currentParticipants: 7,
+organizer: “Luca B.”,
+organizerId: 2,
+distance: “1.2 km”,
+rating: 4.6,
+price: “Gratuito”,
+ageRange: “Tutti”,
+participants: [
+{ id: 2, name: “Luca B.”, avatar: “LB”, isOrganizer: true },
+{ id: 4, name: “Anna F.”, avatar: “AF” },
+{ id: 5, name: “Giorgio S.”, avatar: “GS” },
+{ id: 6, name: “Marta L.”, avatar: “ML” },
+{ id: 7, name: “Paolo K.”, avatar: “PK” },
+{ id: 8, name: “Sara N.”, avatar: “SN” },
+{ id: 9, name: “Diego M.”, avatar: “DM” }
+],
+tags: [“cinema”, “classici”, “cultura”, “gratis”],
+photos: [],
+weatherFriendly: false,
+accessibility: true,
+createdAt: “2025-06-25T14:30:00Z”
+},
+{
+id: 3,
+title: “Corsa mattutina ai Giardini Pubblici”,
+description: “Running group per principianti e esperti. Percorso di 5km tra i viali alberati con stretching finale. Livello adatto a tutti!”,
+category: “sport”,
+location: “Giardini Pubblici Indro Montanelli”,
+address: “Corso Venezia - Milano”,
+date: “2025-06-29”,
+time: “07:30”,
+maxParticipants: 12,
+currentParticipants: 5,
+organizer: “Andrea C.”,
+organizerId: 3,
+distance: “2.1 km”,
+rating: 4.9,
+price: “Gratuito”,
+ageRange: “18-50”,
+participants: [
+{ id: 3, name: “Andrea C.”, avatar: “AC”, isOrganizer: true },
+{ id: 10, name: “Chiara P.”, avatar: “CP” },
+{ id: 11, name: “Matteo V.”, avatar: “MV” },
+{ id: 12, name: “Francesca B.”, avatar: “FB” },
+{ id: 13, name: “Roberto T.”, avatar: “RT” }
+],
+tags: [“running”, “fitness”, “mattina”, “natura”],
+photos: [],
+weatherFriendly: true,
+accessibility: false,
+createdAt: “2025-06-24T18:15:00Z”
+},
+{
+id: 4,
+title: “Visita guidata a Brera”,
+description: “Tour artistico nel quartiere più bohémien di Milano. Scopriremo gallerie d’arte, botteghe artigiane e la storia del quartiere.”,
+category: “cultura”,
+location: “Pinacoteca di Brera”,
+address: “Via Brera, 28 - Milano”,
+date: “2025-06-30”,
+time: “15:00”,
+maxParticipants: 10,
+currentParticipants: 4,
+organizer: “Giulia R.”,
+organizerId: 4,
+distance: “1.5 km”,
+rating: 4.7,
+price: “12€”,
+ageRange: “25-65”,
+participants: [
+{ id: 4, name: “Giulia R.”, avatar: “GR”, isOrganizer: true },
+{ id: 14, name: “Lorenzo M.”, avatar: “LM” },
+{ id: 15, name: “Valentina C.”, avatar: “VC” },
+{ id: 16, name: “Davide P.”, avatar: “DP” }
+],
+tags: [“arte”, “cultura”, “storia”, “brera”],
+photos: [],
+weatherFriendly: false,
+accessibility: true,
+createdAt: “2025-06-23T12:00:00Z”
+}
+];
+
+```
+const mockMessages = [
+  {
+    id: 1,
+    eventId: 1,
+    senderId: 2,
+    sender: "Marco R.",
+    message: "Perfetto! Conosco bene la zona, ci vediamo lì! 👍",
+    timestamp: "15:30",
+    read: true
+  },
+  {
+    id: 2,
+    eventId: 1,
+    senderId: 3,
+    sender: "Elena T.",
+    message: "Posso portare un'amica? Siamo entrambe nuove in città",
+    timestamp: "16:45",
+    read: false
+  },
+  {
+    id: 3,
+    eventId: 1,
+    senderId: 1,
+    sender: "Sofia M.",
+    message: "Certo Elena! Più siamo meglio è. Ci vediamo alle 19:00 😊",
+    timestamp: "16:50",
+    read: true
+  },
+  {
+    id: 4,
+    eventId: 2,
+    senderId: 4,
+    sender: "Anna F.",
+    message: "Qualcuno ha una coperta in più? Ho dimenticato la mia!",
+    timestamp: "14:20",
+    read: false
+  },
+  {
+    id: 5,
+    eventId: 2,
+    senderId: 2,
+    sender: "Luca B.",
+    message: "Io ne ho due! Nessun problema Anna 👍",
+    timestamp: "14:25",
+    read: true
+  }
+];
+
+const mockNotifications = [
+  {
+    id: 1,
+    type: 'event_reminder',
+    title: 'Aperitivo sui Navigli tra 2 ore',
+    message: 'Non dimenticare il tuo evento di oggi alle 19:00!',
+    time: '2 ore fa',
+    read: false,
+    eventId: 1
+  },
+  {
+    id: 2,
+    type: 'new_message',
+    title: 'Nuovo messaggio da Marco',
+    message: 'Ciao! Confermo la presenza per stasera',
+    time: '30 min fa',
+    read: false,
+    eventId: 1
+  },
+  {
+    id: 3,
+    type: 'event_update',
+    title: 'Aggiornamento evento Cinema',
+    message: 'Il luogo è stato cambiato in Parco Lambro',
+    time: '1 ora fa',
+    read: true,
+    eventId: 2
+  },
+  {
+    id: 4,
+    type: 'join_confirmed',
+    title: 'Iscrizione confermata!',
+    message: 'Ti sei iscritto a "Corsa mattutina ai Giardini"',
+    time: '3 ore fa',
+    read: true,
+    eventId: 3
+  }
+];
+
+setEvents(mockEvents);
+setMessages(mockMessages);
+setNotifications(mockNotifications);
+```
+
+}, []);
+
+const categories = [
+{ id: ‘all’, name: ‘Tutti’, icon: Search, color: ‘bg-gray-100 text-gray-600’ },
+{ id: ‘aperitivo’, name: ‘Aperitivi’, icon: Coffee, color: ‘bg-orange-100 text-orange-600’ },
+{ id: ‘cinema’, name: ‘Cinema’, icon: Film, color: ‘bg-purple-100 text-purple-600’ },
+{ id: ‘sport’, name: ‘Sport’, icon: Dumbbell, color: ‘bg-green-100 text-green-600’ },
+{ id: ‘cultura’, name: ‘Cultura’, icon: Palette, color: ‘bg-blue-100 text-blue-600’ }
+];
+
+const joinEvent = (eventId) => {
+const event = events.find(e => e.id === eventId);
+if (event && event.currentParticipants < event.maxParticipants) {
+setEvents(events.map(e =>
+e.id === eventId
+? {
+…e,
+currentParticipants: e.currentParticipants + 1,
+participants: […e.participants, {
+id: user.id,
+name: user.name,
+avatar: user.avatar
+}]
+}
+: e
+));
+
+```
+  // Add notification
+  setNotifications(prev => [
+    {
+      id: Date.now(),
+      type: 'join_confirmed',
+      title: 'Iscrizione confermata!',
+      message: `Ti sei iscritto a "${event.title}"`,
+      time: 'ora',
+      read: false,
+      eventId: eventId
+    },
+    ...prev
+  ]);
+}
+```
+
+};
+
+const sendMessage = (eventId, message) => {
+if (message.trim()) {
+const newMessage = {
+id: messages.length + 1,
+eventId,
+senderId: user.id,
+sender: user.name,
+message: message.trim(),
+timestamp: new Date().toLocaleTimeString(‘it-IT’, { hour: ‘2-digit’, minute: ‘2-digit’ }),
+read: true
+};
+setMessages([…messages, newMessage]);
+}
+};
+
+const markNotificationAsRead = (notificationId) => {
+setNotifications(prev =>
+prev.map(notif =>
+notif.id === notificationId ? { …notif, read: true } : notif
+)
+);
+};
+
+const createEvent = (eventData) => {
+const newEvent = {
+id: events.length + 1,
+…eventData,
+currentParticipants: 1,
+organizer: user.name,
+organizerId: user.id,
+rating: 0,
+distance: “0.0 km”,
+participants: [{
+id: user.id,
+name: user.name,
+avatar: user.avatar,
+isOrganizer: true
+}],
+tags: eventData.tags || [],
+photos: [],
+weatherFriendly: true,
+accessibility: true,
+price: eventData.price || “Gratuito”,
+ageRange: eventData.ageRange || “Tutti”,
+address: eventData.location,
+createdAt: new Date().toISOString()
+};
+setEvents([newEvent, …events]);
+setShowCreateEvent(false);
+
+```
+// Add notification
+setNotifications(prev => [
+  {
+    id: Date.now(),
+    type: 'event_created',
+    title: 'Evento pubblicato!',
+    message: `"${eventData.title}" è ora visibile a tutti`,
+    time: 'ora',
+    read: false,
+    eventId: newEvent.id
+  },
+  ...prev
+]);
+```
+
+};
+
+const filteredEvents = events.filter(event => {
+const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+event.location.toLowerCase().includes(searchQuery.toLowerCase());
+const matchesCategory = selectedCategory === ‘all’ || event.category === selectedCategory;
+return matchesSearch && matchesCategory;
+});
+
+const unreadNotifications = notifications.filter(n => !n.read).length;
+
+// Login Component
+const LoginForm = () => {
+const [loginData, setLoginData] = useState({ email: ‘’, password: ‘’ });
+const [isRegistering, setIsRegistering] = useState(false);
+
+```
+const handleLogin = () => {
+  setIsLoggedIn(true);
+  setShowLogin(false);
+};
+
+return (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">{event.title}</h2>
+        <button 
+          onClick={() => setSelectedEvent(null)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+
+      <div className="space-y-4 mb-6">
+        <p className="text-gray-700">{event.description}</p>
+        
+        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin size={16} className="text-gray-600" />
+            <span>{event.location}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar size={16} className="text-gray-600" />
+            <span>{new Date(event.date).toLocaleDateString('it-IT')} alle {event.time}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Users size={16} className="text-gray-600" />
+            <span>{event.currentParticipants}/{event.maxParticipants} partecipanti</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium text-gray-900 mb-2">Partecipanti:</h4>
+          <div className="flex flex-wrap gap-2">
+            {event.participants.map((participant, index) => (
+              <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                {participant.name} {participant.isOrganizer && '👑'}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {isParticipant && (
+        <div className="border-t pt-4">
+          <h4 className="font-medium text-gray-900 mb-3">Chat del gruppo</h4>
+          <div className="space-y-3 max-h-48 overflow-y-auto mb-3">
+            {eventMessages.map(msg => (
+              <div key={msg.id} className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-sm text-gray-900">{msg.sender}</span>
+                  <span className="text-xs text-gray-500">{msg.timestamp}</span>
+                </div>
+                <p className="text-sm text-gray-700">{msg.message}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Scrivi un messaggio..."
+              className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            />
+            <button 
+              onClick={handleSendMessage}
+              className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
+            >
+              <Send size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!isParticipant && (
+        <button
+          onClick={() => joinEvent(event.id)}
+          disabled={event.currentParticipants >= event.maxParticipants}
+          className={`w-full mt-4 py-3 rounded-lg font-medium transition-colors ${
+            event.currentParticipants >= event.maxParticipants
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-orange-500 text-white hover:bg-orange-600'
+          }`}
+        >
+          {event.currentParticipants >= event.maxParticipants ? 'Evento completo' : 'Partecipa all\'Evento'}
+        </button>
+      )}
+    </div>
+  </div>
+);
+```
+
+};
+
+// Notifications Panel Component
+const NotificationsPanel = () => {
+return (
+<div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-16 p-4 z-50">
+<div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+<div className="flex items-center justify-between mb-6">
+<h2 className="text-xl font-bold text-gray-900">
+Notifiche {unreadNotifications > 0 && `(${unreadNotifications})`}
+</h2>
+<button
+onClick={() => setShowNotifications(false)}
+className=“text-gray-500 hover:text-gray-700”
+>
+<X size={24} />
+</button>
+</div>
+
+```
+      <div className="space-y-3">
+        {notifications.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">Nessuna notifica</p>
+        ) : (
+          notifications.map(notification => (
+            <div 
+              key={notification.id} 
+              className={`p-4 rounded-lg border cursor-pointer ${
+                notification.read ? 'bg-gray-50 border-gray-200' : 'bg-blue-50 border-blue-200'
+              }`}
+              onClick={() => markNotificationAsRead(notification.id)}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-medium text-gray-900">{notification.title}</h4>
+                <span className="text-xs text-gray-500">{notification.time}</span>
+              </div>
+              <p className="text-sm text-gray-700">{notification.message}</p>
+              {!notification.read && (
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      <button
+        onClick={() => setNotifications([])}
+        className="w-full mt-4 text-gray-600 py-2 text-sm hover:text-gray-800"
+      >
+        Cancella tutte le notifiche
+      </button>
+    </div>
+  </div>
+);
+```
+
+};
+
+// Main content rendering
+const renderContent = () => {
+if (!isLoggedIn) {
+return (
+<div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+<div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full flex items-center justify-center mb-6">
+<span className="text-white font-bold text-2xl">SS</span>
+</div>
+<h1 className="text-3xl font-bold text-gray-900 mb-4">Benvenuto su SocialSpot</h1>
+<p className="text-gray-600 mb-8 max-w-md">
+Trova eventi interessanti nella tua zona e incontra persone con i tuoi stessi interessi!
+</p>
+<button
+onClick={() => setShowLogin(true)}
+className=“bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors”
+>
+Inizia ora
+</button>
+</div>
+);
+}
+
+```
+switch(currentView) {
+  case 'home':
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-blue-600 to-orange-500 text-white rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-2">Ciao {user.name}! 👋</h2>
+          <p className="opacity-90">Scopri eventi interessanti nella tua zona o crea il tuo!</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {categories.filter(cat => cat.id !== 'all').map(category => {
+            const Icon = category.icon;
+            const categoryEvents = events.filter(e => e.category === category.id);
+            return (
+              <div 
+                key={category.id} 
+                className={`${category.color} rounded-xl p-4 cursor-pointer hover:scale-105 transition-transform`}
+                onClick={() => {
+                  setSelectedCategory(category.id);
+                  setCurrentView('explore');
+                }}
+              >
+                <Icon size={24} className="mb-2" />
+                <h3 className="font-semibold">{category.name}</h3>
+                <p className="text-sm opacity-80">{categoryEvents.length} eventi</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Eventi nelle vicinanze</h3>
+            <button 
+              onClick={() => setCurrentView('explore')}
+              className="text-blue-600 text-sm font-medium"
+            >
+              Vedi tutti
+            </button>
+          </div>
+          {filteredEvents.slice(0, 3).map(event => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
+      </div>
+    );
+
+  case 'explore':
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Cerca eventi..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button className="bg-gray-100 p-3 rounded-lg hover:bg-gray-200">
+            <Filter size={20} className="text-gray-600" />
+          </button>
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {categories.map(category => {
+            const Icon = category.icon;
+            const isSelected = selectedCategory === category.id;
+            return (
+              <button 
+                key={category.id} 
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
+                  isSelected ? 'bg-blue-600 text-white' : category.color
+                }`}
+              >
+                <Icon size={16} />
+                <span className="text-sm font-medium">{category.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="text-sm text-gray-600 mb-4">
+          {filteredEvents.length} eventi trovati
+        </div>
+
+        {filteredEvents.map(event => (
+          <EventCard key={event.id} event={event} />
+        ))}
+
+        {filteredEvents.length === 0 && (
+          <div className="text-center py-12">
+            <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Nessun evento trovato</h3>
+            <p className="text-gray-600 mb-4">Prova a modificare i filtri di ricerca</p>
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+              }}
+              className="text-blue-600 font-medium"
+            >
+              Rimuovi filtri
+            </button>
+          </div>
+        )}
+      </div>
+    );
+
+  case 'messages':
+    const userEvents = events.filter(e => e.participants.some(p => p.id === user.id));
+    
+    return (
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-gray-900">I tuoi messaggi</h2>
+        
+        {userEvents.length === 0 ? (
+          <div className="text-center py-12">
+            <MessageCircle size={48} className="mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Nessuna chat attiva</h3>
+            <p className="text-gray-600 mb-4">Partecipa a un evento per iniziare a chattare</p>
+            <button
+              onClick={() => setCurrentView('explore')}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"
+            >
+              Esplora eventi
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {userEvents.map(event => {
+              const eventMessages = messages.filter(m => m.eventId === event.id);
+              const lastMessage = eventMessages[eventMessages.length - 1];
+              const unreadCount = eventMessages.filter(m => !m.read && m.senderId !== user.id).length;
+              
+              return (
+                <div key={event.id} className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                    <div className="flex items-center gap-2">
+                      {unreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        {event.participants.length} persone
+                      </span>
+                    </div>
+                  </div>
+                  {lastMessage ? (
+                    <p className="text-sm text-gray-600 mb-3">
+                      <span className="font-medium">{lastMessage.sender}:</span> {lastMessage.message}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500 mb-3">Nessun messaggio ancora</p>
+                  )}
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setSelectedEvent(event)}
+                      className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+                    >
+                      Apri Chat
+                    </button>
+                    <button className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
+                      <Camera size={16} className="text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+
+  case 'profile':
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-100">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+              {user.avatar}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
+              <p className="text-gray-600">{user.city}, {user.district}</p>
+              <div className="flex items-center gap-1 mt-1">
+                <Star size={16} className="text-yellow-500" fill="currentColor" />
+                <span className="text-sm text-gray-600">{user.rating} • {user.eventsJoined} eventi partecipati</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 text-center py-4 border-t border-gray-100">
+            <div>
+              <div className="text-xl font-bold text-gray-900">{user.eventsCreated}</div>
+              <div className="text-sm text-gray-600">Eventi creati</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">{user.eventsJoined}</div>
+              <div className="text-sm text-gray-600">Partecipazioni</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">{user.friends}</div>
+              <div className="text-sm text-gray-600">Amici</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-100">
+          <h3 className="font-bold text-gray-900 mb-4">I tuoi interessi</h3>
+          <div className="flex flex-wrap gap-2">
+            {user.interests.map(interest => (
+              <span key={interest} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                {interest}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+            <Edit size={20} />
+            Modifica Profilo
+          </button>
+          <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+            <Settings size={20} />
+            Impostazioni
+          </button>
+          <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+            <Bell size={20} />
+            Notifiche
+          </button>
+          <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+            <Share2 size={20} />
+            Invita Amici
+          </button>
+          <button 
+            onClick={() => setIsLoggedIn(false)}
+            className="w-full bg-red-50 border border-red-200 text-red-700 py-3 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <LogOut size={20} />
+            Esci
+          </button>
+        </div>
+      </div>
+    );
+
+  default:
+    return <div>Sezione in costruzione</div>;
+}
+```
+
+};
+
+return (
+<div className="min-h-screen bg-gray-50">
+{/* Header */}
+<header className="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-40">
+<div className="flex items-center justify-between">
+<div className="flex items-center gap-3">
+<div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-orange-500 rounded-lg flex items-center justify-center">
+<span className="text-white font-bold text-sm">SS</span>
+</div>
+<h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+SocialSpot
+</h1>
+</div>
+{isLoggedIn && (
+<div className="flex items-center gap-3">
+<button
+onClick={() => setShowNotifications(true)}
+className=“relative p-2”
+>
+<Bell size={24} className="text-gray-600" />
+{unreadNotifications > 0 && (
+<span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+{unreadNotifications}
+</span>
+)}
+</button>
+<span className="text-sm text-gray-600">{user.city}</span>
+</div>
+)}
+</div>
+</header>
+
+```
+  {/* Main Content */}
+  <main className="px-4 py-6 pb-24">
+    {renderContent()}
+  </main>
+
+  {/* Floating Action Button */}
+  {isLoggedIn && (
+    <button
+      onClick={() => setShowCreateEvent(true)}
+      className="fixed bottom-20 right-4 bg-orange-500 text-white w-14 h-14 rounded-full shadow-lg hover:bg-orange-600 transition-colors flex items-center justify-center z-30"
+    >
+      <Plus size={24} />
+    </button>
+  )}
+
+  {/* Bottom Navigation */}
+  {isLoggedIn && (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
+      <div className="flex justify-around">
+        {[
+          { id: 'home', icon: Home, label: 'Home' },
+          { id: 'explore', icon: Search, label: 'Esplora' },
+          { id: 'messages', icon: MessageCircle, label: 'Messaggi' },
+          { id: 'profile', icon: User, label: 'Profilo' }
+        ].map(item => {
+          const Icon = item.icon;
+          const isActive = currentView === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setCurrentView(item.id)}
+              className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors ${
+                isActive 
+                  ? 'text-blue-600 bg-blue-50' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Icon size={24} />
+              <span className="text-xs font-medium">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  )}
+
+  {/* Modals */}
+  {showLogin && <LoginForm />}
+  {showCreateEvent && <CreateEventForm />}
+  {selectedEvent && <EventDetails event={selectedEvent} />}
+  {showNotifications && <NotificationsPanel />}
+</div>
+```
+
+);
+};
+
+export default SocialSpot;-50 flex items-center justify-center p-4 z-50”>
+<div className="bg-white rounded-xl p-6 w-full max-w-md">
+<div className="text-center mb-6">
+<div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+<span className="text-white font-bold text-xl">SS</span>
+</div>
+<h2 className="text-2xl font-bold text-gray-900">
+{isRegistering ? ‘Registrati’ : ‘Accedi’}
+</h2>
+<p className="text-gray-600">
+{isRegistering ? ‘Crea il tuo account’ : ‘Bentornato su SocialSpot’}
+</p>
+</div>
+
+```
+      <div className="space-y-4">
+        {isRegistering && (
+          <input
+            type="text"
+            placeholder="Nome completo"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        )}
+        <input
+          type="email"
+          placeholder="Email"
+          value={loginData.email}
+          onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={loginData.password}
+          onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        {isRegistering && (
+          <>
+            <input
+              type="text"
+              placeholder="Città"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <input
+              type="text"
+              placeholder="Quartiere (opzionale)"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </>
+        )}
+      </div>
+
+      <button
+        onClick={handleLogin}
+        className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+      >
+        {isRegistering ? 'Registrati' : 'Accedi'}
+      </button>
+
+      <div className="text-center mt-4">
+        <button
+          onClick={() => setIsRegistering(!isRegistering)}
+          className="text-blue-600 hover:text-blue-700"
+        >
+          {isRegistering ? 'Hai già un account? Accedi' : 'Non hai un account? Registrati'}
+        </button>
+      </div>
+
+      <button
+        onClick={() => setShowLogin(false)}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+      >
+        <X size={24} />
+      </button>
+    </div>
+  </div>
+);
+```
+
+};
+
+// Event Card Component
+const EventCard = ({ event }) => {
+const categoryInfo = categories.find(cat => cat.id === event.category);
+const CategoryIcon = categoryInfo?.icon || Coffee;
+const isUserParticipant = event.participants.some(p => p.id === user.id);
+
+```
+return (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow">
+    <div className="flex items-start justify-between mb-3">
+      <div className="flex items-center gap-3">
+        <div className={`p-2 rounded-lg ${categoryInfo?.color || 'bg-gray-100'}`}>
+          <CategoryIcon size={20} />
+        </div>
+        <div>
+          <h3 className="font-semibold text-gray-900">{event.title}</h3>
+          <p className="text-sm text-gray-600">da {event.organizer}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 text-yellow-500">
+        <Star size={16} fill="currentColor" />
+        <span className="text-sm font-medium">{event.rating}</span>
+      </div>
+    </div>
+
+    <p className="text-gray-700 mb-4 text-sm leading-relaxed">{event.description}</p>
+
+    <div className="space-y-2 mb-4">
+      <div className="flex items-center gap-2 text-sm text-gray-600">
+        <MapPin size={16} />
+        <span>{event.location}</span>
+        <span className="text-blue-600">• {event.distance}</span>
+      </div>
+      <div className="flex items-center gap-4 text-sm text-gray-600">
+        <div className="flex items-center gap-1">
+          <Calendar size={16} />
+          <span>{new Date(event.date).toLocaleDateString('it-IT')}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock size={16} />
+          <span>{event.time}</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between text-sm text-gray-600">
+        <div className="flex items-center gap-2">
+          <Users size={16} />
+          <span>{event.currentParticipants}/{event.maxParticipants} partecipanti</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+            {event.price}
+          </span>
+          <span className="text-xs text-gray-500">{event.ageRange} anni</span>
+        </div>
+      </div>
+      {event.tags && event.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {event.tags.slice(0, 3).map(tag => (
+            <span key={tag} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div className="flex gap-2">
+      {!isUserParticipant ? (
+        <button 
+          onClick={() => joinEvent(event.id)}
+          disabled={event.currentParticipants >= event.maxParticipants}
+          className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+            event.currentParticipants >= event.maxParticipants
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {event.currentParticipants >= event.maxParticipants ? 'Completo' : 'Partecipa'}
+        </button>
+      ) : (
+        <button className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium">
+          <Check size={16} className="inline mr-1" />
+          Iscritto
+        </button>
+      )}
+      <button 
+        onClick={() => setSelectedEvent(event)}
+        className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+      >
+        Dettagli
+      </button>
+    </div>
+  </div>
+);
+```
+
+};
+
+// Create Event Form Component
+const CreateEventForm = () => {
+const [formData, setFormData] = useState({
+title: ‘’,
+description: ‘’,
+category: ‘aperitivo’,
+location: ‘’,
+date: ‘’,
+time: ‘’,
+maxParticipants: 8,
+price: ‘’,
+ageRange: ‘’,
+tags: []
+});
+
+```
+const handleSubmit = () => {
+  if (formData.title && formData.description && formData.location && formData.date && formData.time) {
+    createEvent(formData);
+  }
+};
+
+return (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Crea Nuovo Evento</h2>
+        <button 
+          onClick={() => setShowCreateEvent(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Titolo</label>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Es. Aperitivo sui Navigli"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData({...formData, category: e.target.value})}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            {categories.filter(cat => cat.id !== 'all').map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Descrizione</label>
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows="3"
+            placeholder="Descrivi l'evento e cosa ti aspetti..."
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Luogo</label>
+          <input
+            type="text"
+            value={formData.location}
+            onChange={(e) => setFormData({...formData, location: e.target.value})}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Nome del locale o indirizzo"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Data</label>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({...formData, date: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Ora</label>
+            <input
+              type="time"
+              value={formData.time}
+              onChange={(e) => setFormData({...formData, time: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Prezzo</label>
+            <input
+              type="text"
+              value={formData.price}
+              onChange={(e) => setFormData({...formData, price: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Es. 15-25€"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Età</label>
+            <input
+              type="text"
+              value={formData.ageRange}
+              onChange={(e) => setFormData({...formData, ageRange: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Es. 25-35"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Max Partecipanti</label>
+          <input
+            type="number"
+            value={formData.maxParticipants}
+            onChange={(e) => setFormData({...formData, maxParticipants: parseInt(e.target.value)})}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            min="2"
+            max="50"
+          />
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        >
+          Pubblica Evento
+        </button>
+      </div>
+    </div>
+  </div>
+);
+```
+
+};
+
+// Event Details Component
+const EventDetails = ({ event }) => {
+const eventMessages = messages.filter(msg => msg.eventId === event.id);
+const [newMessage, setNewMessage] = useState(’’);
+const isParticipant = event.participants.some(p => p.id === user.id);
+
+```
+const handleSendMessage = () => {
+  if (newMessage.trim()) {
+    sendMessage(event.id, newMessage);
+    setNewMessage('');
+  }
+};
+
+return (
+  <div className="fixed inset-0 bg-black bg-opacity
+```
