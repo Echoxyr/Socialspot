@@ -168,25 +168,23 @@
                     } else {
                         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                             email: formData.email,
-                            password: formData.password
+                            password: formData.password,
+                            options: {
+                                data: {
+                                    username: formData.username,
+                                    full_name: formData.fullName,
+                                    city: formData.city,
+                                    district: formData.district
+                                }
+                            }
                         });
                         
                         if (authError) throw authError;
                         
                         if (authData.user) {
-                            // Crea profilo utente
-                            const { error: profileError } = await supabaseClient
-                                .from('profiles')
-                                .insert([{
-                                    id: authData.user.id,
-                                    username: formData.username,
-                                    full_name: formData.fullName,
-                                    city: formData.city,
-                                    district: formData.district,
-                                    rating: 5.0
-                                }]);
-                            
-                            if (profileError) throw profileError;
+                            // Il profilo viene creato automaticamente dal trigger
+                            // quindi non serve più l'insert manuale
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // Attendi che il trigger crei il profilo
                         }
                     }
                     onSuccess();
