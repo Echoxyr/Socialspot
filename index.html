@@ -6,17 +6,16 @@
     <title>SocialSpot - Connettiti con eventi locali</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
         const { createClient } = supabase;
 
-        // Configurazione Supabase
         const SUPABASE_URL = 'https://wsmjnssfmujdfgthyizw.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWpuc3NmbXVqZGZndGh5aXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4ODA3NjIsImV4cCI6MjA2NjQ1Njc2Mn0.t91X-fGIolFBPnhr5_sexJMqzgdCDmXuEUXiL_pFId4';
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -43,10 +42,52 @@
             </svg>
         );
 
-        const UserIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        const UserIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        );
+
+        const MenuIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        );
+
+        const XIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+
+        const SettingsIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        );
+
+        const BellIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+        );
+
+        const MessageCircleIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+        );
+
+        const SendIcon = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
         );
 
@@ -139,6 +180,545 @@
             </svg>
         );
 
+// === HEADER COMPONENT ===
+        const Header = ({ profile, onLogout, showWelcomePopup, setShowWelcomePopup }) => {
+            const [sideMenuOpen, setSideMenuOpen] = useState(false);
+
+            const toggleSideMenu = () => {
+                setSideMenuOpen(!sideMenuOpen);
+            };
+
+            const handleLogout = () => {
+                onLogout();
+                setSideMenuOpen(false);
+            };
+
+            const closeWelcomePopup = () => {
+                setShowWelcomePopup(false);
+                localStorage.setItem('socialspot_welcome_shown', 'true');
+            };
+
+            return (
+                <>
+                    <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
+                        <div className="max-w-2xl mx-auto px-4">
+                            <div className="flex justify-between items-center h-16">
+                                <button
+                                    onClick={toggleSideMenu}
+                                    className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                                >
+                                    <MenuIcon size={24} />
+                                </button>
+
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-orange-500 rounded-xl flex items-center justify-center">
+                                        <span className="text-white font-bold text-lg">SS</span>
+                                    </div>
+                                </div>
+
+                                <div className="w-10"></div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {showWelcomePopup && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+                                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-white font-bold text-2xl">SS</span>
+                                </div>
+                                <h2 className="text-2xl font-bold mb-2">Benvenuto in SocialSpot!</h2>
+                                <p className="text-gray-600 mb-6">
+                                    Ciao {profile?.full_name?.split(' ')[0]}! 👋<br/>
+                                    Scopri eventi fantastici nella tua zona e connettiti con nuove persone.
+                                </p>
+                                <button
+                                    onClick={closeWelcomePopup}
+                                    className="w-full bg-gradient-to-r from-blue-600 to-orange-500 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                                >
+                                    Inizia ad esplorare
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {sideMenuOpen && (
+                        <div className="fixed inset-0 z-50">
+                            <div className="absolute inset-0 bg-black bg-opacity-50" onClick={toggleSideMenu}></div>
+                            
+                            <div className="absolute left-0 top-0 h-full w-80 bg-white shadow-xl transform transition-transform">
+                                <div className="p-6 border-b border-gray-200">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h2 className="text-xl font-bold text-gray-900">Menu</h2>
+                                        <button
+                                            onClick={toggleSideMenu}
+                                            className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                                        >
+                                            <XIcon size={20} />
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-orange-400 flex items-center justify-center text-white font-bold">
+                                            {profile?.username?.substring(0, 2)?.toUpperCase() || "UT"}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{profile?.full_name}</p>
+                                            <p className="text-sm text-gray-500">@{profile?.username}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 space-y-4">
+                                    <button className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                                        <UserIcon size={20} className="text-gray-600" />
+                                        <span className="text-gray-700">Il mio profilo</span>
+                                    </button>
+                                    
+                                    <button className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                                        <CalendarIcon size={20} className="text-gray-600" />
+                                        <span className="text-gray-700">I miei eventi</span>
+                                    </button>
+                                    
+                                    <button className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                                        <BellIcon size={20} className="text-gray-600" />
+                                        <span className="text-gray-700">Notifiche</span>
+                                    </button>
+                                    
+                                    <button className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                                        <SettingsIcon size={20} className="text-gray-600" />
+                                        <span className="text-gray-700">Impostazioni</span>
+                                    </button>
+                                    
+                                    <hr className="my-4" />
+                                    
+                                    <button 
+                                        onClick={handleLogout}
+                                        className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-red-50 transition-colors text-left text-red-600"
+                                    >
+                                        <LogOutIcon size={20} />
+                                        <span>Esci</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        };
+
+        // === CHAT COMPONENT ===
+        const EventChat = ({ eventId, user, participants, onClose }) => {
+            const [messages, setMessages] = useState([]);
+            const [newMessage, setNewMessage] = useState('');
+            const [loading, setLoading] = useState(true);
+            const [sending, setSending] = useState(false);
+            const messagesEndRef = useRef(null);
+
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            };
+
+            useEffect(() => {
+                loadMessages();
+                const interval = setInterval(loadMessages, 3000);
+                return () => clearInterval(interval);
+            }, [eventId]);
+
+            useEffect(() => {
+                scrollToBottom();
+            }, [messages]);
+
+            const loadMessages = async () => {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('event_messages')
+                        .select(`
+                            *,
+                            profiles (username, full_name)
+                        `)
+                        .eq('event_id', eventId)
+                        .order('created_at', { ascending: true });
+                    
+                    if (error) throw error;
+                    setMessages(data || []);
+                } catch (error) {
+                    console.error('Errore nel caricamento messaggi:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const sendMessage = async (e) => {
+                e.preventDefault();
+                if (!newMessage.trim() || sending) return;
+
+                setSending(true);
+                try {
+                    const { error } = await supabaseClient
+                        .from('event_messages')
+                        .insert([{
+                            event_id: eventId,
+                            user_id: user.id,
+                            message: newMessage.trim(),
+                            message_type: 'text'
+                        }]);
+                    
+                    if (error) throw error;
+                    
+                    setNewMessage('');
+                    await loadMessages();
+                } catch (error) {
+                    console.error('Errore invio messaggio:', error);
+                    alert('Errore nell\'invio del messaggio');
+                } finally {
+                    setSending(false);
+                }
+            };
+
+            const formatTime = (timestamp) => {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const isToday = date.toDateString() === now.toDateString();
+                
+                if (isToday) {
+                    return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    return date.toLocaleDateString('it-IT', { 
+                        day: 'numeric', 
+                        month: 'short',
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                            <p className="text-gray-600">Caricamento chat...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="fixed inset-0 bg-white z-50 flex flex-col">
+                    <div className="bg-white border-b border-gray-200 p-4 flex items-center gap-3">
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                        >
+                            <XIcon size={20} />
+                        </button>
+                        <div className="flex-1">
+                            <h2 className="font-semibold text-gray-900">Chat Evento</h2>
+                            <p className="text-sm text-gray-500">
+                                {participants.length} partecipant{participants.length !== 1 ? 'i' : 'e'}
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <UsersIcon size={18} className="text-gray-400" />
+                            <span className="text-sm text-gray-600">{participants.length}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {messages.length === 0 ? (
+                            <div className="text-center py-12">
+                                <MessageCircleIcon size={48} className="mx-auto mb-3 text-gray-300" />
+                                <p className="text-gray-500">Nessun messaggio ancora</p>
+                                <p className="text-sm text-gray-400 mt-1">Inizia la conversazione!</p>
+                            </div>
+                        ) : (
+                            messages.map((message, index) => {
+                                const isOwn = message.user_id === user.id;
+                                const showAuthor = index === 0 || messages[index - 1].user_id !== message.user_id;
+                                
+                                return (
+                                    <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`max-w-[80%] ${isOwn ? 'order-2' : 'order-1'}`}>
+                                            {showAuthor && !isOwn && (
+                                                <p className="text-xs text-gray-500 mb-1 px-3">
+                                                    {message.profiles?.full_name || 'Utente'}
+                                                </p>
+                                            )}
+                                            <div className={`rounded-2xl px-4 py-2 ${
+                                                isOwn 
+                                                    ? 'bg-blue-600 text-white' 
+                                                    : 'bg-gray-100 text-gray-900'
+                                            }`}>
+                                                <p className="text-sm">{message.message}</p>
+                                                <p className={`text-xs mt-1 ${
+                                                    isOwn ? 'text-blue-100' : 'text-gray-500'
+                                                }`}>
+                                                    {formatTime(message.created_at)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    <div className="border-t border-gray-200 p-4">
+                        <form onSubmit={sendMessage} className="flex gap-2">
+                            <input
+                                type="text"
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                placeholder="Scrivi un messaggio..."
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                disabled={sending}
+                            />
+                            <button
+                                type="submit"
+                                disabled={!newMessage.trim() || sending}
+                                className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {sending ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                    <SendIcon size={16} />
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // === EVENT DETAIL COMPONENT ===
+        const EventDetail = ({ event, user, onClose, onUpdate }) => {
+            const [showChat, setShowChat] = useState(false);
+            const [participants, setParticipants] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            const isParticipant = participants.some(p => p.user_id === user?.id);
+            const isOrganizer = event.organizer_id === user?.id;
+            const canAccessChat = isParticipant || isOrganizer;
+
+            useEffect(() => {
+                loadParticipants();
+            }, [event.id]);
+
+            const loadParticipants = async () => {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('event_participants')
+                        .select(`
+                            *,
+                            profiles (username, full_name)
+                        `)
+                        .eq('event_id', event.id)
+                        .eq('status', 'accepted');
+                    
+                    if (error) throw error;
+                    setParticipants(data || []);
+                } catch (error) {
+                    console.error('Errore nel caricamento partecipanti:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleJoinEvent = async () => {
+                if (!user) return alert('Devi effettuare il login per partecipare');
+                
+                try {
+                    if (isParticipant) {
+                        await supabaseClient
+                            .from('event_participants')
+                            .delete()
+                            .eq('event_id', event.id)
+                            .eq('user_id', user.id);
+                    } else {
+                        await supabaseClient
+                            .from('event_participants')
+                            .insert([{ 
+                                event_id: event.id, 
+                                user_id: user.id,
+                                status: 'accepted'
+                            }]);
+                    }
+                    await loadParticipants();
+                    onUpdate && onUpdate();
+                } catch (error) {
+                    console.error('Errore:', error);
+                    alert('Errore durante l\'operazione');
+                }
+            };
+
+            if (showChat && canAccessChat) {
+                return <EventChat 
+                    eventId={event.id} 
+                    user={user} 
+                    participants={participants}
+                    onClose={() => setShowChat(false)} 
+                />;
+            }
+
+            return (
+                <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+                    <div className="bg-white border-b border-gray-200 p-4 flex items-center gap-3 sticky top-0">
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                        >
+                            <XIcon size={20} />
+                        </button>
+                        <h1 className="font-semibold text-lg flex-1">Dettagli Evento</h1>
+                        {canAccessChat && (
+                            <button
+                                onClick={() => setShowChat(true)}
+                                className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                            >
+                                <MessageCircleIcon size={20} />
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="p-6 space-y-6">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{event.title}</h2>
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <span>Organizzato da</span>
+                                <span className="font-medium">{event.profiles?.full_name || 'Utente'}</span>
+                                {event.profiles?.rating && (
+                                    <div className="flex items-center gap-1">
+                                        <StarIcon size={14} fill={true} />
+                                        <span className="text-yellow-600 text-sm">{event.profiles.rating}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="font-semibold text-gray-900 mb-2">Descrizione</h3>
+                            <p className="text-gray-700 leading-relaxed">{event.description}</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                                <CalendarIcon size={20} className="text-blue-600" />
+                                <div>
+                                    <p className="font-medium">Data</p>
+                                    <p className="text-gray-600">
+                                        {new Date(event.event_date).toLocaleDateString('it-IT', { 
+                                            weekday: 'long',
+                                            day: 'numeric', 
+                                            month: 'long',
+                                            year: 'numeric'
+                                        })}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                                <ClockIcon size={20} className="text-green-600" />
+                                <div>
+                                    <p className="font-medium">Orario</p>
+                                    <p className="text-gray-600">{event.event_time?.substring(0, 5)}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                                <MapPinIcon size={20} className="text-red-600" />
+                                <div>
+                                    <p className="font-medium">Luogo</p>
+                                    <p className="text-gray-600">{event.location}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                                <UsersIcon size={20} className="text-purple-600" />
+                                <div>
+                                    <p className="font-medium">Partecipanti</p>
+                                    <p className="text-gray-600">
+                                        {participants.length}/{event.max_participants} persone
+                                    </p>
+                                </div>
+                            </div>
+
+                            {event.price && (
+                                <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
+                                    <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-xs font-bold">€</span>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium">Prezzo</p>
+                                        <p className="text-gray-600">{event.price}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {participants.length > 0 && (
+                            <div>
+                                <h3 className="font-semibold text-gray-900 mb-3">
+                                    Partecipanti ({participants.length})
+                                </h3>
+                                <div className="space-y-2">
+                                    {participants.map(participant => (
+                                        <div key={participant.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-orange-400 flex items-center justify-center text-white text-sm font-bold">
+                                                {participant.profiles?.username?.substring(0, 2)?.toUpperCase() || "U"}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">{participant.profiles?.full_name}</p>
+                                                <p className="text-xs text-gray-500">@{participant.profiles?.username}</p>
+                                            </div>
+                                            {participant.user_id === event.organizer_id && (
+                                                <span className="ml-auto text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                                                    Organizzatore
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 space-y-3">
+                        {canAccessChat && (
+                            <button
+                                onClick={() => setShowChat(true)}
+                                className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <MessageCircleIcon size={20} />
+                                Apri Chat Gruppo
+                            </button>
+                        )}
+                        
+                        {!isOrganizer && (
+                            <button
+                                onClick={handleJoinEvent}
+                                disabled={!isParticipant && participants.length >= event.max_participants}
+                                className={`w-full py-3 rounded-xl font-semibold transition-colors ${
+                                    isParticipant
+                                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        : participants.length >= event.max_participants
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                                }`}
+                            >
+                                {isParticipant 
+                                    ? 'Abbandona evento' 
+                                    : participants.length >= event.max_participants 
+                                    ? 'Evento completo'
+                                    : 'Partecipa'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
         // === AuthForm Component ===
         const AuthForm = ({ onSuccess }) => {
             const [isLogin, setIsLogin] = useState(true);
@@ -182,7 +762,6 @@
                         if (authError) throw authError;
                         
                         if (authData.user) {
-                            // Il profilo viene creato automaticamente dal trigger
                             await new Promise(resolve => setTimeout(resolve, 1000));
                         }
                     }
@@ -293,8 +872,8 @@
             );
         };
 
-        // === EventCard Component ===
-        const EventCard = ({ event, user, onUpdate }) => {
+EventCard Component ===
+        const EventCard = ({ event, user, onUpdate, onClick }) => {
             const categories = [
                 { id: 'aperitivo', name: 'Aperitivi', icon: CoffeeIcon, color: 'bg-orange-100 text-orange-600' },
                 { id: 'cinema', name: 'Cinema', icon: FilmIcon, color: 'bg-purple-100 text-purple-600' },
@@ -307,7 +886,8 @@
             const isParticipant = event.event_participants?.some(p => p.user_id === user?.id);
             const participantCount = event.current_participants || 1;
 
-            const handleJoinEvent = async () => {
+            const handleJoinEvent = async (e) => {
+                e.stopPropagation();
                 if (!user) return alert('Devi effettuare il login per partecipare');
                 
                 try {
@@ -320,7 +900,11 @@
                     } else {
                         await supabaseClient
                             .from('event_participants')
-                            .insert([{ event_id: event.id, user_id: user.id }]);
+                            .insert([{ 
+                                event_id: event.id, 
+                                user_id: user.id,
+                                status: 'accepted'
+                            }]);
                     }
                     onUpdate();
                 } catch (error) {
@@ -330,7 +914,10 @@
             };
 
             return (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 hover:shadow-lg transition-all">
+                <div 
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 hover:shadow-lg transition-all cursor-pointer"
+                    onClick={onClick}
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="flex gap-3">
                             <div className={`p-3 rounded-xl ${categoryInfo?.color || 'bg-gray-100'}`}>
@@ -445,29 +1032,27 @@
                 setLoading(true);
                 
                 try {
-                    const { error } = await supabaseClient
+                    const { data: newEvent, error: eventError } = await supabaseClient
                         .from('events')
                         .insert([{
                             ...formData,
-                            organizer_id: user.id
-                            // current_participants è gestito dal default value (1) nel database
-                        }]);
+                            organizer_id: user.id,
+                            current_participants: 1
+                        }])
+                        .select()
+                        .single();
                     
-                    if (error) throw error;
+                    if (eventError) throw eventError;
                     
-                    // Aggiungi automaticamente l'organizzatore come partecipante
-                    await supabaseClient
+                    const { error: participantError } = await supabaseClient
                         .from('event_participants')
                         .insert([{ 
-                            event_id: (await supabaseClient
-                                .from('events')
-                                .select('id')
-                                .eq('organizer_id', user.id)
-                                .order('created_at', { ascending: false })
-                                .limit(1)
-                                .single()).data.id,
-                            user_id: user.id 
+                            event_id: newEvent.id,
+                            user_id: user.id,
+                            status: 'accepted'
                         }]);
+                    
+                    if (participantError) throw participantError;
                     
                     onSuccess();
                     onClose();
@@ -604,47 +1189,154 @@
         };
 
         // === ProfileSection Component ===
-        const ProfileSection = ({ profile, eventsCreated, eventsJoined }) => (
-            <div className="p-6 pb-24">
-                <div className="flex flex-col items-center">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-600 to-orange-400 flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
-                        {profile?.username?.substring(0, 2)?.toUpperCase() || "UT"}
-                    </div>
-                    <h2 className="text-2xl font-bold">{profile?.full_name}</h2>
-                    <p className="text-gray-600">@{profile?.username}</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                        {profile?.city} {profile?.district ? `- ${profile.district}` : ""}
-                    </p>
-                    <div className="flex items-center gap-1 mt-2">
-                        <StarIcon size={20} fill={true} />
-                        <span className="font-semibold text-lg">{profile?.rating || 5.0}</span>
-                    </div>
-                </div>
+        const ProfileSection = ({ profile, eventsCreated, eventsJoined, userCreatedEvents, onEventClick }) => {
+            const [showCreatedEvents, setShowCreatedEvents] = useState(false);
+
+            const formatEventDate = (dateStr) => {
+                const date = new Date(dateStr);
+                const now = new Date();
+                const isPast = date < now;
                 
-                <div className="mt-8 space-y-4">
-                    <div className="bg-white rounded-2xl p-6 shadow-sm">
-                        <h3 className="text-lg font-semibold mb-4">Le tue statistiche</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-600">Eventi organizzati</span>
-                                <span className="font-bold text-xl">{eventsCreated}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-600">Eventi partecipati</span>
-                                <span className="font-bold text-xl">{eventsJoined}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-600">Valutazione media</span>
-                                <span className="font-bold flex items-center gap-1">
-                                    <StarIcon size={16} fill={true} />
-                                    {profile?.rating || 5.0}
-                                </span>
-                            </div>
+                return {
+                    formatted: date.toLocaleDateString('it-IT', { 
+                        day: 'numeric', 
+                        month: 'short',
+                        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+                    }),
+                    isPast
+                };
+            };
+
+            return (
+                <div className="p-6 pb-24">
+                    <div className="flex flex-col items-center">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-600 to-orange-400 flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
+                            {profile?.username?.substring(0, 2)?.toUpperCase() || "UT"}
+                        </div>
+                        <h2 className="text-2xl font-bold">{profile?.full_name}</h2>
+                        <p className="text-gray-600">@{profile?.username}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {profile?.city} {profile?.district ? `- ${profile.district}` : ""}
+                        </p>
+                        <div className="flex items-center gap-1 mt-2">
+                            <StarIcon size={20} fill={true} />
+                            <span className="font-semibold text-lg">{profile?.rating || 5.0}</span>
                         </div>
                     </div>
+                    
+                    <div className="mt-8 space-y-4">
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-lg font-semibold mb-4">Le tue statistiche</h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">Eventi organizzati</span>
+                                    <span className="font-bold text-xl text-blue-600">{eventsCreated}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">Eventi partecipati</span>
+                                    <span className="font-bold text-xl text-green-600">{eventsJoined}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">Valutazione media</span>
+                                    <span className="font-bold flex items-center gap-1">
+                                        <StarIcon size={16} fill={true} />
+                                        {profile?.rating || 5.0}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold">I tuoi eventi</h3>
+                                {eventsCreated > 0 && (
+                                    <button
+                                        onClick={() => setShowCreatedEvents(!showCreatedEvents)}
+                                        className="text-blue-600 text-sm font-medium hover:text-blue-700"
+                                    >
+                                        {showCreatedEvents ? 'Nascondi' : 'Mostra tutti'}
+                                    </button>
+                                )}
+                            </div>
+                            
+                            {eventsCreated === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    <CalendarIcon size={48} className="mx-auto mb-3 text-gray-300" />
+                                    <p>Non hai ancora creato eventi</p>
+                                    <p className="text-sm mt-1">Inizia creando il tuo primo evento!</p>
+                                </div>
+                            ) : !showCreatedEvents ? (
+                                <div className="text-center py-4">
+                                    <p className="text-gray-600">
+                                        Hai creato <span className="font-semibold text-blue-600">{eventsCreated}</span> eventi
+                                    </p>
+                                    <button
+                                        onClick={() => setShowCreatedEvents(true)}
+                                        className="mt-2 text-blue-600 text-sm hover:text-blue-700"
+                                    >
+                                        Visualizza lista →
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3 max-h-80 overflow-y-auto">
+                                    {userCreatedEvents?.map(event => {
+                                        const dateInfo = formatEventDate(event.event_date);
+                                        return (
+                                            <div 
+                                                key={event.id}
+                                                onClick={() => onEventClick && onEventClick(event)}
+                                                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="font-semibold text-gray-900 flex-1">{event.title}</h4>
+                                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                                        dateInfo.isPast 
+                                                            ? 'bg-gray-100 text-gray-600' 
+                                                            : 'bg-green-100 text-green-700'
+                                                    }`}>
+                                                        {dateInfo.isPast ? 'Passato' : 'Futuro'}
+                                                    </span>
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <CalendarIcon size={14} />
+                                                        <span>{dateInfo.formatted}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <ClockIcon size={14} />
+                                                        <span>{event.event_time?.substring(0, 5)}</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-1">
+                                                        <MapPinIcon size={14} />
+                                                        <span className="truncate">{event.location}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <UsersIcon size={14} />
+                                                        <span>{event.current_participants || 1}/{event.max_participants}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    }) || []}
+                                </div>
+                            )}
+                        </div>
+
+                        {eventsCreated >= 5 && (
+                            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-4 text-white text-center">
+                                <div className="text-2xl mb-2">🏆</div>
+                                <h4 className="font-semibold">Organizzatore Esperto</h4>
+                                <p className="text-sm opacity-90">Hai creato più di 5 eventi!</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        };
 
         // === BottomNav Component ===
         const BottomNav = ({ currentView, setCurrentView }) => (
@@ -699,11 +1391,14 @@
             const [user, setUser] = useState(null);
             const [profile, setProfile] = useState(null);
             const [events, setEvents] = useState([]);
+            const [userCreatedEvents, setUserCreatedEvents] = useState([]);
             const [loading, setLoading] = useState(true);
             const [searchTerm, setSearchTerm] = useState('');
             const [showCreateForm, setShowCreateForm] = useState(false);
             const [selectedCategory, setSelectedCategory] = useState(null);
             const [userStats, setUserStats] = useState({ created: 0, joined: 0 });
+            const [selectedEvent, setSelectedEvent] = useState(null);
+            const [showWelcomePopup, setShowWelcomePopup] = useState(false);
 
             const categories = [
                 { id: 'aperitivo', name: 'Aperitivi', icon: CoffeeIcon, color: 'bg-orange-100 text-orange-600' },
@@ -720,8 +1415,17 @@
                 if (user) {
                     loadEvents();
                     loadUserStats();
+                    loadUserCreatedEvents();
+                    checkWelcomePopup();
                 }
             }, [user]);
+
+            const checkWelcomePopup = () => {
+                const welcomeShown = localStorage.getItem('socialspot_welcome_shown');
+                if (!welcomeShown) {
+                    setShowWelcomePopup(true);
+                }
+            };
 
             const checkUser = async () => {
                 try {
@@ -759,16 +1463,32 @@
                         .select(`
                             *,
                             profiles!organizer_id (username, full_name, rating),
-                            event_participants (user_id)
+                            event_participants (user_id, status)
                         `)
                         .gte('event_date', new Date().toISOString().split('T')[0])
                         .order('event_date', { ascending: true });
                     
                     if (error) throw error;
-                    console.log('Eventi caricati:', data);
                     setEvents(data || []);
                 } catch (error) {
                     console.error('Errore nel caricamento eventi:', error);
+                }
+            };
+
+            const loadUserCreatedEvents = async () => {
+                if (!user) return;
+                
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('events')
+                        .select('*')
+                        .eq('organizer_id', user.id)
+                        .order('event_date', { ascending: false });
+                    
+                    if (error) throw error;
+                    setUserCreatedEvents(data || []);
+                } catch (error) {
+                    console.error('Errore nel caricamento eventi creati:', error);
                 }
             };
 
@@ -776,28 +1496,33 @@
                 if (!user) return;
                 
                 try {
-                    // Eventi creati
                     const { count: created } = await supabaseClient
                         .from('events')
                         .select('*', { count: 'exact', head: true })
                         .eq('organizer_id', user.id);
                     
-                    // Eventi partecipati
-                    const { count: joined } = await supabaseClient
+                    const { data: participatedEvents } = await supabaseClient
                         .from('event_participants')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('user_id', user.id);
+                        .select('event_id, events!inner(organizer_id)')
+                        .eq('user_id', user.id)
+                        .eq('status', 'accepted')
+                        .neq('events.organizer_id', user.id);
                     
-                    setUserStats({ created: created || 0, joined: joined || 0 });
+                    const joinedCount = participatedEvents?.length || 0;
                     
-                    // Aggiorna il profilo con le statistiche
+                    setUserStats({ 
+                        created: created || 0, 
+                        joined: joinedCount 
+                    });
+                    
                     await supabaseClient
                         .from('profiles')
                         .update({ 
                             events_created: created || 0,
-                            events_joined: joined || 0 
+                            events_joined: joinedCount
                         })
                         .eq('id', user.id);
+                        
                 } catch (error) {
                     console.error('Errore nel caricamento statistiche:', error);
                 }
@@ -808,7 +1533,9 @@
                 setUser(null);
                 setProfile(null);
                 setEvents([]);
+                setUserCreatedEvents([]);
                 setCurrentView('home');
+                localStorage.removeItem('socialspot_welcome_shown');
             };
 
             const filteredEvents = events.filter(event => {
@@ -824,6 +1551,10 @@
 
             const getCategoryCount = (categoryId) => {
                 return events.filter(event => event.category_id === categoryId).length;
+            };
+
+            const handleEventClick = (event) => {
+                setSelectedEvent(event);
             };
 
             if (loading) {
@@ -843,31 +1574,31 @@
                 return <AuthForm onSuccess={checkUser} />;
             }
 
+            if (selectedEvent) {
+                return <EventDetail 
+                    event={selectedEvent} 
+                    user={user} 
+                    onClose={() => setSelectedEvent(null)}
+                    onUpdate={() => {
+                        loadEvents();
+                        loadUserStats();
+                        loadUserCreatedEvents();
+                    }}
+                />;
+            }
+
             return (
                 <div className="min-h-screen pb-20 bg-gray-50">
-                    {/* Header */}
-                    <header className="bg-gradient-to-r from-blue-600 to-orange-500 text-white p-6 rounded-b-3xl shadow-lg">
-                        <div className="flex justify-between items-center mb-4">
-                            <div>
-                                <h1 className="text-2xl font-bold">Ciao {profile?.full_name?.split(' ')[0]}! 👋</h1>
-                                <p className="text-blue-100">Scopri eventi interessanti nella tua zona</p>
-                            </div>
-                            <button 
-                                onClick={handleLogout} 
-                                className="bg-white/20 backdrop-blur-sm p-2 rounded-lg hover:bg-white/30 transition-colors"
-                                title="Logout"
-                            >
-                                <LogOutIcon size={20} />
-                            </button>
-                        </div>
-                    </header>
+                    <Header 
+                        profile={profile}
+                        onLogout={handleLogout}
+                        showWelcomePopup={showWelcomePopup}
+                        setShowWelcomePopup={setShowWelcomePopup}
+                    />
 
-                    {/* Main Content */}
-                    <main className="px-4 max-w-2xl mx-auto -mt-6">
-                        {/* Home View */}
+                    <main className="px-4 max-w-2xl mx-auto pt-6">
                         {currentView === 'home' && (
                             <div>
-                                {/* Categories */}
                                 <div className="grid grid-cols-2 gap-3 mb-6">
                                     {categories.map(cat => (
                                         <CategoryCard
@@ -881,7 +1612,6 @@
                                     ))}
                                 </div>
 
-                                {/* Events */}
                                 <h2 className="text-xl font-bold mb-4 text-gray-800">
                                     {selectedCategory 
                                         ? `Eventi ${categories.find(c => c.id === selectedCategory)?.name}`
@@ -905,6 +1635,7 @@
                                             key={event.id} 
                                             event={event} 
                                             user={user} 
+                                            onClick={() => handleEventClick(event)}
                                             onUpdate={() => {
                                                 loadEvents();
                                                 loadUserStats();
@@ -915,7 +1646,6 @@
                             </div>
                         )}
 
-                        {/* Search View */}
                         {currentView === 'search' && (
                             <div className="pt-6">
                                 <div className="mb-6">
@@ -946,6 +1676,7 @@
                                             key={event.id} 
                                             event={event} 
                                             user={user} 
+                                            onClick={() => handleEventClick(event)}
                                             onUpdate={() => {
                                                 loadEvents();
                                                 loadUserStats();
@@ -956,16 +1687,16 @@
                             </div>
                         )}
 
-                        {/* Profile View */}
                         {currentView === 'profile' && profile && (
                             <ProfileSection 
                                 profile={profile} 
                                 eventsCreated={userStats.created}
                                 eventsJoined={userStats.joined}
+                                userCreatedEvents={userCreatedEvents}
+                                onEventClick={handleEventClick}
                             />
                         )}
 
-                        {/* Create Event Form */}
                         {(currentView === 'create' || showCreateForm) && (
                             <CreateEventForm
                                 user={user}
@@ -976,6 +1707,7 @@
                                 onSuccess={() => {
                                     loadEvents();
                                     loadUserStats();
+                                    loadUserCreatedEvents();
                                     setShowCreateForm(false);
                                     setCurrentView('home');
                                 }}
@@ -983,14 +1715,15 @@
                         )}
                     </main>
 
-                    {/* Bottom Navigation */}
                     <BottomNav currentView={currentView} setCurrentView={setCurrentView} />
                 </div>
             );
         };
 
-        // Render App
         ReactDOM.createRoot(document.getElementById('root')).render(<SocialSpot />);
     </script>
 </body>
 </html>
+
+
+
