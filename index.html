@@ -3,599 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SocialSpot - Connettiti con eventi locali nella tua zona">
+    <meta name="keywords" content="eventi, social, Milano, networking, incontri">
     <title>SocialSpot - Connettiti con eventi locali</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SocialSpot">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23f97316'/%3E%3Ctext x='50' y='60' font-family='Arial' font-size='40' font-weight='bold' text-anchor='middle' fill='white'%3ESS%3C/text%3E%3C/svg%3E">
+    
+    <!-- External Libraries -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #f8fafc;
-            color: #1a202c;
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Geolocation API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNLrJhOMz6idD0T1g9oMbQ6hKCIrm_BUY&libraries=places"></script>
+    
+    <!-- Push Notifications -->
+    <script>
+        // Service Worker Registration for Push Notifications
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('Service Worker registered:', registration);
+            }).catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+            });
         }
-        
-        .min-h-screen { min-height: 100vh; }
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .flex-1 { flex: 1 1 0%; }
-        .items-center { align-items: center; }
-        .justify-center { justify-content: center; }
-        .justify-between { justify-content: space-between; }
-        .text-center { text-align: center; }
-        .max-w-2xl { max-width: 42rem; margin: 0 auto; }
-        .max-w-md { max-width: 28rem; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
-        
-        .p-4 { padding: 1rem; }
-        .p-6 { padding: 1.5rem; }
-        .p-8 { padding: 2rem; }
-        .px-4 { padding-left: 1rem; padding-right: 1rem; }
-        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mb-8 { margin-bottom: 2rem; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mt-6 { margin-top: 1.5rem; }
-        .pb-20 { padding-bottom: 5rem; }
-        
-        .w-full { width: 100%; }
-        .w-10 { width: 2.5rem; }
-        .w-16 { width: 4rem; }
-        .w-20 { width: 5rem; }
-        .h-10 { height: 2.5rem; }
-        .h-16 { height: 4rem; }
-        .h-20 { height: 5rem; }
-        
-        .bg-white { background-color: white; }
-        .bg-gray-50 { background-color: #f9fafb; }
-        .bg-blue-600 { background-color: #2563eb; }
-        .bg-orange-500 { background-color: #f97316; }
-        .bg-gradient { background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); }
-        
-        .text-white { color: white; }
-        .text-gray-600 { color: #4b5563; }
-        .text-gray-800 { color: #1f2937; }
-        .text-gray-900 { color: #111827; }
-        .text-blue-600 { color: #2563eb; }
-        
-        .text-sm { font-size: 0.875rem; }
-        .text-lg { font-size: 1.125rem; }
-        .text-xl { font-size: 1.25rem; }
-        .text-2xl { font-size: 1.5rem; }
-        .text-3xl { font-size: 1.875rem; }
-        .font-medium { font-weight: 500; }
-        .font-semibold { font-weight: 600; }
-        .font-bold { font-weight: 700; }
-        
-        .border { border-width: 1px; }
-        .border-gray-300 { border-color: #d1d5db; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .rounded-xl { border-radius: 0.75rem; }
-        .rounded-2xl { border-radius: 1rem; }
-        
-        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        
-        .sticky { position: sticky; }
-        .fixed { position: fixed; }
-        .top-0 { top: 0; }
-        .bottom-0 { bottom: 0; }
-        .left-0 { left: 0; }
-        .right-0 { right: 0; }
-        .z-40 { z-index: 40; }
-        
-        .grid { display: grid; }
-        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .gap-3 { gap: 0.75rem; }
-        .gap-4 { gap: 1rem; }
-        
-        .space-y-4 > * + * { margin-top: 1rem; }
-        
-        .cursor-pointer { cursor: pointer; }
-        .transition-all { transition: all 0.15s ease-in-out; }
-        .transition-colors { transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out; }
-        
-        .hover\:bg-gray-100:hover { background-color: #f3f4f6; }
-        .hover\:text-gray-900:hover { color: #111827; }
-        .hover\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .hover\:opacity-90:hover { opacity: 0.9; }
-        
-        .focus\:ring-2:focus { box-shadow: 0 0 0 2px #3b82f6; }
-        .focus\:border-transparent:focus { border-color: transparent; }
-        
-        .disabled\:opacity-50:disabled { opacity: 0.5; }
-        .disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
-        
-        .animate-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: none;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-        
-        .btn-secondary {
-            background-color: #f3f4f6;
-            color: #374151;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #e5e7eb;
-        }
-        
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-        
-        .input:focus {
-            outline: none;
-            border-color: transparent;
-            box-shadow: 0 0 0 2px #3b82f6;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
-        }
-        
-        .card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    </script>
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        // Supabase configuration
-        const supabaseUrl = 'https://wsmjnssfmujdfgthyizw.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWpuc3NmbXVqZGZndGh5aXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4ODA3NjIsImV4cCI6MjA2NjQ1Njc2Mn0.t91X-fGIolFBPnhr5_sexJMqzgdCDmXuEUXiL_pFId4';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-        // Icons
-        const HomeIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-        );
-
-        const SearchIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-            </svg>
-        );
-
-        const PlusIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-        );
-
-        const UserIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-        );
-
-        const CalendarIcon = () => (
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-        );
-
-        // Auth Form Component
-        const AuthForm = ({ onSuccess }) => {
-            const [isLogin, setIsLogin] = useState(true);
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState('');
-            const [formData, setFormData] = useState({
-                email: '',
-                password: '',
-                username: '',
-                fullName: '',
-                city: 'Milano',
-                district: ''
-            });
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                setError('');
-                
-                try {
-                    if (isLogin) {
-                        const { error } = await supabaseClient.auth.signInWithPassword({
-                            email: formData.email,
-                            password: formData.password
-                        });
-                        if (error) throw error;
-                    } else {
-                        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-                            email: formData.email,
-                            password: formData.password,
-                            options: {
-                                data: {
-                                    username: formData.username,
-                                    full_name: formData.fullName,
-                                    city: formData.city,
-                                    district: formData.district
-                                }
-                            }
-                        });
-                        
-                        if (authError) throw authError;
-                        
-                        if (authData.user) {
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                        }
-                    }
-                    onSuccess();
-                } catch (error) {
-                    setError(error.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            return (
-                <div className="min-h-screen bg-gradient flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-                        <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-gradient rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <span className="text-white font-bold text-3xl">SS</span>
-                            </div>
-                            <h1 className="text-3xl font-bold text-gray-900">SocialSpot</h1>
-                            <p className="text-gray-600 mt-2">Connettiti con eventi locali</p>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                                <input 
-                                    type="email" 
-                                    required 
-                                    value={formData.email}
-                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                    className="input"
-                                />
-                            </div>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Password</label>
-                                <input 
-                                    type="password" 
-                                    required 
-                                    value={formData.password}
-                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                    className="input"
-                                />
-                            </div>
-                            
-                            {!isLogin && (
-                                <>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-600 mb-1">Username</label>
-                                        <input 
-                                            type="text" 
-                                            required 
-                                            value={formData.username}
-                                            onChange={e => setFormData({ ...formData, username: e.target.value })}
-                                            className="input"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-600 mb-1">Nome completo</label>
-                                        <input 
-                                            type="text" 
-                                            required 
-                                            value={formData.fullName}
-                                            onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                                            className="input"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-600 mb-1">Quartiere</label>
-                                        <input 
-                                            type="text" 
-                                            value={formData.district}
-                                            onChange={e => setFormData({ ...formData, district: e.target.value })}
-                                            placeholder="es. Navigli"
-                                            className="input"
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            
-                            {error && (
-                                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">{error}</div>
-                            )}
-                            
-                            <button 
-                                type="submit" 
-                                disabled={loading}
-                                className="btn btn-primary w-full"
-                            >
-                                {loading ? 'Caricamento...' : (isLogin ? 'Accedi' : 'Registrati')}
-                            </button>
-                        </form>
-                        
-                        <div className="mt-6 text-center">
-                            <button 
-                                onClick={() => { setIsLogin(!isLogin); setError(''); }}
-                                className="text-blue-600 hover:underline"
-                            >
-                                {isLogin ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'}
-                            </button>
-                        </div>
-                    </div>
+    <div id="root">
+        <!-- Loading Screen -->
+        <div id="initial-loader" class="loader-screen">
+            <div class="loader-content">
+                <div class="app-logo">
+                    <div class="logo-icon">SS</div>
+                    <h1 class="logo-text">SocialSpot</h1>
                 </div>
-            );
-        };
+                <div class="loader-spinner"></div>
+                <p class="loader-text">Caricamento...</p>
+            </div>
+        </div>
+    </div>
 
-        // Bottom Navigation
-        const BottomNav = ({ currentView, setCurrentView }) => (
-            <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white shadow-lg rounded-t-2xl">
-                <div className="flex justify-around py-3">
-                    <button 
-                        onClick={() => setCurrentView('home')}
-                        className={`flex flex-col items-center p-2 transition-colors ${
-                            currentView === 'home' ? 'text-blue-600' : 'text-gray-400'
-                        }`}
-                    >
-                        <HomeIcon />
-                        <span className="text-xs mt-1">Eventi</span>
-                    </button>
-                    
-                    <button 
-                        onClick={() => setCurrentView('search')}
-                        className={`flex flex-col items-center p-2 transition-colors ${
-                            currentView === 'search' ? 'text-blue-600' : 'text-gray-400'
-                        }`}
-                    >
-                        <SearchIcon />
-                        <span className="text-xs mt-1">Cerca</span>
-                    </button>
-                    
-                    <button 
-                        onClick={() => setCurrentView('create')}
-                        className="flex flex-col items-center p-2"
-                    >
-                        <div className="bg-gradient text-white rounded-full p-3 shadow-lg">
-                            <PlusIcon />
-                        </div>
-                        <span className="text-xs mt-1 text-orange-500">Crea</span>
-                    </button>
-                    
-                    <button 
-                        onClick={() => setCurrentView('profile')}
-                        className={`flex flex-col items-center p-2 transition-colors ${
-                            currentView === 'profile' ? 'text-blue-600' : 'text-gray-400'
-                        }`}
-                    >
-                        <UserIcon />
-                        <span className="text-xs mt-1">Profilo</span>
-                    </button>
-                </div>
-            </nav>
-        );
-
-        // Main App Content
-        const AppContent = ({ user, currentView, setCurrentView }) => {
-            return (
-                <div className="min-h-screen pb-20 bg-gray-50">
-                    {/* Header */}
-                    <header className="bg-white shadow-sm sticky top-0 z-40">
-                        <div className="max-w-2xl px-4">
-                            <div className="flex justify-between items-center h-16">
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 bg-gradient rounded-xl flex items-center justify-center">
-                                        <span className="text-white font-bold text-lg">SS</span>
-                                    </div>
-                                </div>
-                                <h1 className="text-xl font-bold text-gray-900">SocialSpot</h1>
-                                <div className="w-10"></div>
-                            </div>
-                        </div>
-                    </header>
-
-                    {/* Main Content */}
-                    <main className="px-4 max-w-2xl pt-6">
-                        {currentView === 'home' && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-6 text-gray-800">Eventi nelle vicinanze</h2>
-                                
-                                <div className="text-center py-12 card p-6">
-                                    <CalendarIcon />
-                                    <h3 className="text-xl font-semibold mt-4 mb-2">Benvenuto in SocialSpot!</h3>
-                                    <p className="text-gray-600 mb-6">
-                                        Sei collegato con successo. L'app è pronta per essere utilizzata!
-                                    </p>
-                                    <button 
-                                        onClick={() => setCurrentView('create')}
-                                        className="btn btn-primary"
-                                    >
-                                        Crea il tuo primo evento
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {currentView === 'search' && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-6 text-gray-800">Cerca Eventi</h2>
-                                <div className="mb-6">
-                                    <input
-                                        type="text"
-                                        placeholder="Cerca eventi, luoghi o categorie..."
-                                        className="input"
-                                    />
-                                </div>
-                                <div className="text-center py-12 card p-6">
-                                    <SearchIcon />
-                                    <p className="text-gray-500 mt-4">Inizia a cercare eventi nella tua zona</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {currentView === 'create' && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-6 text-gray-800">Crea Evento</h2>
-                                <div className="card p-6">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-600 mb-1">Titolo evento</label>
-                                            <input type="text" placeholder="es. Aperitivo ai Navigli" className="input" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-600 mb-1">Descrizione</label>
-                                            <textarea rows="3" placeholder="Descrivi il tuo evento..." className="input"></textarea>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-600 mb-1">Luogo</label>
-                                            <input type="text" placeholder="es. Bar Centrale, Via Roma 1" className="input" />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-600 mb-1">Data</label>
-                                                <input type="date" className="input" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-600 mb-1">Ora</label>
-                                                <input type="time" className="input" />
-                                            </div>
-                                        </div>
-                                        <button className="btn btn-primary w-full">
-                                            Crea Evento
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {currentView === 'profile' && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-6 text-gray-800">Il tuo Profilo</h2>
-                                <div className="card p-6 text-center">
-                                    <div className="w-16 h-16 bg-gradient rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <span className="text-white font-bold text-xl">
-                                            {user?.user_metadata?.full_name?.substring(0, 2)?.toUpperCase() || "UT"}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-xl font-semibold">
-                                        {user?.user_metadata?.full_name || 'Utente'}
-                                    </h3>
-                                    <p className="text-gray-600">
-                                        @{user?.user_metadata?.username || 'utente'}
-                                    </p>
-                                    <p className="text-sm text-gray-500 mt-2">
-                                        Milano {user?.user_metadata?.district ? `- ${user.user_metadata.district}` : ""}
-                                    </p>
-                                    
-                                    <div className="mt-6 pt-6 border-t border-gray-200">
-                                        <button 
-                                            onClick={async () => {
-                                                await supabaseClient.auth.signOut();
-                                                window.location.reload();
-                                            }}
-                                            className="btn btn-secondary"
-                                        >
-                                            Disconnettiti
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </main>
-
-                    <BottomNav currentView={currentView} setCurrentView={setCurrentView} />
-                </div>
-            );
-        };
-
-        // Main App Component
-        const SocialSpot = () => {
-            const [user, setUser] = useState(null);
-            const [loading, setLoading] = useState(true);
-            const [currentView, setCurrentView] = useState('home');
-
-            useEffect(() => {
-                checkUser();
-            }, []);
-
-            const checkUser = async () => {
-                try {
-                    const { data: { user } } = await supabaseClient.auth.getUser();
-                    if (user) {
-                        setUser(user);
-                    }
-                } catch (error) {
-                    console.error('Errore nel controllo utente:', error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (loading) {
-                return (
-                    <div className="min-h-screen bg-gradient flex items-center justify-center">
-                        <div className="bg-white rounded-2xl shadow-xl px-8 py-8">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 bg-gradient rounded-xl animate-spin"></div>
-                                <span className="text-2xl font-bold text-gray-800">Caricamento...</span>
-                            </div>
-                        </div>
-                    </div>
-                );
+    <!-- Components and App Logic -->
+    <script type="text/babel" src="components.js"></script>
+    <script type="text/babel" src="app.js"></script>
+    
+    <!-- Analytics & Monitoring -->
+    <script>
+        // Analytics placeholder per fase MVP
+        window.analytics = {
+            track: (event, properties) => {
+                console.log('Analytics:', event, properties);
             }
-
-            if (!user) {
-                return <AuthForm onSuccess={checkUser} />;
-            }
-
-            return <AppContent user={user} currentView={currentView} setCurrentView={setCurrentView} />;
         };
-
-        // Render the app
-        ReactDOM.render(<SocialSpot />, document.getElementById('root'));
+        
+        // Error monitoring
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+        });
+        
+        // Performance monitoring
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log('Load time:', perfData.loadEventEnd - perfData.fetchStart);
+            }, 100);
+        });
     </script>
 </body>
 </html>
