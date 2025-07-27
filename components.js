@@ -1697,3 +1697,114 @@ const EventDetailModal = memo(({ supabase, event, onClose, user }) => {
                                    fontSize: 'var(--font-size-sm)',
                                    fontWeight: 'var(--font-weight-medium)',
                                    transition: 'all 0.2s ease',
+                                }}
+                           >
+                               <i className={tab.icon} style={{ marginRight: 6 }} />
+                               {tab.label}
+                               {tab.count !== undefined && (
+                                   <span style={{
+                                       background: 'var(--color-secondary-500)',
+                                       color: 'white',
+                                       borderRadius: 8,
+                                       padding: '2px 8px',
+                                       fontSize: 11,
+                                       marginLeft: 4
+                                   }}>{tab.count}</span>
+                               )}
+                           </button>
+                       ))}
+                   </div>
+
+                   {/* TAB CONTENT */}
+                   {activeTab === 'details' && (
+                       <div className="event-details-tab">
+                           <div style={{ marginTop: 20, color: 'var(--color-text-muted)', fontSize: 14 }}>
+                               Creato da: <b>{event.creator_name || "Organizzatore"}</b>
+                           </div>
+                       </div>
+                   )}
+
+                   {activeTab === 'comments' && (
+                       <div className="comments-section">
+                           <h4 className="section-title-small">
+                               <i className="fas fa-comments" style={{ marginRight: 6 }} />
+                               Commenti ({comments.length})
+                           </h4>
+                           <div className="comments-list">
+                               {comments.length === 0 ? (
+                                   <div style={{
+                                       color: 'var(--color-text-muted)',
+                                       padding: '20px 0',
+                                       textAlign: 'center'
+                                   }}>
+                                       <i className="fas fa-comment-slash" style={{ fontSize: '2rem', marginBottom: 12 }}></i>
+                                       <p>Nessun commento ancora.</p>
+                                   </div>
+                               ) : (
+                                   comments.map((c, idx) => (
+                                       <div key={c.id || idx} className="comment-item animate-fade-in-up">
+                                           <div className="comment-header">
+                                               <span className="comment-author">{c.profiles?.username || 'Utente'}</span>
+                                               <span className="comment-time">
+                                                   {new Date(c.created_at).toLocaleString('it-IT', {
+                                                       day: '2-digit', month: '2-digit',
+                                                       hour: '2-digit', minute: '2-digit'
+                                                   })}
+                                               </span>
+                                           </div>
+                                           <div className="comment-content">{c.content}</div>
+                                       </div>
+                                   ))
+                               )}
+                           </div>
+                           {/* Form commento */}
+                           <form onSubmit={handleSubmitComment} className="comment-form" style={{ marginTop: 16 }}>
+                               <input
+                                   type="text"
+                                   className="form-input"
+                                   placeholder="Aggiungi un commento..."
+                                   value={newComment}
+                                   onChange={e => setNewComment(e.target.value)}
+                                   maxLength={500}
+                                   disabled={posting}
+                                   style={{ flex: 1 }}
+                               />
+                               <button
+                                   type="submit"
+                                   className="btn-secondary"
+                                   disabled={posting || !newComment.trim()}
+                                   title="Pubblica"
+                                   style={{ marginLeft: 8 }}
+                               >
+                                   {posting
+                                       ? <i className="fas fa-spinner fa-spin"></i>
+                                       : <i className="fas fa-paper-plane"></i>
+                                   }
+                               </button>
+                           </form>
+                           {newComment.length > 450 && (
+                               <div style={{
+                                   fontSize: 12,
+                                   color: 'var(--color-text-muted)',
+                                   marginTop: 4
+                               }}>
+                                   {500 - newComment.length} caratteri rimanenti
+                               </div>
+                           )}
+                       </div>
+                   )}
+
+                   {activeTab === 'chat' && (
+                       <EventChat
+                           supabase={supabase}
+                           eventId={event.id}
+                           user={user}
+                           isParticipant={isJoined}
+                       />
+                   )}
+               </div>
+           </div>
+       </div>
+   );
+});
+
