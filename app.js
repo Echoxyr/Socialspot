@@ -4,9 +4,9 @@
  * Questa è l'entrypoint dell'applicazione; le componenti sono definite in components.js.
  */
 
-// Sostituire con le proprie credenziali Supabase
-const SUPABASE_URL = 'INSERISCI_LA_TUA_URL_SUPABASE';
-const SUPABASE_ANON_KEY = 'INSERISCI_LA_TUA_ANON_KEY';
+// 🔹 Supabase configurato con i TUOI dati
+const SUPABASE_URL = 'https://wsmjnssfmujdfgthyizw.supabase.co';
+const SUPABASE_ANON_KEY = 'FN8Smb6ctdXKkCP+1AGWEpVDqgPdACqMfgmXuqPHQXqhTdm3M9/oV339YAUpmL/I2Oa5oVCZrz/tOfHyIagMDg==';
 
 // Inizializza il client Supabase globale
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -16,19 +16,16 @@ function App() {
     const [page, setPage] = React.useState('feed');
     const [initializing, setInitializing] = React.useState(true);
     const [theme, setTheme] = React.useState(() => {
-        // Carica tema da localStorage o utilizza preferenza media
         const stored = localStorage.getItem('theme');
         if (stored) return stored;
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     });
 
-    // Gestisce il tema applicando un attributo data-theme al body
     React.useEffect(() => {
         document.body.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
     }, [theme]);
 
-    // Gestisce l'inizializzazione e le sessioni utente
     React.useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
@@ -40,7 +37,6 @@ function App() {
         return () => subscription.unsubscribe();
     }, []);
 
-    // Nasconde lo spinner iniziale una volta che l'app è pronta
     React.useEffect(() => {
         if (!initializing) {
             const loader = document.getElementById('initial-loader');
@@ -53,14 +49,12 @@ function App() {
         setUser(null);
     }
 
-    // Gestore per cambiare tema
     function toggleTheme() {
         setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
     }
 
     if (initializing) return null;
 
-    // Se non loggato mostra la pagina di autenticazione
     if (!user) {
         return <Auth supabase={supabase} setUser={setUser} />;
     }
@@ -75,7 +69,6 @@ function App() {
                 onToggleTheme={toggleTheme}
                 theme={theme}
             />
-            {/* Mostra un componente Gamification sul profilo */}
             {page === 'feed' && <EventFeed supabase={supabase} user={user} />}
             {page === 'create' && <CreateEvent supabase={supabase} user={user} onEventCreated={() => setPage('feed')} />}
             {page === 'profile' && <ProfilePage supabase={supabase} user={user} theme={theme} onToggleTheme={toggleTheme} />}
@@ -83,5 +76,4 @@ function App() {
     );
 }
 
-// Render dell'applicazione principale
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
