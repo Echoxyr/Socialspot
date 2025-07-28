@@ -146,7 +146,7 @@
                             await supabase.from('profiles').upsert({
                                 id: result.data.user.id,
                                 username: result.data.user.email.split('@')[0],
-                                bio: 'Nuovo su SocialSpot'
+                                bio: 'Nuovo su SocialNet'
                             });
                             onComplete(result.data.user);
                         }
@@ -161,8 +161,8 @@
             return (
                 <div className="onboarding">
                     <div className="onboarding-card">
-                        <div className="logo">SS</div>
-                        <h1>SocialSpot</h1>
+                        <div className="logo">SN</div>
+                        <h1>SocialNet</h1>
                         <p>Scopri eventi nella tua zona</p>
                         <div className="auth-tabs">
                             <button className={`auth-tab ${isSignIn ? 'active' : ''}`} onClick={() => setIsSignIn(true)}>Accedi</button>
@@ -834,7 +834,7 @@
                     
                     setProfile(data || {
                         username: user.email.split('@')[0],
-                        bio: 'Nuovo su SocialSpot'
+                        bio: 'Nuovo su SocialNet'
                     });
                 } catch (err) {
                     console.error('Errore caricamento profilo:', err);
@@ -965,7 +965,7 @@
             return (
                 <div className="app">
                     <div className="top-bar">
-                        <div className="logo-text">SocialSpot</div>
+                        <div className="logo-text">SocialNet</div>
                         <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                             <span style={{color: '#888', fontSize: '14px'}}>
                                 Ciao, {user.email.split('@')[0]}
