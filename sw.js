@@ -1,73 +1,34 @@
 /*
- * sw.js
- * Service Worker per SocialSpot. Implementa caching delle risorse statiche e gestisce le notifiche push.
+ * sw.js - SocialNet Neural Service Worker
+ * Advanced PWA features with AI-powered offline capabilities
  */
 
-const CACHE_NAME = 'socialspot-cache-v2';
-const URLS_TO_CACHE = [
+const CACHE_NAME = 'socialnet-neural-v1.0.0';
+const NEURAL_CACHE_NAME = 'neural-ai-cache-v1.0.0';
+const STATIC_CACHE_NAME = 'neural-static-v1.0.0';
+
+// Essential files for offline functionality
+const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/styles.css',
     '/app.js',
-    '/components.js',
-    '/sw.js'
+    '/components.js', 
+    '/style.css',
+    '/manifest.json',
+    '/utils/ai.js',
+    'https://unpkg.com/react@18/umd/react.production.min.js',
+    'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
-// Installazione: pre-caching delle risorse essenziali
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE))
-    );
-    self.skipWaiting();
-});
+// AI-generated content that can be cached
+const AI_CACHEABLE_PATTERNS = [
+    /\/api\/ai\/suggestions/,
+    /\/api\/ai\/bio-generate/,
+    /\/api\/ai\/event-template/,
+    /\/neural-stories/,
+    /\/ai-insights/
+];
 
-// Attivazione: pulizia vecchie cache
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => Promise.all(
-            cacheNames.map((cacheName) => {
-                if (cacheName !== CACHE_NAME) {
-                    return caches.delete(cacheName);
-                }
-            })
-        ))
-    );
-    self.clients.claim();
-});
-
-// Strategia cache-first con fallback in rete
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request).then((resp) => {
-                if (event.request.method === 'GET' && resp.status === 200 && resp.type === 'basic') {
-                    const respClone = resp.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, respClone);
-                    });
-                }
-                return resp;
-            });
-        })
-    );
-});
-
-// Gestione notifiche push. Ã responsabilitÃ  del server inviare payload idonei.
-self.addEventListener('push', (event) => {
-    let data = { title: 'SocialSpot', body: 'Hai una nuova notifica' };
-    if (event.data) {
-        try {
-            data = event.data.json();
-        } catch (e) {
-            // fallback a stringa
-            data.body = event.data.text();
-        }
-    }
-    const options = {
-        body: data.body,
-        icon: '/favicon.ico',
-        vibrate: [100, 50, 100],
-        data: { dateOfArrival: Date.now(), primaryKey: 1 }
-    };
-    event.waitUntil(self.registration.showNotification(data.title, options));
-});
+// Network-first resources (always
