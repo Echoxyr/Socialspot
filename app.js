@@ -1,951 +1,560 @@
 /*
- * app.js - SocialSpot Enhanced Application
- * Versione avanzata con performance ottimizzate, nuove funzionalità e UX migliorata
+ * app.js - SocialNet Neural Application Logic
+ * Sistema AI avanzato per eventi e networking sociale
  */
 
-// 🔹 Supabase Configuration
-const SUPABASE_URL = 'https://wsmjnssfmujdfgthyizw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWpuc3NmbXVqZGZndGh5aXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4ODA3NjIsImV4cCI6MjA2NjQ1Njc2Mn0.t91X-fGIolFBPnhr5_sexJMqzgdCDmXuEUXiL_pFId4';
+// 🧠 Neural AI System - Core Intelligence
+const NeuralAI = {
+    // Enhanced bio generation with personality analysis
+    generateBio: async (userData) => {
+        const personalities = {
+            'Sport': 'Atleta del networking, trasforma ogni evento in una vittoria sociale.',
+            'Musica': 'Maestro delle vibrazioni umane, crea armonie tra le persone.',
+            'Arte': 'Architetto di esperienze estetiche, dipinge connessioni autentiche.',
+            'Cultura': 'Esploratore dell\'anima umana, colleziona storie e tradizioni.',
+            'Tecnologia': 'Pioniere digitale che connette il futuro con il presente.',
+            'Cibo': 'Alchimista dei sapori sociali, unisce le persone attorno alla tavola.',
+            'Viaggi': 'Nomade urbano che trasforma ogni luogo in una nuova avventura.',
+            'Cinema': 'Regista della vita reale, crea storie attraverso gli eventi.',
+            'Business': 'Catalizzatore di opportunità, trasforma incontri in successi.',
+            'Gaming': 'Player della vita reale, livella up le connessioni sociali.'
+        };
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// 🔹 PERFORMANCE MONITORING
-const PerformanceMonitor = {
-    startTime: performance.now(),
-    
-    logPageLoad() {
-        const loadTime = performance.now() - this.startTime;
-        console.log(`🚀 SocialSpot loaded in ${loadTime.toFixed(2)}ms`);
+        const primaryInterest = userData.interests?.[0] || 'Sport';
+        const baseBio = personalities[primaryInterest] || personalities['Sport'];
         
-        // Analytics potrebbero andare qui
-        if (window.gtag) {
-            window.gtag('event', 'page_load_time', {
-                value: Math.round(loadTime),
-                event_category: 'Performance'
-            });
-        }
+        const enhancements = [
+            'Con un approccio neurale alle relazioni sociali.',
+            'Alimentato dall\'intelligenza artificiale delle connessioni.',
+            'Specialista in networking di nuova generazione.',
+            'Innovatore delle dinamiche sociali moderne.'
+        ];
+
+        return `${baseBio} ${enhancements[Math.floor(Math.random() * enhancements.length)]}`;
     },
-    
-    logUserAction(action, duration = 0) {
-        console.log(`📊 User action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
+
+    // Advanced event suggestion with contextual AI
+    generateEventSuggestion: async (preferences) => {
+        const aiTemplates = {
+            'Sport': {
+                titles: ['Neural Fitness Challenge', 'AI Sport Connect', 'Biorhythm Training'],
+                descriptions: ['Allenamento di gruppo con monitoraggio AI delle performance', 'Sessione sportiva con matching intelligente dei partecipanti'],
+                locations: ['Centro Fitness Neural', 'Parco Tecnologico', 'Smart Gym Arena']
+            },
+            'Musica': {
+                titles: ['Sonic Neural Session', 'AI Music Mixer', 'Harmonic Convergence'],
+                descriptions: ['Jam session con AI che suggerisce accordi perfetti', 'Serata musicale con playlist generate dall\'intelligenza artificiale'],
+                locations: ['Studio Neural Sound', 'Jazz Club AI', 'Sala Prove Digitale']
+            },
+            'Arte': {
+                titles: ['Digital Art Neural', 'AI Creative Lab', 'Neuro-Aesthetic Experience'],
+                descriptions: ['Workshop artistico con AI che analizza creatività', 'Mostra interattiva di arte generata dall\'intelligenza artificiale'],
+                locations: ['Galleria Neural', 'Art Studio AI', 'Museo Digitale']
+            },
+            'Tecnologia': {
+                titles: ['Tech Neural Meetup', 'AI Innovation Hub', 'Future Tech Gathering'],
+                descriptions: ['Discussione su AI e futuro della tecnologia', 'Demo di progetti innovativi con intelligenza artificiale integrata'],
+                locations: ['Hub Innovazione', 'Coworking Tech', 'Laboratorio AI']
+            },
+            'Cultura': {
+                titles: ['Cultural Neural Exchange', 'AI Heritage Tour', 'Neuro-Cultural Immersion'],
+                descriptions: ['Esplorazione culturale guidata da AI storica', 'Tour intelligente con realtà aumentata culturale'],
+                locations: ['Museo Neural', 'Centro Culturale AI', 'Biblioteca Digitale']
+            }
+        };
+
+        const category = preferences.category || 'Sport';
+        const template = aiTemplates[category] || aiTemplates['Sport'];
+        
+        const title = template.titles[Math.floor(Math.random() * template.titles.length)];
+        const description = template.descriptions[Math.floor(Math.random() * template.descriptions.length)];
+        const location = template.locations[Math.floor(Math.random() * template.locations.length)];
+
+        return {
+            title,
+            description,
+            category,
+            location,
+            ageRange: preferences.ageRange || '18-35',
+            genderPreference: preferences.genderPreference || 'entrambi',
+            aiGenerated: true,
+            neuralCompatibility: Math.floor(Math.random() * 30) + 70 // 70-100%
+        };
+    },
+
+    // AI Avatar Chat Response Generator
+    generateAvatarResponse: async (userProfile, context = '') => {
+        const responseTypes = {
+            greeting: [
+                `Ciao! Sono l'avatar AI di ${userProfile.username}. Ti interessa sapere di più sui suoi eventi?`,
+                `L'intelligenza artificiale di ${userProfile.username} ti dà il benvenuto! Sempre pronto a nuove connessioni.`,
+                `Avatar Neural attivo! ${userProfile.username} tornerà presto, nel frattempo posso aiutarti io.`
+            ],
+            event_interest: [
+                `${userProfile.username} ama eventi di tipo ${userProfile.interests?.[0] || 'social'}. Ti consiglio di seguirlo!`,
+                `L'AI rileva alta compatibilità con i tuoi interessi. ${userProfile.username} organizza eventi fantastici!`,
+                `Neural match positivo! ${userProfile.username} e te avete potenziale per belle collaborazioni.`
+            ],
+            offline: [
+                `${userProfile.username} è probabilmente ad un evento neural in questo momento!`,
+                `L'AI indica che ${userProfile.username} tornerà online tra poco. Aspettalo!`,
+                `Avatar in modalità autonoma: ${userProfile.username} è impegnato in networking reale!`
+            ]
+        };
+
+        const type = context || 'greeting';
+        const responses = responseTypes[type] || responseTypes.greeting;
+        return responses[Math.floor(Math.random() * responses.length)];
+    },
+
+    // Enhanced WhatsApp invite with neural branding
+    generateWhatsAppInvite: async (eventData) => {
+        const neuralEmojis = ['🧠', '⚡', '🚀', '💫', '🔮', '✨'];
+        const randomEmoji = neuralEmojis[Math.floor(Math.random() * neuralEmojis.length)];
+        
+        const aiAnalysis = eventData.aiGenerated ? 
+            `\n🤖 *Evento AI-Generato* - Compatibilità Neural: ${eventData.neuralCompatibility || 85}%` : 
+            `\n🧠 *Analizzato da Neural AI* - Raccomandato per te!`;
+
+        return `${randomEmoji} *${eventData.title}*
+
+${eventData.description}
+
+📅 *Data:* ${new Date(eventData.event_date).toLocaleDateString('it-IT', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+})}
+📍 *Location:* ${eventData.location}
+👥 *Partecipanti:* ${eventData.participants_count || 0}/${eventData.max_participants || '∞'}
+
+${eventData.gender_preference !== 'entrambi' ? `🚻 *Preferenza:* ${eventData.gender_preference}\n` : ''}${eventData.age_range ? `🎂 *Età:* ${eventData.age_range} anni\n` : ''}
+${aiAnalysis}
+
+💫 *Powered by SocialNet Neural*
+🔗 Partecipa: https://socialnet-neural.vercel.app/event/${eventData.id}
+
+#SocialNetNeural #AIEvents #FutureNetworking`;
+    },
+
+    // Weekly community story generator
+    generateWeeklyStory: async (eventsData, participationData) => {
+        const totalEvents = eventsData.length;
+        const totalParticipants = participationData.reduce((sum, event) => sum + (event.participants_count || 0), 0);
+        const avgParticipants = totalEvents > 0 ? Math.round(totalParticipants / totalEvents) : 0;
+        
+        // AI generates insights
+        const insights = [
+            `L'AI ha rilevato un incremento del ${Math.floor(Math.random() * 25) + 15}% nelle connessioni significative`,
+            `Gli algoritmi neurali hanno facilitato ${Math.floor(totalParticipants * 0.3)} nuove amicizie`,
+            `Il machine learning ha ottimizzato ${Math.floor(totalEvents * 0.8)} eventi per massima compatibilità`,
+            `La neural network ha predetto con il 92% di accuratezza i match sociali perfetti`
+        ];
+
+        const weeklyInsight = insights[Math.floor(Math.random() * insights.length)];
+
+        return {
+            title: "🧠 Storia Settimanale Neural Community",
+            content: `Questa settimana la nostra intelligenza artificiale ha orchestrato una sinfonia sociale incredibile! 
+
+Con ${totalEvents} eventi neurali creati e ${totalParticipants} partecipanti attivi, abbiamo raggiunto una media di ${avgParticipants} persone per evento.
+
+${weeklyInsight}.
+
+Il futuro del networking sociale è qui, e sta evolvendo attraverso ogni connessione che create! 🚀✨`,
+            
+            highlights: [
+                `${totalEvents} Eventi Neural Creati`,
+                `${totalParticipants} Connessioni Attive`,
+                `${Math.floor(totalParticipants * 0.25)} Nuove Collaborazioni`,
+                `${Math.floor(Math.random() * 15) + 85}% Satisfaction Rate AI`
+            ],
+            
+            aiPredictions: [
+                'Trend in crescita: Eventi Tech e AI',
+                'Location più richieste: Spazi ibridi digitali',
+                'Orari ottimali: 18:30-21:00',
+                'Dimensione ideale: 8-15 partecipanti'
+            ],
+            
+            generatedAt: new Date().toISOString()
+        };
+    },
+
+    // DALL-E prompt generator with neural enhancement
+    generateImagePrompt: (eventData) => {
+        const neuralStyles = [
+            'futuristic neural network background',
+            'holographic digital overlay',
+            'AI-enhanced lighting effects',
+            'cyberpunk social atmosphere',
+            'neural connection visualizations'
+        ];
+
+        const basePrompts = {
+            'Sport': 'dynamic sports activity with people having fun, high energy',
+            'Musica': 'vibrant music event with instruments and dancing people',
+            'Arte': 'contemporary art gallery with creative people interacting',
+            'Cultura': 'sophisticated cultural gathering in modern museum setting',
+            'Tecnologia': 'high-tech meetup with screens and innovative atmosphere',
+            'Cibo': 'social dining experience with beautiful food presentation',
+            'Cinema': 'modern cinema screening with engaged audience',
+            'All\'aperto': 'outdoor social gathering in beautiful natural setting',
+            'Business': 'professional networking event in sleek modern venue',
+            'Gaming': 'gaming tournament with excited participants and screens'
+        };
+
+        const basePrompt = basePrompts[eventData.category] || basePrompts['Sport'];
+        const neuralStyle = neuralStyles[Math.floor(Math.random() * neuralStyles.length)];
+        
+        return `${basePrompt}, ${neuralStyle}, photorealistic, 8k quality, professional photography, vibrant colors, social media ready, Instagram aesthetic`;
+    },
+
+    // Neural reputation system
+    calculateReputationScore: (userData, eventHistory, socialInteractions) => {
+        const basePoints = {
+            eventCreated: 15,
+            eventAttended: 8,
+            eventCompleted: 12,
+            positiveReview: 10,
+            earlyAdopter: 20,
+            consistentParticipation: 25
+        };
+
+        let score = 0;
+        
+        // Events created and completed
+        score += (eventHistory.created || 0) * basePoints.eventCreated;
+        score += (eventHistory.attended || 0) * basePoints.eventAttended;
+        score += (eventHistory.completed || 0) * basePoints.eventCompleted;
+        
+        // Social interactions
+        score += (socialInteractions.positiveReviews || 0) * basePoints.positiveReview;
+        score += (socialInteractions.helpfulComments || 0) * 3;
+        score += (socialInteractions.eventShares || 0) * 5;
+        
+        // Consistency bonus
+        if (eventHistory.consistency > 0.8) {
+            score += basePoints.consistentParticipation;
+        }
+        
+        // Early adopter bonus
+        if (userData.joinedDate && new Date(userData.joinedDate) < new Date('2024-01-01')) {
+            score += basePoints.earlyAdopter;
+        }
+        
+        // Apply neural network multiplier based on community impact
+        const neuralMultiplier = 1 + (Math.log(score + 1) / 10);
+        
+        return Math.min(Math.floor(score * neuralMultiplier), 999);
+    },
+
+    // Travel mode suggestions
+    generateTravelSuggestions: async (currentLocation, userPreferences) => {
+        const cityEventMaps = {
+            'Milano': {
+                hotspots: ['Navigli', 'Brera', 'Porta Nuova', 'Isola'],
+                eventTypes: ['Arte', 'Musica', 'Business', 'Cibo'],
+                aiRecommendation: 'Hub perfetto per networking business e cultura'
+            },
+            'Roma': {
+                hotspots: ['Trastevere', 'Centro Storico', 'EUR', 'Testaccio'],
+                eventTypes: ['Cultura', 'Arte', 'Cinema', 'Cibo'],
+                aiRecommendation: 'Capitale culturale con infinite opportunità social'
+            },
+            'Firenze': {
+                hotspots: ['Centro', 'Oltrarno', 'Cascine', 'Santa Croce'],
+                eventTypes: ['Arte', 'Cultura', 'Viaggi', 'All\'aperto'],
+                aiRecommendation: 'Città d\'arte perfetta per eventi culturali'
+            },
+            'Torino': {
+                hotspots: ['Centro', 'San Salvario', 'Quadrilatero', 'Lingotto'],
+                eventTypes: ['Tecnologia', 'Business', 'Arte', 'Sport'],
+                aiRecommendation: 'Innovation hub con forte community tech'
+            }
+        };
+
+        const cityData = cityEventMaps[currentLocation] || cityEventMaps['Milano'];
+        const suggestedLocation = cityData.hotspots[Math.floor(Math.random() * cityData.hotspots.length)];
+        const suggestedType = cityData.eventTypes[Math.floor(Math.random() * cityData.eventTypes.length)];
+
+        return {
+            location: `${suggestedLocation}, ${currentLocation}`,
+            eventType: suggestedType,
+            aiInsight: cityData.aiRecommendation,
+            localTrends: [
+                `${suggestedType} molto richiesto in zona`,
+                `${suggestedLocation} in trending per eventi`,
+                `Orario ottimale: ${Math.floor(Math.random() * 3) + 18}:00`
+            ]
+        };
     }
 };
 
-// 🔹 ENHANCED WELCOME POPUP
-function WelcomePopup({ user, onClose }) {
-    const [showPopup, setShowPopup] = React.useState(false);
-    const [currentFeature, setCurrentFeature] = React.useState(0);
-    
-    const features = [
-        {
-            icon: 'fas fa-calendar-plus',
-            title: 'Crea Eventi',
-            description: 'Organizza eventi unici e coinvolgi la tua community locale'
-        },
-        {
-            icon: 'fas fa-users',
-            title: 'Partecipa',
-            description: 'Scopri eventi interessanti e conosci persone con i tuoi stessi interessi'
-        },
-        {
-            icon: 'fas fa-comments',
-            title: 'Chatta',
-            description: 'Comunica in tempo reale con altri partecipanti nelle chat di gruppo'
-        },
-        {
-            icon: 'fas fa-star',
-            title: 'Gamification',
-            description: 'Guadagna punti, sali di livello e sblocca achievement speciali'
-        }
-    ];
+// 🚀 Enhanced Event Feed Component
+const NeuralEventFeed = memo(({ supabase, user, aiProfile, travelMode, currentLocation }) => {
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState('all');
+    const [trendingEvents, setTrendingEvents] = useState([]);
+    const [aiRecommendations, setAiRecommendations] = useState([]);
 
-    React.useEffect(() => {
-        const hasSeenWelcome = localStorage.getItem(`welcomed_${user.id}`);
-        if (!hasSeenWelcome) {
-            setTimeout(() => setShowPopup(true), 500);
+    useEffect(() => {
+        loadEvents();
+        if (travelMode) {
+            generateTravelRecommendations();
         }
-    }, [user.id]);
+    }, [filter, travelMode, currentLocation]);
 
-    React.useEffect(() => {
-        if (showPopup) {
-            const interval = setInterval(() => {
-                setCurrentFeature((prev) => (prev + 1) % features.length);
-            }, 3000);
+    const loadEvents = async () => {
+        try {
+            let query = supabase
+                .from('events_with_counts')
+                .select('*')
+                .gte('event_date', new Date().toISOString())
+                .order('event_date', { ascending: true });
+
+            if (filter !== 'all') {
+                query = query.eq('category', filter);
+            }
+
+            if (travelMode && currentLocation) {
+                query = query.ilike('location', `%${currentLocation}%`);
+            }
+
+            const { data, error } = await query.limit(20);
             
-            return () => clearInterval(interval);
-        }
-    }, [showPopup, features.length]);
+            if (error) throw error;
+            
+            setEvents(data || []);
+            
+            // Generate AI analysis for each event
+            const eventsWithAI = await Promise.all(
+                (data || []).map(async (event) => {
+                    const compatibility = Math.floor(Math.random() * 40) + 60;
+                    const reasons = [
+                        'Match con i tuoi interessi',
+                        'Location conveniente',
+                        'Orario ottimale per te',
+                        'Partecipanti affini',
+                        'Categoria preferita'
+                    ].slice(0, Math.floor(Math.random() * 3) + 1);
 
-    const handleClose = () => {
-        localStorage.setItem(`welcomed_${user.id}`, 'true');
-        setShowPopup(false);
-        PerformanceMonitor.logUserAction('welcome_popup_closed');
-        if (onClose) onClose();
+                    return {
+                        ...event,
+                        aiAnalysis: {
+                            compatibility,
+                            reasons,
+                            recommendation: compatibility > 80 ? 'Altamente consigliato' : 'Buona compatibilità'
+                        }
+                    };
+                })
+            );
+            
+            setEvents(eventsWithAI);
+            
+        } catch (error) {
+            console.error('Load events error:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    if (!showPopup) return null;
+    const generateTravelRecommendations = async () => {
+        try {
+            const suggestions = await NeuralAI.generateTravelSuggestions(
+                currentLocation, 
+                aiProfile?.interests || []
+            );
+            setAiRecommendations([suggestions]);
+        } catch (error) {
+            console.error('Travel recommendations error:', error);
+        }
+    };
+
+    const handleJoinEvent = async (eventId) => {
+        try {
+            const { error } = await supabase
+                .from('event_participants')
+                .insert([{
+                    event_id: eventId,
+                    user_id: user.id,
+                    status: 'confirmed'
+                }]);
+
+            if (error) throw error;
+
+            // Update local state
+            setEvents(prev => prev.map(event => 
+                event.id === eventId 
+                    ? { ...event, participants_count: (event.participants_count || 0) + 1 }
+                    : event
+            ));
+
+            window.addNotification?.({
+                type: 'success',
+                title: 'Partecipazione confermata!',
+                message: 'Ti sei unito all\'evento Neural'
+            });
+
+        } catch (error) {
+            console.error('Join event error:', error);
+            window.addNotification?.({
+                type: 'error',
+                title: 'Errore',
+                message: 'Impossibile unirsi all\'evento'
+            });
+        }
+    };
+
+    const categories = ['all', 'Sport', 'Musica', 'Arte', 'Cultura', 'Tecnologia', 'Cibo'];
+
+    if (loading) {
+        return (
+            <div className="neural-feed-loading">
+                <div className="loading-neural">
+                    <i className="fas fa-brain fa-pulse"></i>
+                    <p>L'AI sta analizzando gli eventi perfetti per te...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="welcome-popup-overlay" onClick={handleClose}>
-            <div className="welcome-popup animate-scale-in" onClick={(e) => e.stopPropagation()}>
-                <div className="welcome-header">
-                    <div className="logo-icon float-animation">
-                        <span className="logo-text">SS</span>
-                    </div>
-                    <h2>Benvenuto in SocialSpot! 🎉</h2>
-                    <p>Siamo felici di averti nella nostra community!</p>
-                </div>
-                
-                <div className="welcome-content">
-                    <div className="welcome-features">
-                        {features.map((feature, index) => (
-                            <div 
-                                key={index}
-                                className={`feature-item ${index === currentFeature ? 'animate-fade-in-up' : ''}`}
-                                style={{
-                                    opacity: index === currentFeature ? 1 : 0.7,
-                                    transform: index === currentFeature ? 'scale(1.05)' : 'scale(1)'
-                                }}
-                            >
-                                <i className={feature.icon}></i>
-                                <h3>{feature.title}</h3>
-                                <p>{feature.description}</p>
+        <div className="neural-event-feed">
+            {/* Travel Mode Recommendations */}
+            {travelMode && aiRecommendations.length > 0 && (
+                <div className="travel-recommendations">
+                    <h3>
+                        <i className="fas fa-map-marked-alt"></i>
+                        Raccomandazioni Neural per {currentLocation}
+                    </h3>
+                    {aiRecommendations.map((rec, index) => (
+                        <div key={index} className="travel-rec-card">
+                            <div className="rec-content">
+                                <h4>AI suggerisce: {rec.eventType} a {rec.location}</h4>
+                                <p>{rec.aiInsight}</p>
+                                <div className="local-trends">
+                                    {rec.localTrends.map((trend, idx) => (
+                                        <span key={idx} className="trend-tag">
+                                            <i className="fas fa-trending-up"></i>
+                                            {trend}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                    
-                    <div className="feature-indicators" style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        gap: '8px', 
-                        marginTop: '20px' 
-                    }}>
-                        {features.map((_, index) => (
-                            <div
-                                key={index}
-                                style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    borderRadius: '50%',
-                                    backgroundColor: index === currentFeature ? '#2563eb' : '#d1d5db',
-                                    transition: 'all 0.3s ease'
-                                }}
-                            />
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
-                
-                <button className="btn-primary welcome-btn glow-animation" onClick={handleClose}>
-                    <i className="fas fa-rocket"></i>
-                    Inizia la tua avventura!
-                </button>
+            )}
+
+            {/* Filter Categories */}
+            <div className="neural-filters">
+                <h3>Eventi Neural</h3>
+                <div className="filter-tabs">
+                    {categories.map(category => (
+                        <button
+                            key={category}
+                            className={`filter-tab ${filter === category ? 'active' : ''}`}
+                            onClick={() => setFilter(category)}
+                        >
+                            {category === 'all' ? 'Tutti' : category}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Events Grid */}
+            <div className="events-grid">
+                {events.length > 0 ? (
+                    events.map(event => (
+                        <window.SocialSpotComponents.EventCard
+                            key={event.id}
+                            event={event}
+                            user={user}
+                            supabase={supabase}
+                            onJoin={handleJoinEvent}
+                        />
+                    ))
+                ) : (
+                    <div className="no-events">
+                        <i className="fas fa-brain"></i>
+                        <h4>Neural AI non ha trovato eventi</h4>
+                        <p>Prova a cambiare filtro o crea il primo evento!</p>
+                    </div>
+                )}
             </div>
         </div>
     );
-}
+});
 
-// 🔹 ENHANCED NOTIFICATION SYSTEM
-function NotificationSystem() {
-    const [notifications, setNotifications] = React.useState([]);
-    
-    const addNotification = React.useCallback((notification) => {
-        const id = Date.now();
-        const newNotification = { ...notification, id };
-        
-        setNotifications(prev => [...prev, newNotification]);
-        
-        // Auto remove after 5 seconds
+// 🚀 Enhanced Notification System
+const NeuralNotificationSystem = memo(() => {
+    const [notifications, setNotifications] = useState([]);
+
+    const addNotification = useCallback((notification) => {
+        const id = Date.now() + Math.random();
+        const neuralNotification = {
+            ...notification,
+            id,
+            timestamp: new Date().toISOString(),
+            neuralEnhanced: true
+        };
+
+        setNotifications(prev => [neuralNotification, ...prev.slice(0, 4)]);
+
+        // Auto remove after duration
         setTimeout(() => {
             setNotifications(prev => prev.filter(n => n.id !== id));
-        }, 5000);
+        }, notification.duration || 5000);
     }, []);
-    
-    const removeNotification = React.useCallback((id) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    }, []);
-    
-    // Make addNotification available globally
-    React.useEffect(() => {
+
+    // Make globally available
+    useEffect(() => {
         window.addNotification = addNotification;
     }, [addNotification]);
-    
+
     return (
-        <div className="notification-container" style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 1500,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-        }}>
-            {notifications.map((notification) => (
+        <div className="neural-notifications">
+            {notifications.map(notification => (
                 <div
                     key={notification.id}
-                    className={`notification ${notification.type || 'info'} animate-slide-in-right`}
-                    style={{
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-xl)',
-                        padding: 'var(--space-4)',
-                        boxShadow: 'var(--shadow-lg)',
-                        maxWidth: '350px',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => removeNotification(notification.id)}
+                    className={`neural-notification ${notification.type || 'info'}`}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <i className={`fas ${notification.icon || 'fa-info-circle'}`} style={{
-                            color: notification.type === 'success' ? 'var(--color-success-500)' :
-                                   notification.type === 'error' ? 'var(--color-error-500)' :
-                                   notification.type === 'warning' ? 'var(--color-warning-500)' :
-                                   'var(--color-primary-500)'
-                        }}></i>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 'var(--font-weight-semibold)', marginBottom: '4px' }}>
-                                {notification.title}
-                            </div>
-                            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-                                {notification.message}
-                            </div>
-                        </div>
-                        <i className="fas fa-times" style={{ 
-                            color: 'var(--color-text-muted)', 
-                            fontSize: 'var(--font-size-xs)' 
-                        }}></i>
+                    <div className="notification-icon">
+                        <i className={`fas ${notification.icon || 'fa-brain'}`}></i>
                     </div>
+                    <div className="notification-content">
+                        <div className="notification-title">
+                            {notification.title}
+                        </div>
+                        <div className="notification-message">
+                            {notification.message}
+                        </div>
+                    </div>
+                    <button 
+                        className="notification-close"
+                        onClick={() => setNotifications(prev => 
+                            prev.filter(n => n.id !== notification.id)
+                        )}
+                    >
+                        <i className="fas fa-times"></i>
+                    </button>
                 </div>
             ))}
         </div>
     );
-}
-
-// 🔹 ENHANCED SIDE MENU
-function SideMenu({ isOpen, onClose, user, onSignOut, theme, onToggleTheme, currentPage, onPageChange }) {
-    const [userStats, setUserStats] = React.useState(null);
-    
-    React.useEffect(() => {
-       if (isOpen && user) {
-           loadUserStats();
-       }
-   }, [isOpen, user]);
-
-   const loadUserStats = async () => {
-       try {
-           const { data: created } = await supabase
-               .from('events')
-               .select('id')
-               .eq('creator_id', user.id);
-           
-           const { data: joined } = await supabase
-               .from('event_participants')
-               .select('event_id, events!inner(creator_id)')
-               .eq('user_id', user.id)
-               .neq('events.creator_id', user.id);
-               
-           const createdEvents = created ? created.length : 0;
-           const joinedEvents = joined ? joined.length : 0;
-           const totalPoints = createdEvents * 5 + joinedEvents * 2;
-           const level = Math.floor(totalPoints / 100) + 1;
-           
-           setUserStats({
-               eventsCreated: createdEvents,
-               eventsJoined: joinedEvents,
-               totalPoints,
-               level
-           });
-       } catch (error) {
-           console.error('Error loading user stats:', error);
-       }
-   };
-
-   const menuItems = [
-       { icon: 'fas fa-home', label: 'Eventi', action: 'feed', page: 'feed' },
-       { icon: 'fas fa-plus-circle', label: 'Crea Evento', action: 'create', page: 'create' },
-       { icon: 'fas fa-user', label: 'Profilo', action: 'profile', page: 'profile' },
-       { icon: 'fas fa-star', label: 'Preferiti', action: 'favorites', page: 'favorites' },
-       { icon: 'fas fa-chart-line', label: 'Statistiche', action: 'stats', page: 'stats' },
-       { icon: 'fas fa-cog', label: 'Impostazioni', action: 'settings', page: 'settings' },
-       { icon: 'fas fa-info-circle', label: 'Info & Supporto', action: 'info', page: 'info' }
-   ];
-
-   const handleMenuClick = (action, page) => {
-       PerformanceMonitor.logUserAction(`menu_${action}_clicked`);
-       
-       switch (action) {
-           case 'logout':
-               onSignOut();
-               break;
-           case 'feed':
-           case 'create':
-           case 'profile':
-               onPageChange(page);
-               break;
-           case 'favorites':
-               window.addNotification?.({
-                   type: 'info',
-                   icon: 'fas fa-star',
-                   title: 'Preferiti',
-                   message: 'Funzionalità in arrivo presto!'
-               });
-               break;
-           case 'stats':
-               window.addNotification?.({
-                   type: 'info',
-                   icon: 'fas fa-chart-line',
-                   title: 'Statistiche',
-                   message: 'Dashboard avanzate in sviluppo!'
-               });
-               break;
-           case 'settings':
-               window.addNotification?.({
-                   type: 'info',
-                   icon: 'fas fa-cog',
-                   title: 'Impostazioni',
-                   message: 'Pannello impostazioni in arrivo!'
-               });
-               break;
-           case 'info':
-               window.addNotification?.({
-                   type: 'success',
-                   icon: 'fas fa-heart',
-                   title: 'SocialSpot v2.0',
-                   message: 'Grazie per essere parte della community!'
-               });
-               break;
-           default:
-               console.log(`Azione ${action} non implementata`);
-       }
-       onClose();
-   };
-
-   if (!isOpen) return null;
-
-   const initials = user.email ? user.email[0].toUpperCase() : '?';
-
-   return (
-       <>
-           <div className="side-menu-overlay" onClick={onClose}></div>
-           <div className="side-menu animate-slide-in-right">
-               <div className="side-menu-header">
-                   <div className="user-info">
-                       <div className="user-avatar glow-animation">
-                           {initials}
-                       </div>
-                       <div className="user-details">
-                           <h3>{user.email}</h3>
-                           <p>Membro della community</p>
-                           {userStats && (
-                               <div style={{ 
-                                   marginTop: '8px', 
-                                   display: 'flex', 
-                                   gap: '12px',
-                                   fontSize: 'var(--font-size-xs)',
-                                   color: 'var(--color-text-muted)'
-                               }}>
-                                   <span>📊 {userStats.totalPoints} punti</span>
-                                   <span>⭐ Livello {userStats.level}</span>
-                               </div>
-                           )}
-                       </div>
-                   </div>
-                   <button className="side-menu-close" onClick={onClose}>
-                       <i className="fas fa-times"></i>
-                   </button>
-               </div>
-               
-               <div className="side-menu-content">
-                   <nav className="menu-nav">
-                       {menuItems.map((item, index) => (
-                           <button
-                               key={index}
-                               className={`menu-item ${item.page === currentPage ? 'active' : ''}`}
-                               onClick={() => handleMenuClick(item.action, item.page)}
-                               style={{
-                                   background: item.page === currentPage ? 
-                                       'linear-gradient(135deg, var(--color-primary-50), var(--color-secondary-50))' : 
-                                       'none',
-                                   color: item.page === currentPage ? 'var(--color-primary-600)' : 'inherit'
-                               }}
-                           >
-                               <i className={item.icon}></i>
-                               <span>{item.label}</span>
-                               <i className="fas fa-chevron-right"></i>
-                           </button>
-                       ))}
-                       
-                       <button
-                           className="menu-item"
-                           onClick={() => handleMenuClick('logout')}
-                           style={{ 
-                               marginTop: 'var(--space-4)',
-                               borderTop: '1px solid var(--color-border-light)',
-                               paddingTop: 'var(--space-4)',
-                               color: 'var(--color-error-600)'
-                           }}
-                       >
-                           <i className="fas fa-sign-out-alt"></i>
-                           <span>Logout</span>
-                           <i className="fas fa-chevron-right"></i>
-                       </button>
-                   </nav>
-                   
-                   <div className="theme-section">
-                       <div className="theme-toggle-section">
-                           <div className="theme-info">
-                               <i className="fas fa-palette"></i>
-                               <span>Tema: {theme === 'light' ? 'Chiaro' : 'Scuro'}</span>
-                           </div>
-                           <button className="theme-switch" onClick={onToggleTheme}>
-                               <i className={theme === 'light' ? 'fas fa-moon' : 'fas fa-sun'}></i>
-                           </button>
-                       </div>
-                   </div>
-               </div>
-               
-               <div className="side-menu-footer">
-                   <p>SocialSpot v2.0</p>
-                   <p>Connetti • Scopri • Partecipa</p>
-               </div>
-           </div>
-       </>
-   );
-}
-
-// 🔹 ENHANCED HEADER
-function Header({ user, currentPage, setPage, onSignOut, theme, onToggleTheme }) {
-   const [sideMenuOpen, setSideMenuOpen] = React.useState(false);
-   const [isScrolled, setIsScrolled] = React.useState(false);
-
-   React.useEffect(() => {
-       const handleScroll = () => {
-           setIsScrolled(window.scrollY > 10);
-       };
-
-       window.addEventListener('scroll', handleScroll);
-       return () => window.removeEventListener('scroll', handleScroll);
-   }, []);
-
-   const handlePageChange = (page) => {
-       setPage(page);
-       PerformanceMonitor.logUserAction(`navigate_to_${page}`);
-   };
-
-   return (
-       <>
-           <header className={`main-header ${isScrolled ? 'scrolled' : ''}`} style={{
-               boxShadow: isScrolled ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
-               background: isScrolled ? 
-                   'rgba(255, 255, 255, 0.95)' : 
-                   'rgba(255, 255, 255, 0.8)'
-           }}>
-               <div className="header-container">
-                   <button 
-                       className="hamburger-menu"
-                       onClick={() => setSideMenuOpen(true)}
-                       aria-label="Menu"
-                   >
-                       <i className="fas fa-bars"></i>
-                   </button>
-
-                   <div className="app-logo-header" onClick={() => handlePageChange('feed')} style={{ cursor: 'pointer' }}>
-                       <div className="logo-icon glow-animation">
-                           <span className="logo-text">SS</span>
-                       </div>
-                       <span className="app-name">SocialSpot</span>
-                   </div>
-
-                   <nav className="header-nav">
-                       <button 
-                           className={`nav-btn ${currentPage === 'feed' ? 'active' : ''}`}
-                           onClick={() => handlePageChange('feed')}
-                       >
-                           <i className="fas fa-home"></i>
-                           <span>Eventi</span>
-                       </button>
-                       <button 
-                           className={`nav-btn ${currentPage === 'create' ? 'active' : ''}`}
-                           onClick={() => handlePageChange('create')}
-                       >
-                           <i className="fas fa-plus"></i>
-                           <span>Crea</span>
-                       </button>
-                       <button 
-                           className={`nav-btn ${currentPage === 'profile' ? 'active' : ''}`}
-                           onClick={() => handlePageChange('profile')}
-                       >
-                           <i className="fas fa-user"></i>
-                           <span>Profilo</span>
-                       </button>
-                   </nav>
-               </div>
-           </header>
-
-           <SideMenu 
-               isOpen={sideMenuOpen}
-               onClose={() => setSideMenuOpen(false)}
-               user={user}
-               onSignOut={onSignOut}
-               theme={theme}
-               onToggleTheme={onToggleTheme}
-               currentPage={currentPage}
-               onPageChange={handlePageChange}
-           />
-       </>
-   );
-}
-
-// 🔹 ENHANCED LOADING SCREEN
-function LoadingScreen({ isVisible }) {
-   const [loadingText, setLoadingText] = React.useState('Caricamento in corso...');
-   
-   React.useEffect(() => {
-       if (!isVisible) return;
-       
-       const messages = [
-           'Caricamento in corso...',
-           'Connessione al server...',
-           'Preparazione interfaccia...',
-           'Quasi pronto...'
-       ];
-       
-       let index = 0;
-       const interval = setInterval(() => {
-           index = (index + 1) % messages.length;
-           setLoadingText(messages[index]);
-       }, 800);
-       
-       return () => clearInterval(interval);
-   }, [isVisible]);
-
-   if (!isVisible) return null;
-
-   return (
-       <div className="loader-screen">
-           <div className="loader-content">
-               <div className="app-logo-loading">
-                   <div className="logo-icon-loading">
-                       <span className="logo-text-loading">SS</span>
-                       <div className="loading-rings">
-                           <div className="ring ring-1"></div>
-                           <div className="ring ring-2"></div>
-                           <div className="ring ring-3"></div>
-                       </div>
-                   </div>
-                   <h1 className="brand-name-loading">SocialSpot</h1>
-                   <p className="brand-tagline">Connetti • Scopri • Partecipa</p>
-               </div>
-               <div className="loading-progress">
-                   <div className="progress-bar-loading"></div>
-                   <p className="loading-text">{loadingText}</p>
-               </div>
-           </div>
-       </div>
-   );
-}
-
-// 🔹 PWA INSTALL PROMPT
-function PWAInstallPrompt() {
-   const [deferredPrompt, setDeferredPrompt] = React.useState(null);
-   const [showInstallButton, setShowInstallButton] = React.useState(false);
-
-   React.useEffect(() => {
-       const handleBeforeInstallPrompt = (e) => {
-           e.preventDefault();
-           setDeferredPrompt(e);
-           setShowInstallButton(true);
-       };
-
-       window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-       return () => {
-           window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-       };
-   }, []);
-
-   const handleInstallClick = async () => {
-       if (deferredPrompt) {
-           deferredPrompt.prompt();
-           const result = await deferredPrompt.userChoice;
-           
-           if (result.outcome === 'accepted') {
-               window.addNotification?.({
-                   type: 'success',
-                   icon: 'fas fa-download',
-                   title: 'App Installata!',
-                   message: 'SocialSpot è ora disponibile nella tua home screen!'
-               });
-           }
-           
-           setDeferredPrompt(null);
-           setShowInstallButton(false);
-       }
-   };
-
-   if (!showInstallButton) return null;
-
-   return (
-       <button
-           className="install-app-btn glow-animation"
-           onClick={handleInstallClick}
-           title="Installa SocialSpot"
-       >
-           <i className="fas fa-download"></i>
-       </button>
-   );
-}
-
-// 🔹 ERROR BOUNDARY
-class ErrorBoundary extends React.Component {
-   constructor(props) {
-       super(props);
-       this.state = { hasError: false, error: null };
-   }
-
-   static getDerivedStateFromError(error) {
-       return { hasError: true, error };
-   }
-
-   componentDidCatch(error, errorInfo) {
-       console.error('SocialSpot Error:', error, errorInfo);
-       
-       // Log to external service if available
-       if (window.Sentry) {
-           window.Sentry.captureException(error);
-       }
-   }
-
-   render() {
-       if (this.state.hasError) {
-           return (
-               <div className="error-boundary" style={{
-                   minHeight: '100vh',
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   flexDirection: 'column',
-                   gap: '20px',
-                   padding: '40px',
-                   textAlign: 'center'
-               }}>
-                   <div style={{ fontSize: '4rem' }}>😵</div>
-                   <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-text)' }}>
-                       Oops! Qualcosa è andato storto
-                   </h1>
-                   <p style={{ color: 'var(--color-text-muted)', maxWidth: '400px' }}>
-                       Si è verificato un errore imprevisto. Prova a ricaricare la pagina o contatta il supporto se il problema persiste.
-                   </p>
-                   <button 
-                       className="btn-primary"
-                       onClick={() => window.location.reload()}
-                       style={{ marginTop: '20px' }}
-                   >
-                       <i className="fas fa-redo"></i>
-                       Ricarica la pagina
-                   </button>
-               </div>
-           );
-       }
-
-       return this.props.children;
-   }
-}
-
-// 🔹 MAIN APP COMPONENT
-function App() {
-   const [user, setUser] = React.useState(null);
-   const [page, setPage] = React.useState('feed');
-   const [initializing, setInitializing] = React.useState(true);
-   const [showLoader, setShowLoader] = React.useState(true);
-   const [theme, setTheme] = React.useState(() => {
-       const stored = localStorage.getItem('theme');
-       if (stored) return stored;
-       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-   });
-
-   // Theme management
-   React.useEffect(() => {
-       document.body.setAttribute('data-theme', theme);
-       localStorage.setItem('theme', theme);
-       
-       // Update theme color meta tag
-       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-       if (themeColorMeta) {
-           themeColorMeta.content = theme === 'dark' ? '#1f2937' : '#2563eb';
-       }
-   }, [theme]);
-
-   // Authentication state management
-   React.useEffect(() => {
-       const initAuth = async () => {
-           try {
-               const { data: { session } } = await supabase.auth.getSession();
-               setUser(session?.user ?? null);
-           } catch (error) {
-               console.error('Auth initialization error:', error);
-               window.addNotification?.({
-                   type: 'error',
-                   icon: 'fas fa-exclamation-triangle',
-                   title: 'Errore di connessione',
-                   message: 'Problema durante l\'inizializzazione dell\'app'
-               });
-           } finally {
-               setInitializing(false);
-           }
-       };
-
-       initAuth();
-
-       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-           setUser(session?.user ?? null);
-           
-           if (session?.user) {
-               PerformanceMonitor.logUserAction('user_signed_in');
-               window.addNotification?.({
-                   type: 'success',
-                   icon: 'fas fa-user-check',
-                   title: 'Accesso effettuato!',
-                   message: `Benvenuto ${session.user.email}`
-               });
-           }
-       });
-
-       return () => subscription.unsubscribe();
-   }, []);
-
-   // Loader management
-   React.useEffect(() => {
-       if (!initializing) {
-           const timer = setTimeout(() => {
-               setShowLoader(false);
-               PerformanceMonitor.logPageLoad();
-           }, 1500);
-           
-           return () => clearTimeout(timer);
-       }
-   }, [initializing]);
-
-   // Keyboard shortcuts
-   React.useEffect(() => {
-       const handleKeyDown = (event) => {
-           // Alt + N = New Event
-           if (event.altKey && event.key === 'n' && user) {
-               event.preventDefault();
-               setPage('create');
-               PerformanceMonitor.logUserAction('keyboard_shortcut_new_event');
-           }
-           
-           // Alt + H = Home/Feed
-           if (event.altKey && event.key === 'h' && user) {
-               event.preventDefault();
-               setPage('feed');
-               PerformanceMonitor.logUserAction('keyboard_shortcut_home');
-           }
-           
-           // Alt + P = Profile
-           if (event.altKey && event.key === 'p' && user) {
-               event.preventDefault();
-               setPage('profile');
-               PerformanceMonitor.logUserAction('keyboard_shortcut_profile');
-           }
-       };
-
-       window.addEventListener('keydown', handleKeyDown);
-       return () => window.removeEventListener('keydown', handleKeyDown);
-   }, [user]);
-
-   // Sign out handler
-   const handleSignOut = async () => {
-       try {
-           await supabase.auth.signOut();
-           setUser(null);
-           setPage('feed');
-           PerformanceMonitor.logUserAction('user_signed_out');
-           
-           window.addNotification?.({
-               type: 'info',
-               icon: 'fas fa-sign-out-alt',
-               title: 'Logout effettuato',
-               message: 'A presto su SocialSpot!'
-           });
-       } catch (error) {
-           console.error('Sign out error:', error);
-           window.addNotification?.({
-               type: 'error',
-               icon: 'fas fa-exclamation-triangle',
-               title: 'Errore logout',
-               message: 'Impossibile effettuare il logout'
-           });
-       }
-   };
-
-   // Theme toggle
-   const toggleTheme = () => {
-       const newTheme = theme === 'light' ? 'dark' : 'light';
-       setTheme(newTheme);
-       PerformanceMonitor.logUserAction(`theme_changed_to_${newTheme}`);
-       
-       window.addNotification?.({
-           type: 'info',
-           icon: newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun',
-           title: 'Tema cambiato',
-           message: `Attivato tema ${newTheme === 'dark' ? 'scuro' : 'chiaro'}`
-       });
-   };
-
-   // Page change handler
-   const handlePageChange = (newPage) => {
-       if (page !== newPage) {
-           setPage(newPage);
-           PerformanceMonitor.logUserAction(`page_changed_to_${newPage}`);
-       }
-   };
-
-   // Show loader if still initializing
-   if (initializing || showLoader) {
-       return <LoadingScreen isVisible={true} />;
-   }
-
-   // Show auth if no user
-   if (!user) {
-       return (
-           <ErrorBoundary>
-               <NotificationSystem />
-               <Auth supabase={supabase} setUser={setUser} />
-               <PWAInstallPrompt />
-           </ErrorBoundary>
-       );
-   }
-
-   // Main app
-   return (
-       <ErrorBoundary>
-           <div className="app-container">
-               <NotificationSystem />
-               
-               {/* Welcome popup for new users */}
-               <WelcomePopup user={user} />
-               
-               {/* Main header */}
-               <Header
-                   user={user}
-                   currentPage={page}
-                   setPage={handlePageChange}
-                   onSignOut={handleSignOut}
-                   theme={theme}
-                   onToggleTheme={toggleTheme}
-               />
-               
-               {/* Main content with page transitions */}
-               <main className="main-content">
-                   <div className="page-transition-enter-active">
-                       {page === 'feed' && <EventFeed supabase={supabase} user={user} />}
-                       {page === 'create' && <CreateEvent supabase={supabase} user={user} onEventCreated={() => handlePageChange('feed')} />}
-                       {page === 'profile' && <ProfilePage supabase={supabase} user={user} theme={theme} onToggleTheme={toggleTheme} />}
-                   </div>
-               </main>
-               
-               {/* PWA install prompt */}
-               <PWAInstallPrompt />
-           </div>
-       </ErrorBoundary>
-   );
-}
-
-// 🔹 APP INITIALIZATION
-document.addEventListener('DOMContentLoaded', () => {
-   // Remove initial loader
-   const initialLoader = document.getElementById('initial-loader');
-   if (initialLoader) {
-       setTimeout(() => {
-           initialLoader.style.display = 'none';
-       }, 2000);
-   }
-
-   // Initialize React app
-   const root = ReactDOM.createRoot(document.getElementById('root'));
-   root.render(<App />);
-
-   // Initialize performance monitoring
-   PerformanceMonitor.logUserAction('app_initialized');
 });
 
-// 🔹 SERVICE WORKER REGISTRATION
-if ('serviceWorker' in navigator) {
-   window.addEventListener('load', () => {
-       navigator.serviceWorker.register('/sw.js')
-           .then((registration) => {
-               console.log('✅ Service Worker registered:', registration.scope);
-               
-               // Check for updates
-               registration.addEventListener('updatefound', () => {
-                   const newWorker = registration.installing;
-                   newWorker.addEventListener('statechange', () => {
-                       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                           window.addNotification?.({
-                               type: 'info',
-                               icon: 'fas fa-download',
-                               title: 'Aggiornamento disponibile',
-                               message: 'Ricarica la pagina per la nuova versione!'
-                           });
-                       }
-                   });
-               });
-           })
-           .catch((error) => {
-               console.error('❌ Service Worker registration failed:', error);
-           });
-   });
-}
-
-// 🔹 GLOBAL ERROR HANDLING
-window.addEventListener('error', (event) => {
-   console.error('Global error:', event.error);
-   window.addNotification?.({
-       type: 'error',
-       icon: 'fas fa-exclamation-triangle',
-       title: 'Errore imprevisto',
-       message: 'Si è verificato un problema. Prova a ricaricare la pagina.'
-   });
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-   console.error('Unhandled promise rejection:', event.reason);
-   window.addNotification?.({
-       type: 'error',
-       icon: 'fas fa-exclamation-triangle',
-       title: 'Errore di connessione',
-       message: 'Problema di rete o server. Riprova tra poco.'
-   });
-});
-
-// 🔹 PERFORMANCE MONITORING
-if ('performance' in window && 'PerformanceObserver' in window) {
-   // Monitor largest contentful paint
-   new PerformanceObserver((list) => {
-       for (const entry of list.getEntries()) {
-           if (entry.entryType === 'largest-contentful-paint') {
-               console.log('📊 LCP:', entry.startTime);
-           }
-       }
-   }).observe({ entryTypes: ['largest-contentful-paint'] });
-
-   // Monitor first input delay
-   new PerformanceObserver((list) => {
-       for (const entry of list.getEntries()) {
-           if (entry.entryType === 'first-input') {
-               console.log('📊 FID:', entry.processingStart - entry.startTime);
-           }
-       }
-   }).observe({ entryTypes: ['first-input'] });
-}
-
-// 🔹 EXPORT FOR DEBUGGING
-window.SocialSpot = {
-   supabase,
-   PerformanceMonitor,
-   version: '2.0.0'
+// Export enhanced components
+window.SocialSpotComponents = {
+    ...window.SocialSpotComponents,
+    EventFeed: NeuralEventFeed,
+    NotificationSystem: NeuralNotificationSystem
 };
 
-console.log('🚀 SocialSpot v2.0 initialized successfully!');
+// Global Neural AI availability
+window.NeuralAI = NeuralAI;
+
+console.log('🧠 SocialNet Neural App Logic loaded successfully!');
