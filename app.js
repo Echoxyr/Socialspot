@@ -1,665 +1,951 @@
 /*
- * app.js - SocialNet Neural Application
- * Fixed version with correct Supabase keys and complete functionality
+ * app.js - SocialSpot Enhanced Application
+ * Versione avanzata con performance ottimizzate, nuove funzionalità e UX migliorata
  */
 
-// 🔹 Supabase Configuration - YOUR CORRECT KEYS
+// 🔹 Supabase Configuration
+const SUPABASE_URL = 'https://wsmjnssfmujdfgthyizw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWpuc3NmbXVqZGZndGh5aXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4ODA3NjIsImV4cCI6MjA2NjQ1Njc2Mn0.t91X-fGIolFBPnhr5_sexJMqzgdCDmXuEUXiL_pFId4';
 
 // Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 🧠 Neural AI System - Enhanced
-const NeuralAI = {
-    // Generate AI bio with neural enhancement
-    generateBio: async (userData) => {
-        const personalities = {
-            'Sport': 'Atleta del networking neurale che trasforma ogni evento in una vittoria sociale.',
-            'Musica': 'Maestro delle vibrazioni umane, crea armonie tra le persone con l\'AI.',
-            'Arte': 'Architetto di esperienze estetiche neurali, dipinge connessioni autentiche.',
-            'Cultura': 'Esploratore dell\'anima umana potenziato dall\'intelligenza artificiale.',
-            'Tecnologia': 'Pioniere digitale neural che connette il futuro con il presente.',
-            'Cibo': 'Alchimista dei sapori sociali, unisce le persone attorno alla tavola con l\'AI.',
-            'Viaggi': 'Nomade urbano neural che trasforma ogni luogo in una nuova avventura.',
-            'Cinema': 'Regista della vita reale con storytelling AI-enhanced.',
-            'Business': 'Catalizzatore di opportunità neural, trasforma incontri in successi.',
-            'Gaming': 'Neural player della vita reale, livella up le connessioni sociali.'
-        };
-
-        const primaryInterest = userData.interests?.[0] || 'Sport';
-        const baseBio = personalities[primaryInterest] || personalities['Sport'];
-        
-        const enhancements = [
-            'Con approccio neural alle relazioni sociali.',
-            'Alimentato dall\'intelligenza artificiale delle connessioni.',
-            'Specialista in networking di nuova generazione.',
-            'Innovatore delle dinamiche sociali neural.'
-        ];
-
-        return `${baseBio} ${enhancements[Math.floor(Math.random() * enhancements.length)]}`;
-    },
-
-    // Generate AI event suggestion
-    generateEventSuggestion: async (preferences) => {
-        const aiTemplates = {
-            'Sport': {
-                titles: ['Neural Fitness Challenge', 'AI Sport Connect', 'Biorhythm Training'],
-                descriptions: ['Allenamento di gruppo con monitoraggio AI delle performance e matching intelligente dei partecipanti per massima sinergia.']
-            },
-            'Musica': {
-                titles: ['Sonic Neural Session', 'AI Music Mixer', 'Harmonic Convergence'],
-                descriptions: ['Jam session con AI che suggerisce accordi perfetti e facilita connessioni tra musicisti compatibili.']
-            },
-            'Arte': {
-                titles: ['Digital Art Neural', 'AI Creative Lab', 'Neuro-Aesthetic Experience'],
-                descriptions: ['Workshop artistico con AI che analizza creatività e suggerisce collaborazioni tra artisti affini.']
-            },
-            'Tecnologia': {
-                titles: ['Tech Neural Meetup', 'AI Innovation Hub', 'Future Tech Gathering'],
-                descriptions: ['Discussione su AI e futuro con demo di progetti innovativi e networking intelligente.']
-            },
-            'Cultura': {
-                titles: ['Cultural Neural Exchange', 'AI Heritage Tour', 'Neuro-Cultural Immersion'],
-                descriptions: ['Esplorazione culturale guidata da AI con realtà aumentata e connessioni culturali profonde.']
-            }
-        };
-
-        const category = preferences.category || 'Sport';
-        const template = aiTemplates[category] || aiTemplates['Sport'];
-        
-        const title = template.titles[Math.floor(Math.random() * template.titles.length)];
-        const description = template.descriptions[0];
-
-        return {
-            title,
-            description,
-            category,
-            location: 'Location AI-suggerita, Milano',
-            ageRange: preferences.ageRange || '18-35',
-            genderPreference: preferences.genderPreference || 'entrambi',
-            aiGenerated: true
-        };
-    },
-
-    // Generate AI avatar response
-    generateAvatarResponse: async (userProfile, context = '') => {
-        const responses = [
-            `Ciao! Sono l'avatar AI di ${userProfile.username}. Sempre pronto a nuove connessioni neurali!`,
-            `L'intelligenza artificiale di ${userProfile.username} ti dà il benvenuto! Interessato ai suoi eventi neural?`,
-            `Avatar Neural attivo! ${userProfile.username} tornerà presto, nel frattempo posso aiutarti io con suggerimenti AI.`
-        ];
-        return responses[Math.floor(Math.random() * responses.length)];
-    },
-
-    // Generate WhatsApp invite with neural enhancement
-    generateWhatsAppInvite: async (eventData) => {
-        const neuralEmojis = ['🧠', '⚡', '🚀', '💫', '🔮', '✨'];
-        const randomEmoji = neuralEmojis[Math.floor(Math.random() * neuralEmojis.length)];
-        
-        return `${randomEmoji} *${eventData.title}*
-
-${eventData.description}
-
-📅 *Data:* ${new Date(eventData.event_date).toLocaleDateString('it-IT', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-})}
-📍 *Location:* ${eventData.location}
-👥 *Partecipanti:* ${eventData.participants_count || 0}/${eventData.max_participants || '∞'}
-
-${eventData.gender_preference !== 'entrambi' ? `🚻 *Preferenza:* ${eventData.gender_preference}\n` : ''}${eventData.age_range ? `🎂 *Età:* ${eventData.age_range} anni\n` : ''}
-🧠 *Powered by SocialNet Neural AI*
-🔗 Partecipa: https://socialnet-neural.vercel.app/event/${eventData.id}
-
-#SocialNetNeural #AIEvents #FutureNetworking`;
-    },
-
-    // Generate weekly story
-    generateWeeklyStory: async (eventsData, participationData) => {
-        const totalEvents = eventsData.length;
-        const totalParticipants = participationData.reduce((sum, event) => sum + (event.participants_count || 0), 0);
-        
-        return {
-            title: "🧠 Storia Settimanale Neural Community",
-            content: `Questa settimana la nostra intelligenza artificiale ha orchestrato una sinfonia sociale incredibile! 
-
-Con ${totalEvents} eventi neurali creati e ${totalParticipants} partecipanti attivi, abbiamo raggiunto nuovi livelli di connessione umana potenziata dall'AI.
-
-L'algoritmo neural ha facilitato ${Math.floor(totalParticipants * 0.3)} nuove connessioni significative e ha ottimizzato ${Math.floor(totalEvents * 0.8)} eventi per massima compatibilità.
-
-Il futuro del networking sociale è qui, e sta evolvendo attraverso ogni connessione che create! 🚀✨`,
-            
-            highlights: [
-                `${totalEvents} Eventi Neural Creati`,
-                `${totalParticipants} Connessioni Attive`,
-                `${Math.floor(totalParticipants * 0.25)} Nuove Collaborazioni`,
-                `${Math.floor(Math.random() * 15) + 85}% Satisfaction Rate AI`
-            ]
-        };
-    },
-
-    // DALL-E prompt generator
-    generateImagePrompt: (eventData) => {
-        const basePrompts = {
-            'Sport': 'dynamic sports activity with people having fun, neural network background',
-            'Musica': 'vibrant music event with AI-enhanced lighting and sound visualization',
-            'Arte': 'contemporary art gallery with creative people and digital neural overlays',
-            'Tecnologia': 'high-tech meetup with holographic displays and AI interfaces',
-            'Cultura': 'cultural gathering in modern setting with AR neural enhancements'
-        };
-        
-        const basePrompt = basePrompts[eventData.category] || basePrompts['Sport'];
-        return `${basePrompt}, futuristic neural network aesthetic, photorealistic, 8k quality, social media ready`;
-    }
-};
-
-// 🚀 PERFORMANCE MONITORING
+// 🔹 PERFORMANCE MONITORING
 const PerformanceMonitor = {
     startTime: performance.now(),
     
     logPageLoad() {
         const loadTime = performance.now() - this.startTime;
-        console.log(`🧠 SocialNet Neural loaded in ${loadTime.toFixed(2)}ms`);
+        console.log(`🚀 SocialSpot loaded in ${loadTime.toFixed(2)}ms`);
+        
+        // Analytics potrebbero andare qui
+        if (window.gtag) {
+            window.gtag('event', 'page_load_time', {
+                value: Math.round(loadTime),
+                event_category: 'Performance'
+            });
+        }
     },
     
     logUserAction(action, duration = 0) {
-        console.log(`📊 Neural action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
+        console.log(`📊 User action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
     }
 };
 
-// 🔹 MAIN REACT HOOKS
-const { useState, useEffect, useCallback, useMemo, memo } = React;
+// 🔹 ENHANCED WELCOME POPUP
+function WelcomePopup({ user, onClose }) {
+    const [showPopup, setShowPopup] = React.useState(false);
+    const [currentFeature, setCurrentFeature] = React.useState(0);
+    
+    const features = [
+        {
+            icon: 'fas fa-calendar-plus',
+            title: 'Crea Eventi',
+            description: 'Organizza eventi unici e coinvolgi la tua community locale'
+        },
+        {
+            icon: 'fas fa-users',
+            title: 'Partecipa',
+            description: 'Scopri eventi interessanti e conosci persone con i tuoi stessi interessi'
+        },
+        {
+            icon: 'fas fa-comments',
+            title: 'Chatta',
+            description: 'Comunica in tempo reale con altri partecipanti nelle chat di gruppo'
+        },
+        {
+            icon: 'fas fa-star',
+            title: 'Gamification',
+            description: 'Guadagna punti, sali di livello e sblocca achievement speciali'
+        }
+    ];
 
-// 🎯 NEURAL NOTIFICATION SYSTEM
-function NeuralNotificationSystem() {
-    const [notifications, setNotifications] = useState([]);
+    React.useEffect(() => {
+        const hasSeenWelcome = localStorage.getItem(`welcomed_${user.id}`);
+        if (!hasSeenWelcome) {
+            setTimeout(() => setShowPopup(true), 500);
+        }
+    }, [user.id]);
 
-    const addNotification = useCallback((notification) => {
-        const id = Date.now() + Math.random();
-        const neuralNotification = {
-            ...notification,
-            id,
-            timestamp: new Date().toISOString()
-        };
+    React.useEffect(() => {
+        if (showPopup) {
+            const interval = setInterval(() => {
+                setCurrentFeature((prev) => (prev + 1) % features.length);
+            }, 3000);
+            
+            return () => clearInterval(interval);
+        }
+    }, [showPopup, features.length]);
 
-        setNotifications(prev => [neuralNotification, ...prev.slice(0, 4)]);
+    const handleClose = () => {
+        localStorage.setItem(`welcomed_${user.id}`, 'true');
+        setShowPopup(false);
+        PerformanceMonitor.logUserAction('welcome_popup_closed');
+        if (onClose) onClose();
+    };
 
-        setTimeout(() => {
-            setNotifications(prev => prev.filter(n => n.id !== id));
-        }, notification.duration || 5000);
-    }, []);
-
-    useEffect(() => {
-        window.addNotification = addNotification;
-    }, [addNotification]);
+    if (!showPopup) return null;
 
     return (
-        <div className="neural-notifications" style={{
+        <div className="welcome-popup-overlay" onClick={handleClose}>
+            <div className="welcome-popup animate-scale-in" onClick={(e) => e.stopPropagation()}>
+                <div className="welcome-header">
+                    <div className="logo-icon float-animation">
+                        <span className="logo-text">SS</span>
+                    </div>
+                    <h2>Benvenuto in SocialSpot! 🎉</h2>
+                    <p>Siamo felici di averti nella nostra community!</p>
+                </div>
+                
+                <div className="welcome-content">
+                    <div className="welcome-features">
+                        {features.map((feature, index) => (
+                            <div 
+                                key={index}
+                                className={`feature-item ${index === currentFeature ? 'animate-fade-in-up' : ''}`}
+                                style={{
+                                    opacity: index === currentFeature ? 1 : 0.7,
+                                    transform: index === currentFeature ? 'scale(1.05)' : 'scale(1)'
+                                }}
+                            >
+                                <i className={feature.icon}></i>
+                                <h3>{feature.title}</h3>
+                                <p>{feature.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="feature-indicators" style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        gap: '8px', 
+                        marginTop: '20px' 
+                    }}>
+                        {features.map((_, index) => (
+                            <div
+                                key={index}
+                                style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    backgroundColor: index === currentFeature ? '#2563eb' : '#d1d5db',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+                
+                <button className="btn-primary welcome-btn glow-animation" onClick={handleClose}>
+                    <i className="fas fa-rocket"></i>
+                    Inizia la tua avventura!
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// 🔹 ENHANCED NOTIFICATION SYSTEM
+function NotificationSystem() {
+    const [notifications, setNotifications] = React.useState([]);
+    
+    const addNotification = React.useCallback((notification) => {
+        const id = Date.now();
+        const newNotification = { ...notification, id };
+        
+        setNotifications(prev => [...prev, newNotification]);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            setNotifications(prev => prev.filter(n => n.id !== id));
+        }, 5000);
+    }, []);
+    
+    const removeNotification = React.useCallback((id) => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+    }, []);
+    
+    // Make addNotification available globally
+    React.useEffect(() => {
+        window.addNotification = addNotification;
+    }, [addNotification]);
+    
+    return (
+        <div className="notification-container" style={{
             position: 'fixed',
             top: '20px',
             right: '20px',
-            zIndex: 9999,
+            zIndex: 1500,
             display: 'flex',
             flexDirection: 'column',
             gap: '12px'
         }}>
-            {notifications.map(notification => (
+            {notifications.map((notification) => (
                 <div
                     key={notification.id}
-                    className={`neural-notification ${notification.type || 'info'}`}
+                    className={`notification ${notification.type || 'info'} animate-slide-in-right`}
                     style={{
-                        background: 'var(--neural-surface, #1a1a2e)',
-                        border: '1px solid var(--neural-border, #374151)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-xl)',
+                        padding: 'var(--space-4)',
+                        boxShadow: 'var(--shadow-lg)',
                         maxWidth: '350px',
-                        color: 'var(--neural-text, white)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        animation: 'slideInRight 0.3s ease'
+                        cursor: 'pointer'
                     }}
+                    onClick={() => removeNotification(notification.id)}
                 >
-                    <i className={`fas ${notification.icon || 'fa-brain'}`} style={{
-                        color: notification.type === 'success' ? '#4ade80' :
-                               notification.type === 'error' ? '#ef4444' :
-                               notification.type === 'warning' ? '#fbbf24' : '#667eea'
-                    }}></i>
-                    <div>
-                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                            {notification.title}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <i className={`fas ${notification.icon || 'fa-info-circle'}`} style={{
+                            color: notification.type === 'success' ? 'var(--color-success-500)' :
+                                   notification.type === 'error' ? 'var(--color-error-500)' :
+                                   notification.type === 'warning' ? 'var(--color-warning-500)' :
+                                   'var(--color-primary-500)'
+                        }}></i>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 'var(--font-weight-semibold)', marginBottom: '4px' }}>
+                                {notification.title}
+                            </div>
+                            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                                {notification.message}
+                            </div>
                         </div>
-                        <div style={{ fontSize: '14px', opacity: '0.8' }}>
-                            {notification.message}
-                        </div>
+                        <i className="fas fa-times" style={{ 
+                            color: 'var(--color-text-muted)', 
+                            fontSize: 'var(--font-size-xs)' 
+                        }}></i>
                     </div>
-                    <button 
-                        onClick={() => setNotifications(prev => prev.filter(n => n.id !== notification.id))}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'inherit',
-                            cursor: 'pointer',
-                            padding: '4px'
-                        }}
-                    >
-                        <i className="fas fa-times"></i>
-                    </button>
                 </div>
             ))}
         </div>
     );
 }
 
-// 🧠 MAIN NEURAL APP COMPONENT
-function SocialNetNeuralApp() {
-    const [user, setUser] = useState(null);
-    const [currentPage, setCurrentPage] = useState('feed');
-    const [initializing, setInitializing] = useState(true);
-    const [showLoader, setShowLoader] = useState(true);
-    const [notifications, setNotifications] = useState(0);
-    const [theme, setTheme] = useState(() => {
-        const stored = localStorage.getItem('socialnet-theme');
-        return stored || 'dark';
-    });
+// 🔹 ENHANCED SIDE MENU
+function SideMenu({ isOpen, onClose, user, onSignOut, theme, onToggleTheme, currentPage, onPageChange }) {
+    const [userStats, setUserStats] = React.useState(null);
+    
+    React.useEffect(() => {
+       if (isOpen && user) {
+           loadUserStats();
+       }
+   }, [isOpen, user]);
 
-    // Theme management
-    useEffect(() => {
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('socialnet-theme', theme);
-    }, [theme]);
+   const loadUserStats = async () => {
+       try {
+           const { data: created } = await supabase
+               .from('events')
+               .select('id')
+               .eq('creator_id', user.id);
+           
+           const { data: joined } = await supabase
+               .from('event_participants')
+               .select('event_id, events!inner(creator_id)')
+               .eq('user_id', user.id)
+               .neq('events.creator_id', user.id);
+               
+           const createdEvents = created ? created.length : 0;
+           const joinedEvents = joined ? joined.length : 0;
+           const totalPoints = createdEvents * 5 + joinedEvents * 2;
+           const level = Math.floor(totalPoints / 100) + 1;
+           
+           setUserStats({
+               eventsCreated: createdEvents,
+               eventsJoined: joinedEvents,
+               totalPoints,
+               level
+           });
+       } catch (error) {
+           console.error('Error loading user stats:', error);
+       }
+   };
 
-    // Initialize app
-    useEffect(() => {
-        const initApp = async () => {
-            try {
-                // Show loader for 2 seconds minimum
-                setTimeout(() => setShowLoader(false), 2000);
+   const menuItems = [
+       { icon: 'fas fa-home', label: 'Eventi', action: 'feed', page: 'feed' },
+       { icon: 'fas fa-plus-circle', label: 'Crea Evento', action: 'create', page: 'create' },
+       { icon: 'fas fa-user', label: 'Profilo', action: 'profile', page: 'profile' },
+       { icon: 'fas fa-star', label: 'Preferiti', action: 'favorites', page: 'favorites' },
+       { icon: 'fas fa-chart-line', label: 'Statistiche', action: 'stats', page: 'stats' },
+       { icon: 'fas fa-cog', label: 'Impostazioni', action: 'settings', page: 'settings' },
+       { icon: 'fas fa-info-circle', label: 'Info & Supporto', action: 'info', page: 'info' }
+   ];
 
-                // Get initial session
-                const { data: { session } } = await supabase.auth.getSession();
-                setUser(session?.user ?? null);
+   const handleMenuClick = (action, page) => {
+       PerformanceMonitor.logUserAction(`menu_${action}_clicked`);
+       
+       switch (action) {
+           case 'logout':
+               onSignOut();
+               break;
+           case 'feed':
+           case 'create':
+           case 'profile':
+               onPageChange(page);
+               break;
+           case 'favorites':
+               window.addNotification?.({
+                   type: 'info',
+                   icon: 'fas fa-star',
+                   title: 'Preferiti',
+                   message: 'Funzionalità in arrivo presto!'
+               });
+               break;
+           case 'stats':
+               window.addNotification?.({
+                   type: 'info',
+                   icon: 'fas fa-chart-line',
+                   title: 'Statistiche',
+                   message: 'Dashboard avanzate in sviluppo!'
+               });
+               break;
+           case 'settings':
+               window.addNotification?.({
+                   type: 'info',
+                   icon: 'fas fa-cog',
+                   title: 'Impostazioni',
+                   message: 'Pannello impostazioni in arrivo!'
+               });
+               break;
+           case 'info':
+               window.addNotification?.({
+                   type: 'success',
+                   icon: 'fas fa-heart',
+                   title: 'SocialSpot v2.0',
+                   message: 'Grazie per essere parte della community!'
+               });
+               break;
+           default:
+               console.log(`Azione ${action} non implementata`);
+       }
+       onClose();
+   };
 
-                // Set up auth listener
-                const { data: { subscription } } = supabase.auth.onAuthStateChange(
-                    async (event, session) => {
-                        setUser(session?.user ?? null);
-                        
-                        if (session?.user && event === 'SIGNED_IN') {
-                            window.addNotification?.({
-                                type: 'success',
-                                icon: 'fa-brain',
-                                title: 'Neural Connection Active!',
-                                message: 'Benvenuto nel futuro del networking'
-                            });
-                        }
-                    }
-                );
+   if (!isOpen) return null;
 
-                setInitializing(false);
-                
-                return () => subscription.unsubscribe();
-            } catch (error) {
-                console.error('Initialization error:', error);
-                setInitializing(false);
-                setShowLoader(false);
-                
-                window.addNotification?.({
-                    type: 'error',
-                    icon: 'fa-exclamation-triangle',
-                    title: 'Errore di Connessione',
-                    message: 'Problema durante l\'inizializzazione Neural'
-                });
-            }
-        };
+   const initials = user.email ? user.email[0].toUpperCase() : '?';
 
-        initApp();
-        PerformanceMonitor.logPageLoad();
-    }, []);
-
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        PerformanceMonitor.logUserAction(`theme_changed_to_${newTheme}`);
-    };
-
-    const handlePageChange = (newPage) => {
-        if (currentPage !== newPage) {
-            setCurrentPage(newPage);
-            PerformanceMonitor.logUserAction(`page_changed_to_${newPage}`);
-        }
-    };
-
-    const handleSignOut = async () => {
-        try {
-            await supabase.auth.signOut();
-            window.addNotification?.({
-                type: 'info',
-                icon: 'fa-sign-out-alt',
-                title: 'Neural Disconnected',
-                message: 'Logout effettuato con successo'
-            });
-        } catch (error) {
-            console.error('Logout error:', error);
-            window.addNotification?.({
-                type: 'error',
-                icon: 'fa-exclamation-triangle',
-                title: 'Errore Logout',
-                message: 'Impossibile disconnettersi dal neural network'
-            });
-        }
-    };
-
-    // Show loader
-    if (initializing || showLoader) {
-        return (
-            <div className="neural-loader" style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                background: 'linear-gradient(135deg, #2d1b69 0%, #11052c 100%)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 9999,
-                color: 'white',
-                textAlign: 'center'
-            }}>
-                <div>
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 20px',
-                        fontSize: '2rem',
-                        fontWeight: 'bold',
-                        animation: 'float 3s ease-in-out infinite'
-                    }}>
-                        SN.n
-                    </div>
-                    <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>SocialNet Neural</h1>
-                    <p style={{ opacity: '0.8' }}>Inizializzazione AI Neural...</p>
-                </div>
-            </div>
-        );
-    }
-
-    // Show auth if no user
-    if (!user) {
-        return (
-            <div className="neural-app" data-theme={theme}>
-                <NeuralNotificationSystem />
-                {window.SocialSpotComponents?.Auth ? (
-                    <window.SocialSpotComponents.Auth 
-                        supabase={supabase} 
-                        setUser={setUser}
-                    />
-                ) : (
-                    <div className="auth-fallback" style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: '100vh',
-                        background: 'linear-gradient(135deg, #2d1b69 0%, #11052c 100%)',
-                        color: 'white',
-                        textAlign: 'center'
-                    }}>
-                        <div>
-                            <h1 style={{ fontSize: '3rem', marginBottom: '20px' }}>SocialNet Neural</h1>
-                            <p>Caricamento componenti di autenticazione...</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    // Main app interface
-    return (
-        <div className="neural-app" data-theme={theme}>
-            <NeuralNotificationSystem />
-            
-            {/* Main Header */}
-            <header className="neural-header" style={{
-                background: 'var(--neural-surface, #1a1a2e)',
-                backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid var(--neural-border, #374151)',
-                padding: '16px 0',
-                position: 'sticky',
-                top: 0,
-                zIndex: 100
-            }}>
-                <div style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    padding: '0 16px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontSize: '1.2rem',
-                            fontWeight: '800'
-                        }}>
-                            SN.n
-                        </div>
-                        <h1 style={{
-                            fontSize: '1.5rem',
-                            fontWeight: '700',
-                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text'
-                        }}>
-                            SocialNet Neural
-                        </h1>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <button 
-                            onClick={toggleTheme}
-                            style={{
-                                background: 'var(--neural-surface-hover, #16213e)',
-                                border: '1px solid var(--neural-border, #374151)',
-                                color: 'var(--neural-text, white)',
-                                padding: '8px 12px',
-                                borderRadius: '8px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
-                        </button>
-                        
-                        <button 
-                            onClick={handleSignOut}
-                            style={{
-                                background: 'var(--neural-surface-hover, #16213e)',
-                                border: '1px solid var(--neural-border, #374151)',
-                                color: 'var(--neural-text, white)',
-                                padding: '8px 12px',
-                                borderRadius: '8px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <i className="fas fa-sign-out-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main style={{ flex: 1, padding: '20px 0', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-                <div style={{ padding: '0 16px' }}>
-                    {currentPage === 'feed' && (
-                        <div>
-                            {window.SocialSpotComponents?.EventFeed ? (
-                                <window.SocialSpotComponents.EventFeed 
-                                    supabase={supabase} 
-                                    user={user}
-                                />
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '40px' }}>
-                                    <h2>🧠 Feed Eventi Neural</h2>
-                                    <p>Caricamento eventi AI-powered...</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {currentPage === 'create' && (
-                        <div>
-                            {window.SocialSpotComponents?.CreateEvent ? (
-                                <window.SocialSpotComponents.CreateEvent 
-                                    supabase={supabase} 
-                                    user={user}
-                                    onEventCreated={() => handlePageChange('feed')}
-                                    aiHelper={NeuralAI}
-                                />
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '40px' }}>
-                                    <h2>🚀 Crea Evento Neural</h2>
-                                    <p>Caricamento creatore eventi AI...</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {currentPage === 'profile' && (
-                        <div>
-                            {window.SocialSpotComponents?.ProfilePage ? (
-                                <window.SocialSpotComponents.ProfilePage 
-                                    supabase={supabase} 
-                                    user={user}
-                                />
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '40px' }}>
-                                    <h2>👤 Profilo Neural</h2>
-                                    <p>Caricamento profilo AI...</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </main>
-
-            {/* Neural Navigation */}
-            <nav style={{
-                background: 'var(--neural-surface, #1a1a2e)',
-                backdropFilter: 'blur(20px)',
-                borderTop: '1px solid var(--neural-border, #374151)',
-                padding: '8px 0',
-                position: 'sticky',
-                bottom: 0,
-                zIndex: 100
-            }}>
-                <div style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '20px',
-                    padding: '0 16px'
-                }}>
-                    {[
-                        { key: 'feed', icon: 'fa-home', label: 'Feed' },
-                        { key: 'create', icon: 'fa-plus-circle', label: 'Crea' },
-                        { key: 'profile', icon: 'fa-user', label: 'Profilo' }
-                    ].map(nav => (
-                        <button 
-                            key={nav.key}
-                            onClick={() => handlePageChange(nav.key)}
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '4px',
-                                padding: '12px 16px',
-                                background: currentPage === nav.key ? 'var(--neural-primary, #667eea)' : 'none',
-                                border: 'none',
-                                borderRadius: '8px',
-                                color: currentPage === nav.key ? 'white' : 'var(--neural-text, white)',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                minWidth: '60px'
-                            }}
-                        >
-                            <i className={`fas ${nav.icon}`} style={{ fontSize: '1.2rem' }}></i>
-                            <span style={{ fontSize: '0.75rem', fontWeight: '600' }}>{nav.label}</span>
-                        </button>
-                    ))}
-                </div>
-            </nav>
-        </div>
-    );
+   return (
+       <>
+           <div className="side-menu-overlay" onClick={onClose}></div>
+           <div className="side-menu animate-slide-in-right">
+               <div className="side-menu-header">
+                   <div className="user-info">
+                       <div className="user-avatar glow-animation">
+                           {initials}
+                       </div>
+                       <div className="user-details">
+                           <h3>{user.email}</h3>
+                           <p>Membro della community</p>
+                           {userStats && (
+                               <div style={{ 
+                                   marginTop: '8px', 
+                                   display: 'flex', 
+                                   gap: '12px',
+                                   fontSize: 'var(--font-size-xs)',
+                                   color: 'var(--color-text-muted)'
+                               }}>
+                                   <span>📊 {userStats.totalPoints} punti</span>
+                                   <span>⭐ Livello {userStats.level}</span>
+                               </div>
+                           )}
+                       </div>
+                   </div>
+                   <button className="side-menu-close" onClick={onClose}>
+                       <i className="fas fa-times"></i>
+                   </button>
+               </div>
+               
+               <div className="side-menu-content">
+                   <nav className="menu-nav">
+                       {menuItems.map((item, index) => (
+                           <button
+                               key={index}
+                               className={`menu-item ${item.page === currentPage ? 'active' : ''}`}
+                               onClick={() => handleMenuClick(item.action, item.page)}
+                               style={{
+                                   background: item.page === currentPage ? 
+                                       'linear-gradient(135deg, var(--color-primary-50), var(--color-secondary-50))' : 
+                                       'none',
+                                   color: item.page === currentPage ? 'var(--color-primary-600)' : 'inherit'
+                               }}
+                           >
+                               <i className={item.icon}></i>
+                               <span>{item.label}</span>
+                               <i className="fas fa-chevron-right"></i>
+                           </button>
+                       ))}
+                       
+                       <button
+                           className="menu-item"
+                           onClick={() => handleMenuClick('logout')}
+                           style={{ 
+                               marginTop: 'var(--space-4)',
+                               borderTop: '1px solid var(--color-border-light)',
+                               paddingTop: 'var(--space-4)',
+                               color: 'var(--color-error-600)'
+                           }}
+                       >
+                           <i className="fas fa-sign-out-alt"></i>
+                           <span>Logout</span>
+                           <i className="fas fa-chevron-right"></i>
+                       </button>
+                   </nav>
+                   
+                   <div className="theme-section">
+                       <div className="theme-toggle-section">
+                           <div className="theme-info">
+                               <i className="fas fa-palette"></i>
+                               <span>Tema: {theme === 'light' ? 'Chiaro' : 'Scuro'}</span>
+                           </div>
+                           <button className="theme-switch" onClick={onToggleTheme}>
+                               <i className={theme === 'light' ? 'fas fa-moon' : 'fas fa-sun'}></i>
+                           </button>
+                       </div>
+                   </div>
+               </div>
+               
+               <div className="side-menu-footer">
+                   <p>SocialSpot v2.0</p>
+                   <p>Connetti • Scopri • Partecipa</p>
+               </div>
+           </div>
+       </>
+   );
 }
 
-// 🚀 Global AI availability
-window.NeuralAI = NeuralAI;
+// 🔹 ENHANCED HEADER
+function Header({ user, currentPage, setPage, onSignOut, theme, onToggleTheme }) {
+   const [sideMenuOpen, setSideMenuOpen] = React.useState(false);
+   const [isScrolled, setIsScrolled] = React.useState(false);
 
-// 🚀 RENDER NEURAL APP
-if (document.getElementById('root')) {
-    ReactDOM.render(<SocialNetNeuralApp />, document.getElementById('root'));
-} else {
-    console.error('❌ Root element not found');
+   React.useEffect(() => {
+       const handleScroll = () => {
+           setIsScrolled(window.scrollY > 10);
+       };
+
+       window.addEventListener('scroll', handleScroll);
+       return () => window.removeEventListener('scroll', handleScroll);
+   }, []);
+
+   const handlePageChange = (page) => {
+       setPage(page);
+       PerformanceMonitor.logUserAction(`navigate_to_${page}`);
+   };
+
+   return (
+       <>
+           <header className={`main-header ${isScrolled ? 'scrolled' : ''}`} style={{
+               boxShadow: isScrolled ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
+               background: isScrolled ? 
+                   'rgba(255, 255, 255, 0.95)' : 
+                   'rgba(255, 255, 255, 0.8)'
+           }}>
+               <div className="header-container">
+                   <button 
+                       className="hamburger-menu"
+                       onClick={() => setSideMenuOpen(true)}
+                       aria-label="Menu"
+                   >
+                       <i className="fas fa-bars"></i>
+                   </button>
+
+                   <div className="app-logo-header" onClick={() => handlePageChange('feed')} style={{ cursor: 'pointer' }}>
+                       <div className="logo-icon glow-animation">
+                           <span className="logo-text">SS</span>
+                       </div>
+                       <span className="app-name">SocialSpot</span>
+                   </div>
+
+                   <nav className="header-nav">
+                       <button 
+                           className={`nav-btn ${currentPage === 'feed' ? 'active' : ''}`}
+                           onClick={() => handlePageChange('feed')}
+                       >
+                           <i className="fas fa-home"></i>
+                           <span>Eventi</span>
+                       </button>
+                       <button 
+                           className={`nav-btn ${currentPage === 'create' ? 'active' : ''}`}
+                           onClick={() => handlePageChange('create')}
+                       >
+                           <i className="fas fa-plus"></i>
+                           <span>Crea</span>
+                       </button>
+                       <button 
+                           className={`nav-btn ${currentPage === 'profile' ? 'active' : ''}`}
+                           onClick={() => handlePageChange('profile')}
+                       >
+                           <i className="fas fa-user"></i>
+                           <span>Profilo</span>
+                       </button>
+                   </nav>
+               </div>
+           </header>
+
+           <SideMenu 
+               isOpen={sideMenuOpen}
+               onClose={() => setSideMenuOpen(false)}
+               user={user}
+               onSignOut={onSignOut}
+               theme={theme}
+               onToggleTheme={onToggleTheme}
+               currentPage={currentPage}
+               onPageChange={handlePageChange}
+           />
+       </>
+   );
 }
 
-console.log('🧠 SocialNet Neural App loaded successfully!');
+// 🔹 ENHANCED LOADING SCREEN
+function LoadingScreen({ isVisible }) {
+   const [loadingText, setLoadingText] = React.useState('Caricamento in corso...');
+   
+   React.useEffect(() => {
+       if (!isVisible) return;
+       
+       const messages = [
+           'Caricamento in corso...',
+           'Connessione al server...',
+           'Preparazione interfaccia...',
+           'Quasi pronto...'
+       ];
+       
+       let index = 0;
+       const interval = setInterval(() => {
+           index = (index + 1) % messages.length;
+           setLoadingText(messages[index]);
+       }, 800);
+       
+       return () => clearInterval(interval);
+   }, [isVisible]);
 
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-    
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    :root {
-        --neural-primary: #667eea;
-        --neural-surface: #1a1a2e;
-        --neural-border: #374151;
-        --neural-text: white;
-        --neural-surface-hover: #16213e;
-    }
-    
-    [data-theme="light"] {
-        --neural-surface: #ffffff;
-        --neural-border: #e5e7eb;
-        --neural-text: #1f2937;
-        --neural-surface-hover: #f8fafc;
-    }
-    
-    .neural-app {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        background: var(--neural-surface);
-        color: var(--neural-text);
-        transition: all 0.3s ease;
-    }
-`;
-document.head.appendChild(style);
-            
+   if (!isVisible) return null;
+
+   return (
+       <div className="loader-screen">
+           <div className="loader-content">
+               <div className="app-logo-loading">
+                   <div className="logo-icon-loading">
+                       <span className="logo-text-loading">SS</span>
+                       <div className="loading-rings">
+                           <div className="ring ring-1"></div>
+                           <div className="ring ring-2"></div>
+                           <div className="ring ring-3"></div>
+                       </div>
+                   </div>
+                   <h1 className="brand-name-loading">SocialSpot</h1>
+                   <p className="brand-tagline">Connetti • Scopri • Partecipa</p>
+               </div>
+               <div className="loading-progress">
+                   <div className="progress-bar-loading"></div>
+                   <p className="loading-text">{loadingText}</p>
+               </div>
+           </div>
+       </div>
+   );
+}
+
+// 🔹 PWA INSTALL PROMPT
+function PWAInstallPrompt() {
+   const [deferredPrompt, setDeferredPrompt] = React.useState(null);
+   const [showInstallButton, setShowInstallButton] = React.useState(false);
+
+   React.useEffect(() => {
+       const handleBeforeInstallPrompt = (e) => {
+           e.preventDefault();
+           setDeferredPrompt(e);
+           setShowInstallButton(true);
+       };
+
+       window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+       return () => {
+           window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+       };
+   }, []);
+
+   const handleInstallClick = async () => {
+       if (deferredPrompt) {
+           deferredPrompt.prompt();
+           const result = await deferredPrompt.userChoice;
+           
+           if (result.outcome === 'accepted') {
+               window.addNotification?.({
+                   type: 'success',
+                   icon: 'fas fa-download',
+                   title: 'App Installata!',
+                   message: 'SocialSpot è ora disponibile nella tua home screen!'
+               });
+           }
+           
+           setDeferredPrompt(null);
+           setShowInstallButton(false);
+       }
+   };
+
+   if (!showInstallButton) return null;
+
+   return (
+       <button
+           className="install-app-btn glow-animation"
+           onClick={handleInstallClick}
+           title="Installa SocialSpot"
+       >
+           <i className="fas fa-download"></i>
+       </button>
+   );
+}
+
+// 🔹 ERROR BOUNDARY
+class ErrorBoundary extends React.Component {
+   constructor(props) {
+       super(props);
+       this.state = { hasError: false, error: null };
+   }
+
+   static getDerivedStateFromError(error) {
+       return { hasError: true, error };
+   }
+
+   componentDidCatch(error, errorInfo) {
+       console.error('SocialSpot Error:', error, errorInfo);
+       
+       // Log to external service if available
+       if (window.Sentry) {
+           window.Sentry.captureException(error);
+       }
+   }
+
+   render() {
+       if (this.state.hasError) {
+           return (
+               <div className="error-boundary" style={{
+                   minHeight: '100vh',
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center',
+                   flexDirection: 'column',
+                   gap: '20px',
+                   padding: '40px',
+                   textAlign: 'center'
+               }}>
+                   <div style={{ fontSize: '4rem' }}>😵</div>
+                   <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-text)' }}>
+                       Oops! Qualcosa è andato storto
+                   </h1>
+                   <p style={{ color: 'var(--color-text-muted)', maxWidth: '400px' }}>
+                       Si è verificato un errore imprevisto. Prova a ricaricare la pagina o contatta il supporto se il problema persiste.
+                   </p>
+                   <button 
+                       className="btn-primary"
+                       onClick={() => window.location.reload()}
+                       style={{ marginTop: '20px' }}
+                   >
+                       <i className="fas fa-redo"></i>
+                       Ricarica la pagina
+                   </button>
+               </div>
+           );
+       }
+
+       return this.props.children;
+   }
+}
+
+// 🔹 MAIN APP COMPONENT
+function App() {
+   const [user, setUser] = React.useState(null);
+   const [page, setPage] = React.useState('feed');
+   const [initializing, setInitializing] = React.useState(true);
+   const [showLoader, setShowLoader] = React.useState(true);
+   const [theme, setTheme] = React.useState(() => {
+       const stored = localStorage.getItem('theme');
+       if (stored) return stored;
+       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+   });
+
+   // Theme management
+   React.useEffect(() => {
+       document.body.setAttribute('data-theme', theme);
+       localStorage.setItem('theme', theme);
+       
+       // Update theme color meta tag
+       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+       if (themeColorMeta) {
+           themeColorMeta.content = theme === 'dark' ? '#1f2937' : '#2563eb';
+       }
+   }, [theme]);
+
+   // Authentication state management
+   React.useEffect(() => {
+       const initAuth = async () => {
+           try {
+               const { data: { session } } = await supabase.auth.getSession();
+               setUser(session?.user ?? null);
+           } catch (error) {
+               console.error('Auth initialization error:', error);
+               window.addNotification?.({
+                   type: 'error',
+                   icon: 'fas fa-exclamation-triangle',
+                   title: 'Errore di connessione',
+                   message: 'Problema durante l\'inizializzazione dell\'app'
+               });
+           } finally {
+               setInitializing(false);
+           }
+       };
+
+       initAuth();
+
+       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+           setUser(session?.user ?? null);
+           
+           if (session?.user) {
+               PerformanceMonitor.logUserAction('user_signed_in');
+               window.addNotification?.({
+                   type: 'success',
+                   icon: 'fas fa-user-check',
+                   title: 'Accesso effettuato!',
+                   message: `Benvenuto ${session.user.email}`
+               });
+           }
+       });
+
+       return () => subscription.unsubscribe();
+   }, []);
+
+   // Loader management
+   React.useEffect(() => {
+       if (!initializing) {
+           const timer = setTimeout(() => {
+               setShowLoader(false);
+               PerformanceMonitor.logPageLoad();
+           }, 1500);
+           
+           return () => clearTimeout(timer);
+       }
+   }, [initializing]);
+
+   // Keyboard shortcuts
+   React.useEffect(() => {
+       const handleKeyDown = (event) => {
+           // Alt + N = New Event
+           if (event.altKey && event.key === 'n' && user) {
+               event.preventDefault();
+               setPage('create');
+               PerformanceMonitor.logUserAction('keyboard_shortcut_new_event');
+           }
+           
+           // Alt + H = Home/Feed
+           if (event.altKey && event.key === 'h' && user) {
+               event.preventDefault();
+               setPage('feed');
+               PerformanceMonitor.logUserAction('keyboard_shortcut_home');
+           }
+           
+           // Alt + P = Profile
+           if (event.altKey && event.key === 'p' && user) {
+               event.preventDefault();
+               setPage('profile');
+               PerformanceMonitor.logUserAction('keyboard_shortcut_profile');
+           }
+       };
+
+       window.addEventListener('keydown', handleKeyDown);
+       return () => window.removeEventListener('keydown', handleKeyDown);
+   }, [user]);
+
+   // Sign out handler
+   const handleSignOut = async () => {
+       try {
+           await supabase.auth.signOut();
+           setUser(null);
+           setPage('feed');
+           PerformanceMonitor.logUserAction('user_signed_out');
+           
+           window.addNotification?.({
+               type: 'info',
+               icon: 'fas fa-sign-out-alt',
+               title: 'Logout effettuato',
+               message: 'A presto su SocialSpot!'
+           });
+       } catch (error) {
+           console.error('Sign out error:', error);
+           window.addNotification?.({
+               type: 'error',
+               icon: 'fas fa-exclamation-triangle',
+               title: 'Errore logout',
+               message: 'Impossibile effettuare il logout'
+           });
+       }
+   };
+
+   // Theme toggle
+   const toggleTheme = () => {
+       const newTheme = theme === 'light' ? 'dark' : 'light';
+       setTheme(newTheme);
+       PerformanceMonitor.logUserAction(`theme_changed_to_${newTheme}`);
+       
+       window.addNotification?.({
+           type: 'info',
+           icon: newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun',
+           title: 'Tema cambiato',
+           message: `Attivato tema ${newTheme === 'dark' ? 'scuro' : 'chiaro'}`
+       });
+   };
+
+   // Page change handler
+   const handlePageChange = (newPage) => {
+       if (page !== newPage) {
+           setPage(newPage);
+           PerformanceMonitor.logUserAction(`page_changed_to_${newPage}`);
+       }
+   };
+
+   // Show loader if still initializing
+   if (initializing || showLoader) {
+       return <LoadingScreen isVisible={true} />;
+   }
+
+   // Show auth if no user
+   if (!user) {
+       return (
+           <ErrorBoundary>
+               <NotificationSystem />
+               <Auth supabase={supabase} setUser={setUser} />
+               <PWAInstallPrompt />
+           </ErrorBoundary>
+       );
+   }
+
+   // Main app
+   return (
+       <ErrorBoundary>
+           <div className="app-container">
+               <NotificationSystem />
+               
+               {/* Welcome popup for new users */}
+               <WelcomePopup user={user} />
+               
+               {/* Main header */}
+               <Header
+                   user={user}
+                   currentPage={page}
+                   setPage={handlePageChange}
+                   onSignOut={handleSignOut}
+                   theme={theme}
+                   onToggleTheme={toggleTheme}
+               />
+               
+               {/* Main content with page transitions */}
+               <main className="main-content">
+                   <div className="page-transition-enter-active">
+                       {page === 'feed' && <EventFeed supabase={supabase} user={user} />}
+                       {page === 'create' && <CreateEvent supabase={supabase} user={user} onEventCreated={() => handlePageChange('feed')} />}
+                       {page === 'profile' && <ProfilePage supabase={supabase} user={user} theme={theme} onToggleTheme={toggleTheme} />}
+                   </div>
+               </main>
+               
+               {/* PWA install prompt */}
+               <PWAInstallPrompt />
+           </div>
+       </ErrorBoundary>
+   );
+}
+
+// 🔹 APP INITIALIZATION
+document.addEventListener('DOMContentLoaded', () => {
+   // Remove initial loader
+   const initialLoader = document.getElementById('initial-loader');
+   if (initialLoader) {
+       setTimeout(() => {
+           initialLoader.style.display = 'none';
+       }, 2000);
+   }
+
+   // Initialize React app
+   const root = ReactDOM.createRoot(document.getElementById('root'));
+   root.render(<App />);
+
+   // Initialize performance monitoring
+   PerformanceMonitor.logUserAction('app_initialized');
+});
+
+// 🔹 SERVICE WORKER REGISTRATION
+if ('serviceWorker' in navigator) {
+   window.addEventListener('load', () => {
+       navigator.serviceWorker.register('/sw.js')
+           .then((registration) => {
+               console.log('✅ Service Worker registered:', registration.scope);
+               
+               // Check for updates
+               registration.addEventListener('updatefound', () => {
+                   const newWorker = registration.installing;
+                   newWorker.addEventListener('statechange', () => {
+                       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                           window.addNotification?.({
+                               type: 'info',
+                               icon: 'fas fa-download',
+                               title: 'Aggiornamento disponibile',
+                               message: 'Ricarica la pagina per la nuova versione!'
+                           });
+                       }
+                   });
+               });
+           })
+           .catch((error) => {
+               console.error('❌ Service Worker registration failed:', error);
+           });
+   });
+}
+
+// 🔹 GLOBAL ERROR HANDLING
+window.addEventListener('error', (event) => {
+   console.error('Global error:', event.error);
+   window.addNotification?.({
+       type: 'error',
+       icon: 'fas fa-exclamation-triangle',
+       title: 'Errore imprevisto',
+       message: 'Si è verificato un problema. Prova a ricaricare la pagina.'
+   });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+   console.error('Unhandled promise rejection:', event.reason);
+   window.addNotification?.({
+       type: 'error',
+       icon: 'fas fa-exclamation-triangle',
+       title: 'Errore di connessione',
+       message: 'Problema di rete o server. Riprova tra poco.'
+   });
+});
+
+// 🔹 PERFORMANCE MONITORING
+if ('performance' in window && 'PerformanceObserver' in window) {
+   // Monitor largest contentful paint
+   new PerformanceObserver((list) => {
+       for (const entry of list.getEntries()) {
+           if (entry.entryType === 'largest-contentful-paint') {
+               console.log('📊 LCP:', entry.startTime);
+           }
+       }
+   }).observe({ entryTypes: ['largest-contentful-paint'] });
+
+   // Monitor first input delay
+   new PerformanceObserver((list) => {
+       for (const entry of list.getEntries()) {
+           if (entry.entryType === 'first-input') {
+               console.log('📊 FID:', entry.processingStart - entry.startTime);
+           }
+       }
+   }).observe({ entryTypes: ['first-input'] });
+}
+
+// 🔹 EXPORT FOR DEBUGGING
+window.SocialSpot = {
+   supabase,
+   PerformanceMonitor,
+   version: '2.0.0'
+};
+
+console.log('🚀 SocialSpot v2.0 initialized successfully!');
