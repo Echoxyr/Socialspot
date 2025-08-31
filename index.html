@@ -2882,12 +2882,257 @@
         return (
             <div className="profile-page">
                 <div className="profile-header">
-                    <div className="profile-avatar-large">
-                        {profile.username?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                    <div className="profile-actions">
+                        <button className="profile-btn">
+                            <i className="fas fa-edit"></i>
+                            Modifica Profilo
+                        </button>
+                        <button className="profile-btn secondary" onClick={onSignOut}>
+                            <i className="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
                     </div>
-                    <div className="profile-name">{profile.username || 'Utente ULTIMATE'}</div>
-                    <div className="profile-email">{user.email}</div>
-                    
+                </div>
+
+                {myEvents.length > 0 && (
+                    <div style={{
+                        background: 'rgba(26, 26, 26, 0.8)',
+                        backdropFilter: 'blur(20px)',
+                        borderRadius: '25px',
+                        padding: '30px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        marginBottom: '25px'
+                    }}>
+                        <div className="section-title">
+                            <i className="fas fa-calendar-check"></i>
+                            I miei eventi ({myEvents.length})
+                            <span className="demo-badge">REAL</span>
+                        </div>
+                        <div className="events-grid">
+                            {myEvents.slice(0, 3).map(event => (
+                                <div key={event.id} className="event-card">
+                                    <div className="live-badge">MIO</div>
+                                    <div className="event-content">
+                                        <h3 className="event-title">{event.title}</h3>
+                                        <p className="event-description">{event.description}</p>
+                                        <div className="event-meta">
+                                            <div className="event-meta-item">
+                                                <i className="fas fa-calendar"></i>
+                                                <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
+                                            </div>
+                                            <div className="event-meta-item">
+                                                <i className="fas fa-map-marker-alt"></i>
+                                                <span>{event.location}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // Component Notifications
+    function Notifications({ user }) {
+        const [notifications, setNotifications] = useState([
+            {
+                id: 1,
+                type: 'join_request',
+                user: 'marco_sport',
+                text: 'ha richiesto di partecipare al tuo evento "Torneo di calcetto"',
+                time: '2 minuti fa',
+                unread: true
+            },
+            {
+                id: 2,
+                type: 'join_approved',
+                user: 'anna_music',
+                text: 'ha approvato la tua richiesta per "Concerto Jazz"',
+                time: '15 minuti fa',
+                unread: true
+            },
+            {
+                id: 3,
+                type: 'like',
+                user: 'luca_tech',
+                text: 'ha messo mi piace al tuo evento "Hackathon Weekend"',
+                time: '1 ora fa',
+                unread: false
+            },
+            {
+                id: 4,
+                type: 'comment',
+                user: 'sara_arte',
+                text: 'ha commentato: "Non vedo l\'ora di partecipare!"',
+                time: '2 ore fa',
+                unread: false
+            }
+        ]);
+
+        const markAsRead = (id) => {
+            setNotifications(notifications.map(notif => 
+                notif.id === id ? { ...notif, unread: false } : notif
+            ));
+        };
+
+        return (
+            <div className="notifications-page">
+                <div className="section-title">
+                    <i className="fas fa-bell"></i>
+                    Notifiche
+                    <span className="demo-badge">LIVE</span>
+                </div>
+                
+                {notifications.map(notif => (
+                    <div 
+                        key={notif.id} 
+                        className={`notification-item ${notif.unread ? 'unread' : ''}`}
+                    >
+                        <div className="notification-avatar">
+                            {notif.user[0].toUpperCase()}
+                        </div>
+                        <div className="notification-content">
+                            <div className="notification-text">
+                                <strong>{notif.user}</strong> {notif.text}
+                            </div>
+                            <div className="notification-time">{notif.time}</div>
+                        </div>
+                        {notif.unread && (
+                            <button 
+                                className="notification-action"
+                                onClick={() => markAsRead(notif.id)}
+                            >
+                                Segna come letto
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    // Component principale App
+    function App() {
+        const [user, setUser] = useState(null);
+        const [currentPage, setCurrentPage] = useState('feed');
+        const [loading, setLoading] = useState(true);
+        const [notifications] = useState(3);
+
+        useEffect(() => {
+            // Controlla sessione esistente
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                setUser(session?.user ?? null);
+                setLoading(false);
+            });
+
+            // Ascolta cambiamenti auth
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                setUser(session?.user ?? null);
+            });
+
+            return () => subscription.unsubscribe();
+        }, []);
+
+        const handleSignOut = async () => {
+            await supabase.auth.signOut();
+            setUser(null);
+            setCurrentPage('feed');
+        };
+
+        if (loading) {
+            return (
+                <div className="loading" style={{minHeight: '100vh'}}>
+                    <div className="spinner"></div>
+                    <div className="loading-text">Inizializzazione...</div>
+                </div>
+            );
+        }
+
+        if (!user) {
+            return <Onboarding onComplete={setUser} />;
+        }
+
+        return (
+            <div className="app">
+                {/* Top Bar */}
+                <div className="top-bar">
+                    <div className="logo-container">
+                        <div className="logo-icon">SS</div>
+                        <div className="logo-text">SocialSpot</div>
+                    </div>
+                    <div className="status-indicators">
+                        <div className="live-status">LIVE</div>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="content">
+                    {currentPage === 'feed' && <Feed user={user} />}
+                    {currentPage === 'search' && <Search user={user} />}
+                    {currentPage === 'create' && <CreateEvent user={user} onEventCreated={() => setCurrentPage('feed')} />}
+                    {currentPage === 'notifications' && <Notifications user={user} />}
+                    {currentPage === 'profile' && <Profile user={user} onSignOut={handleSignOut} />}
+                </div>
+
+                {/* Bottom Navigation */}
+                <div className="bottom-nav">
+                    <div 
+                        className={`nav-item ${currentPage === 'feed' ? 'active' : ''}`}
+                        onClick={() => setCurrentPage('feed')}
+                    >
+                        <i className="fas fa-home"></i>
+                        <span>Feed</span>
+                    </div>
+                    <div 
+                        className={`nav-item ${currentPage === 'search' ? 'active' : ''}`}
+                        onClick={() => setCurrentPage('search')}
+                    >
+                        <i className="fas fa-search"></i>
+                        <span>Cerca</span>
+                    </div>
+                    <div 
+                        className={`nav-item ${currentPage === 'create' ? 'active' : ''}`}
+                        onClick={() => setCurrentPage('create')}
+                    >
+                        <i className="fas fa-plus-circle"></i>
+                        <span>Crea</span>
+                    </div>
+                    <div 
+                        className={`nav-item ${currentPage === 'notifications' ? 'active' : ''}`}
+                        onClick={() => setCurrentPage('notifications')}
+                    >
+                        <i className="fas fa-bell"></i>
+                        <span>Notifiche</span>
+                        {notifications > 0 && <div className="nav-badge">{notifications}</div>}
+                    </div>
+                    <div 
+                        className={`nav-item ${currentPage === 'profile' ? 'active' : ''}`}
+                        onClick={() => setCurrentPage('profile')}
+                    >
+                        <i className="fas fa-user"></i>
+                        <span>Profilo</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Render dell'app
+    ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+```
+
+</body>
+</html>avatar-large">
+                            {profile.username?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                        </div>
+                        <div className="profile-name">{profile.username || 'Utente ULTIMATE'}</div>
+                        <div className="profile-email">{user.email}</div>
+
+```
                     <div className="profile-stats">
                         <div className="stat-item">
                             <div className="stat-number ultimate-glow">
