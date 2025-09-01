@@ -65,6 +65,11 @@ create table if not exists public.events (
   updated_at timestamptz default now()
 );
 
+-- Ensure the status column exists for existing installations
+alter table public.events
+  add column if not exists status text default 'active'
+    check (status in ('active', 'cancelled', 'completed'));
+
 -- Tabella partecipanti eventi (per conteggi corretti)
 create table if not exists public.event_participants (
   id uuid primary key default gen_random_uuid(),
@@ -75,6 +80,11 @@ create table if not exists public.event_participants (
   -- Evita partecipazioni duplicate
   unique(event_id, user_id)
 );
+
+-- Ensure the status column exists for existing installations
+alter table public.event_participants
+  add column if not exists status text default 'confirmed'
+    check (status in ('confirmed', 'pending', 'cancelled'));
 
 -- Tabella favoriti eventi
 create table if not exists public.event_favorites (
