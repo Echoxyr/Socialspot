@@ -2789,4 +2789,3 @@ window.SocialSpotComponents = {
 
 console.log('🎨 SocialSpot Components v2.0 loaded successfully!');
                                  
-
