@@ -4,8 +4,8 @@
  */
 
 // 🔹 Supabase Configuration
-const SUPABASE_URL = 'https://wsmjnssfmujdfgthyizw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWpuc3NmbXVqZGZndGh5aXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4ODA3NjIsImV4cCI6MjA2NjQ1Njc2Mn0.t91X-fGIolFBPnhr5_sexJMqzgdCDmXuEUXiL_pFId4';
+const SUPABASE_URL = 'https://dtplarkoscdtmqbondri.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0cGxhcmtvc2NkYm1xYm9uZHJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzQ0NDYsImV4cCI6MjA3MjMxMDQ0Nn0.QKwzKbookhedLVK1kxjCVMVMUbz7GWt-eqzHuOkhNSU';
 
 // Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -796,156 +796,156 @@ function App() {
 
    // Page change handler
    const handlePageChange = (newPage) => {
-       if (page !== newPage) {
-           setPage(newPage);
-           PerformanceMonitor.logUserAction(`page_changed_to_${newPage}`);
-       }
-   };
+       if (page !== new Page) {
+          setPage(newPage);
+          PerformanceMonitor.logUserAction(`page_changed_to_${newPage}`);
+      }
+  };
 
-   // Show loader if still initializing
-   if (initializing || showLoader) {
-       return <LoadingScreen isVisible={true} />;
-   }
+  // Show loader if still initializing
+  if (initializing || showLoader) {
+      return <LoadingScreen isVisible={true} />;
+  }
 
-   // Show auth if no user
-   if (!user) {
-       return (
-           <ErrorBoundary>
-               <NotificationSystem />
-               <Auth supabase={supabase} setUser={setUser} />
-               <PWAInstallPrompt />
-           </ErrorBoundary>
-       );
-   }
+  // Show auth if no user
+  if (!user) {
+      return (
+          <ErrorBoundary>
+              <NotificationSystem />
+              <Auth supabase={supabase} setUser={setUser} />
+              <PWAInstallPrompt />
+          </ErrorBoundary>
+      );
+  }
 
-   // Main app
-   return (
-       <ErrorBoundary>
-           <div className="app-container">
-               <NotificationSystem />
-               
-               {/* Welcome popup for new users */}
-               <WelcomePopup user={user} />
-               
-               {/* Main header */}
-               <Header
-                   user={user}
-                   currentPage={page}
-                   setPage={handlePageChange}
-                   onSignOut={handleSignOut}
-                   theme={theme}
-                   onToggleTheme={toggleTheme}
-               />
-               
-               {/* Main content with page transitions */}
-               <main className="main-content">
-                   <div className="page-transition-enter-active">
-                       {page === 'feed' && <EventFeed supabase={supabase} user={user} />}
-                       {page === 'create' && <CreateEvent supabase={supabase} user={user} onEventCreated={() => handlePageChange('feed')} />}
-                       {page === 'profile' && <ProfilePage supabase={supabase} user={user} theme={theme} onToggleTheme={toggleTheme} />}
-                   </div>
-               </main>
-               
-               {/* PWA install prompt */}
-               <PWAInstallPrompt />
-           </div>
-       </ErrorBoundary>
-   );
+  // Main app
+  return (
+      <ErrorBoundary>
+          <div className="app-container">
+              <NotificationSystem />
+              
+              {/* Welcome popup for new users */}
+              <WelcomePopup user={user} />
+              
+              {/* Main header */}
+              <Header
+                  user={user}
+                  currentPage={page}
+                  setPage={handlePageChange}
+                  onSignOut={handleSignOut}
+                  theme={theme}
+                  onToggleTheme={toggleTheme}
+              />
+              
+              {/* Main content with page transitions */}
+              <main className="main-content">
+                  <div className="page-transition-enter-active">
+                      {page === 'feed' && <EventFeed supabase={supabase} user={user} />}
+                      {page === 'create' && <CreateEvent supabase={supabase} user={user} onEventCreated={() => handlePageChange('feed')} />}
+                      {page === 'profile' && <ProfilePage supabase={supabase} user={user} theme={theme} onToggleTheme={toggleTheme} />}
+                  </div>
+              </main>
+              
+              {/* PWA install prompt */}
+              <PWAInstallPrompt />
+          </div>
+      </ErrorBoundary>
+  );
 }
 
 // 🔹 APP INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
-   // Remove initial loader
-   const initialLoader = document.getElementById('initial-loader');
-   if (initialLoader) {
-       setTimeout(() => {
-           initialLoader.style.display = 'none';
-       }, 2000);
-   }
+  // Remove initial loader
+  const initialLoader = document.getElementById('initial-loader');
+  if (initialLoader) {
+      setTimeout(() => {
+          initialLoader.style.display = 'none';
+      }, 2000);
+  }
 
-   // Initialize React app
-   const root = ReactDOM.createRoot(document.getElementById('root'));
-   root.render(<App />);
+  // Initialize React app
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<App />);
 
-   // Initialize performance monitoring
-   PerformanceMonitor.logUserAction('app_initialized');
+  // Initialize performance monitoring
+  PerformanceMonitor.logUserAction('app_initialized');
 });
 
 // 🔹 SERVICE WORKER REGISTRATION
 if ('serviceWorker' in navigator) {
-   window.addEventListener('load', () => {
-       navigator.serviceWorker.register('/sw.js')
-           .then((registration) => {
-               console.log('✅ Service Worker registered:', registration.scope);
-               
-               // Check for updates
-               registration.addEventListener('updatefound', () => {
-                   const newWorker = registration.installing;
-                   newWorker.addEventListener('statechange', () => {
-                       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                           window.addNotification?.({
-                               type: 'info',
-                               icon: 'fas fa-download',
-                               title: 'Aggiornamento disponibile',
-                               message: 'Ricarica la pagina per la nuova versione!'
-                           });
-                       }
-                   });
-               });
-           })
-           .catch((error) => {
-               console.error('❌ Service Worker registration failed:', error);
-           });
-   });
+  window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+              console.log('✅ Service Worker registered:', registration.scope);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                  const newWorker = registration.installing;
+                  newWorker.addEventListener('statechange', () => {
+                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                          window.addNotification?.({
+                              type: 'info',
+                              icon: 'fas fa-download',
+                              title: 'Aggiornamento disponibile',
+                              message: 'Ricarica la pagina per la nuova versione!'
+                          });
+                      }
+                  });
+              });
+          })
+          .catch((error) => {
+              console.error('❌ Service Worker registration failed:', error);
+          });
+  });
 }
 
 // 🔹 GLOBAL ERROR HANDLING
 window.addEventListener('error', (event) => {
-   console.error('Global error:', event.error);
-   window.addNotification?.({
-       type: 'error',
-       icon: 'fas fa-exclamation-triangle',
-       title: 'Errore imprevisto',
-       message: 'Si è verificato un problema. Prova a ricaricare la pagina.'
-   });
+  console.error('Global error:', event.error);
+  window.addNotification?.({
+      type: 'error',
+      icon: 'fas fa-exclamation-triangle',
+      title: 'Errore imprevisto',
+      message: 'Si è verificato un problema. Prova a ricaricare la pagina.'
+  });
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-   console.error('Unhandled promise rejection:', event.reason);
-   window.addNotification?.({
-       type: 'error',
-       icon: 'fas fa-exclamation-triangle',
-       title: 'Errore di connessione',
-       message: 'Problema di rete o server. Riprova tra poco.'
-   });
+  console.error('Unhandled promise rejection:', event.reason);
+  window.addNotification?.({
+      type: 'error',
+      icon: 'fas fa-exclamation-triangle',
+      title: 'Errore di connessione',
+      message: 'Problema di rete o server. Riprova tra poco.'
+  });
 });
 
 // 🔹 PERFORMANCE MONITORING
 if ('performance' in window && 'PerformanceObserver' in window) {
-   // Monitor largest contentful paint
-   new PerformanceObserver((list) => {
-       for (const entry of list.getEntries()) {
-           if (entry.entryType === 'largest-contentful-paint') {
-               console.log('📊 LCP:', entry.startTime);
-           }
-       }
-   }).observe({ entryTypes: ['largest-contentful-paint'] });
+  // Monitor largest contentful paint
+  new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+          if (entry.entryType === 'largest-contentful-paint') {
+              console.log('📊 LCP:', entry.startTime);
+          }
+      }
+  }).observe({ entryTypes: ['largest-contentful-paint'] });
 
-   // Monitor first input delay
-   new PerformanceObserver((list) => {
-       for (const entry of list.getEntries()) {
-           if (entry.entryType === 'first-input') {
-               console.log('📊 FID:', entry.processingStart - entry.startTime);
-           }
-       }
-   }).observe({ entryTypes: ['first-input'] });
+  // Monitor first input delay
+  new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+          if (entry.entryType === 'first-input') {
+              console.log('📊 FID:', entry.processingStart - entry.startTime);
+          }
+      }
+  }).observe({ entryTypes: ['first-input'] });
 }
 
 // 🔹 EXPORT FOR DEBUGGING
 window.SocialSpot = {
-   supabase,
-   PerformanceMonitor,
-   version: '2.0.0'
+  supabase,
+  PerformanceMonitor,
+  version: '2.0.0'
 };
 
 console.log('🚀 SocialSpot v2.0 initialized successfully!');
