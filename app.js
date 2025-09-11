@@ -1,3 +1,9 @@
+const SUPABASE_URL = 'https://dtplarkoscdbmqbondri.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0cGxhcmtvc2NkYm1xYm9uZHJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzQ0NDYsImV4cCI6MjA3MjMxMDQ0Nn0.QKwzKbookhedLVK1kxjCVMVMUbz7GWt-';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Resto del codice app.js rimane identico...
 // Import components from components.js
 const { Auth, LocationInput, useRealTimeStats, supabase, CATEGORIES } = window.SocialSpotComponents;
 const { useState, useEffect, useCallback, useRef } = React;
