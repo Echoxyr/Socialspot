@@ -1,8 +1,6 @@
-– ========================================
-– SOCIALNET NEURAL - SCHEMA SQL COMPLETO
-– ========================================
+– SOCIALNET NEURAL SCHEMA SQL COMPLETO
 
-– PASSO 1: ELIMINA TABELLE ESISTENTI (se ci sono conflitti)
+– ELIMINA TABELLE ESISTENTI
 DROP TABLE IF EXISTS public.notifications CASCADE;
 DROP TABLE IF EXISTS public.user_badges CASCADE;
 DROP TABLE IF EXISTS public.badges CASCADE;
@@ -14,7 +12,7 @@ DROP TABLE IF EXISTS public.event_participants CASCADE;
 DROP TABLE IF EXISTS public.events CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
 
-– PASSO 2: CREA TABELLE PRINCIPALI
+– CREA TABELLE PRINCIPALI
 
 – Tabella profili utente
 CREATE TABLE public.profiles (
@@ -143,7 +141,7 @@ is_read boolean DEFAULT false,
 created_at timestamptz DEFAULT now()
 );
 
-– PASSO 3: INDICI PER PERFORMANCE
+– INDICI
 CREATE INDEX idx_profiles_username ON public.profiles(username);
 CREATE INDEX idx_events_creator ON public.events(creator_id);
 CREATE INDEX idx_events_date ON public.events(event_date);
@@ -153,7 +151,7 @@ CREATE INDEX idx_event_participants_user ON public.event_participants(user_id);
 CREATE INDEX idx_notifications_user ON public.notifications(user_id);
 CREATE INDEX idx_notifications_unread ON public.notifications(user_id, is_read);
 
-– PASSO 4: ROW LEVEL SECURITY (RLS)
+– ROW LEVEL SECURITY
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_participants ENABLE ROW LEVEL SECURITY;
@@ -164,31 +162,26 @@ ALTER TABLE public.private_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_badges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
-– Policy per profiles
+– POLICY
 CREATE POLICY “Profiles sono pubblicamente leggibili” ON public.profiles FOR SELECT USING (true);
 CREATE POLICY “Gli utenti possono modificare il proprio profilo” ON public.profiles FOR ALL USING (auth.uid() = id);
 
-– Policy per events
 CREATE POLICY “Eventi pubblici sono leggibili da tutti” ON public.events FOR SELECT USING (NOT is_private OR creator_id = auth.uid());
 CREATE POLICY “Gli utenti possono creare eventi” ON public.events FOR INSERT WITH CHECK (auth.uid() = creator_id);
 CREATE POLICY “I creatori possono modificare i propri eventi” ON public.events FOR UPDATE USING (auth.uid() = creator_id);
 CREATE POLICY “I creatori possono eliminare i propri eventi” ON public.events FOR DELETE USING (auth.uid() = creator_id);
 
-– Policy per event_participants
 CREATE POLICY “I partecipanti sono visibili a tutti” ON public.event_participants FOR SELECT USING (true);
 CREATE POLICY “Gli utenti possono partecipare agli eventi” ON public.event_participants FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY “Gli utenti possono gestire le proprie partecipazioni” ON public.event_participants FOR ALL USING (auth.uid() = user_id);
 
-– Policy per event_favorites
 CREATE POLICY “Gli utenti vedono i propri favoriti” ON public.event_favorites FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY “Gli utenti possono gestire i propri favoriti” ON public.event_favorites FOR ALL USING (auth.uid() = user_id);
 
-– Policy per event_comments
 CREATE POLICY “I commenti sono pubblicamente leggibili” ON public.event_comments FOR SELECT USING (true);
 CREATE POLICY “Gli utenti autenticati possono commentare” ON public.event_comments FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY “Gli utenti possono modificare i propri commenti” ON public.event_comments FOR UPDATE USING (auth.uid() = user_id);
 
-– Policy per event_chats
 CREATE POLICY “Chat visibili ai partecipanti dell’evento” ON public.event_chats
 FOR SELECT USING (
 EXISTS (
@@ -205,17 +198,15 @@ WHERE event_id = event_chats.event_id AND user_id = auth.uid()
 )
 );
 
-– Policy per private_messages
 CREATE POLICY “Gli utenti vedono i propri messaggi” ON public.private_messages
 FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 CREATE POLICY “Gli utenti possono inviare messaggi” ON public.private_messages
 FOR INSERT WITH CHECK (auth.uid() = sender_id);
 
-– Policy per notifications
 CREATE POLICY “Gli utenti vedono le proprie notifiche” ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY “Gli utenti possono aggiornare le proprie notifiche” ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
 
-– PASSO 5: TRIGGER E FUNZIONI
+– TRIGGER E FUNZIONI
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -229,7 +220,6 @@ CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
-– Funzione per aggiornare updated_at
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS trigger AS $$
 BEGIN
@@ -238,11 +228,10 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-– Trigger per updated_at
 CREATE TRIGGER set_updated_at_profiles BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 CREATE TRIGGER set_updated_at_events BEFORE UPDATE ON public.events FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 
-– PASSO 6: VISTE UTILI
+– VISTE
 CREATE OR REPLACE VIEW public.events_with_stats AS
 SELECT
 e.*,
@@ -254,7 +243,7 @@ p.avatar_url as creator_avatar,
 FROM public.events e
 JOIN public.profiles p ON e.creator_id = p.id;
 
-– PASSO 7: DATI INIZIALI BADGE
+– DATI INIZIALI BADGE
 INSERT INTO public.badges (name, description, icon, category, points) VALUES
 (‘Primo Evento’, ‘Hai creato il tuo primo evento!’, ‘fa-calendar-plus’, ‘eventi’, 10),
 (‘Prima Partecipazione’, ‘Hai partecipato al tuo primo evento!’, ‘fa-user-check’, ‘partecipazione’, 5),
@@ -263,12 +252,3 @@ INSERT INTO public.badges (name, description, icon, category, points) VALUES
 (‘Social Butterfly’, ‘Hai fatto 50 commenti!’, ‘fa-comments’, ‘social’, 20),
 (‘Popolare’, ‘I tuoi eventi hanno 100 partecipanti totali!’, ‘fa-fire’, ‘popolarita’, 100)
 ON CONFLICT (name) DO NOTHING;
-
-– PASSO 8: ABILITA REALTIME
-ALTER PUBLICATION supabase_realtime ADD TABLE public.event_chats;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.private_messages;
-
-– ========================================
-– FINE SCHEMA - PRONTO PER L’USO!
-– ========================================
