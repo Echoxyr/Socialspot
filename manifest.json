@@ -1,21 +1,16 @@
 {
   "name": "SocialSpot",
   "short_name": "SocialSpot",
-  "description": "Connetti, Scopri, Partecipa",
+  "description": "Connetti, Crea, Condividi",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMyNTYzZWIiLz48dGV4dCB4PSI5NiIgeT0iMTA2IiBmb250LWZhbWlseT0iSW50ZXIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TUzwvdGV4dD48L3N2Zz4=",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }
