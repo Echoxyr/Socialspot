@@ -2,10 +2,6 @@ const SUPABASE_URL = 'https://dtplarkoscdbmqbondri.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0cGxhcmtvc2NkYm1xYm9uZHJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzQ0NDYsImV4cCI6MjA3MjMxMDQ0Nn0.QKwzKbookhedLVK1kxjCVMVMUbz7GWt-';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Resto del codice app.js rimane identico...
-// Import components from components.js
-const { Auth, LocationInput, useRealTimeStats, supabase, CATEGORIES } = window.SocialSpotComponents;
 const { useState, useEffect, useCallback, useRef } = React;
 
 // EventFeed Component
@@ -366,6 +362,11 @@ const CreateEvent = ({ user, onEventCreated }) => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
+    const CATEGORIES = [
+        'Sport', 'Musica', 'Arte', 'Cultura', 'Tecnologia', 
+        'Cibo', 'Viaggi', 'Cinema', 'All\'aperto', 'Business'
+    ];
+
     const handleCreate = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -455,9 +456,12 @@ const CreateEvent = ({ user, onEventCreated }) => {
                 <div className="form-row">
                     <div className="form-group">
                         <label className="form-label">Luogo</label>
-                        <LocationInput
-                            value={location}
-                            onChange={setLocation}
+                        <input 
+                            type="text" 
+                            className="form-input"
+                            value={location} 
+                            onChange={(e) => setLocation(e.target.value)} 
+                            required 
                             placeholder="Seleziona una location"
                         />
                     </div>
@@ -497,14 +501,15 @@ const CreateEvent = ({ user, onEventCreated }) => {
 
 // ProfilePage Component
 const ProfilePage = ({ user, onSignOut }) => {
-    const { stats, loading: statsLoading } = useRealTimeStats(user.id);
     const [profile, setProfile] = useState({ username: '', location: '', interests: [] });
     const [myEvents, setMyEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({ events: 0, followers: 0, following: 0 });
 
     useEffect(() => {
         loadProfile();
         loadMyEvents();
+        loadStats();
     }, []);
 
     const loadProfile = async () => {
@@ -541,6 +546,43 @@ const ProfilePage = ({ user, onSignOut }) => {
         }
     };
 
+    const loadStats = async () => {
+        try {
+            const { data: myEvents } = await supabase
+                .from('events')
+                .select('id')
+                .eq('creator_id', user.id);
+            
+            const eventsCount = myEvents?.length || 0;
+            
+            let followersCount = 0;
+            if (eventsCount > 0) {
+                const { data: participants } = await supabase
+                    .from('event_participants')
+                    .select('user_id')
+                    .in('event_id', myEvents.map(e => e.id));
+                
+                const uniqueParticipants = new Set(participants?.map(p => p.user_id) || []);
+                followersCount = uniqueParticipants.size;
+            }
+            
+            const { data: myParticipations } = await supabase
+                .from('event_participants')
+                .select('event_id')
+                .eq('user_id', user.id);
+            
+            const followingCount = myParticipations?.length || 0;
+            
+            setStats({
+                events: eventsCount,
+                followers: followersCount,
+                following: followingCount
+            });
+        } catch (err) {
+            console.error('Errore calcolo statistiche:', err);
+        }
+    };
+
     if (loading) {
         return (
             <div className="loading">
@@ -562,21 +604,15 @@ const ProfilePage = ({ user, onSignOut }) => {
                 <div className="gamification-wrapper">
                     <div className="stats-grid">
                         <div className="stat-item">
-                            <div className="stat-value">
-                                {statsLoading ? '...' : stats.events}
-                            </div>
+                            <div className="stat-value">{stats.events}</div>
                             <div className="stat-label">Eventi Creati</div>
                         </div>
                         <div className="stat-item">
-                            <div className="stat-value">
-                                {statsLoading ? '...' : stats.followers}
-                            </div>
+                            <div className="stat-value">{stats.followers}</div>
                             <div className="stat-label">Followers</div>
                         </div>
                         <div className="stat-item">
-                            <div className="stat-value">
-                                {statsLoading ? '...' : stats.following}
-                            </div>
+                            <div className="stat-value">{stats.following}</div>
                             <div className="stat-label">Following</div>
                         </div>
                     </div>
@@ -678,7 +714,7 @@ const App = () => {
     }
 
     if (!user) {
-        return <Auth setUser={setUser} />;
+        return React.createElement(window.SocialSpotComponents.Auth, { setUser: setUser });
     }
 
     return (
