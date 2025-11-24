@@ -59,7 +59,10 @@ const Auth = memo(({ setUser }) => {
             }
           }
         });
-        
+        try {
+  Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
+} catch {}
+
         // Crea profilo SOLO se signup OK
         if (result.data?.user && !result.error) {
           try {
