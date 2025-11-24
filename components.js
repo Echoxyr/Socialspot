@@ -154,6 +154,63 @@ const LocationInput = ({ value, onChange, placeholder }) => {
     );
 };
 
+
+  // ...
+});
+// Location Input Component
+const LocationInput = ({ value, onChange, placeholder }) => {
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    const handleInputChange = (e) => {
+        const inputValue = e.target.value;
+        onChange(inputValue);
+        
+        if (inputValue.length > 1) {
+            const filtered = ITALIAN_CITIES.filter(city =>
+                city.toLowerCase().includes(inputValue.toLowerCase())
+            ).slice(0, 8);
+            setSuggestions(filtered);
+            setShowSuggestions(true);
+        } else {
+            setShowSuggestions(false);
+        }
+    };
+
+    const selectSuggestion = (city) => {
+        onChange(city);
+        setShowSuggestions(false);
+    };
+
+    return (
+        <div className="location-input-container">
+            <input
+                type="text"
+                className="form-input"
+                placeholder={placeholder}
+                value={value}
+                onChange={handleInputChange}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                required
+            />
+            {showSuggestions && suggestions.length > 0 && (
+                <div className="location-suggestions">
+                    {suggestions.map((city, index) => (
+                        <div
+                            key={index}
+                            className="location-suggestion"
+                            onClick={() => selectSuggestion(city)}
+                        >
+                            <i className="fas fa-map-marker-alt"></i>
+                            {city}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // Hook per statistiche real-time
 const useRealTimeStats = (userId) => {
     const [stats, setStats] = useState({ events: 0, followers: 0, following: 0 });
