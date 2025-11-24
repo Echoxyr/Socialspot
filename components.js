@@ -1,8 +1,8 @@
 /// --- Configurazione Supabase ---
+// Supabase Configuration
 const SUPABASE_URL = 'https://apxtdtijqcpfzmlvxyzt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFweHRkdGlqcWNwZnptbHZ4eXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTIyNDMsImV4cCI6MjA3OTU4ODI0M30.DPN_cG5s1oFxfM8v6Jozhq1pTmzXlbTsqHZ-2bR89JU';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 
 // React hooks
 const { useState, useEffect, useCallback, useRef, memo } = React;
