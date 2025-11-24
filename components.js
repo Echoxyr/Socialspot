@@ -59,12 +59,19 @@ const Auth = memo(({ setUser }) => {
                     password: formData.password 
                 });
             } else {
+                // Validazione signup
                 if (!formData.fullName.trim()) {
                     setError('Inserisci il nome completo');
                     setLoading(false);
                     return;
                 }
+                if (formData.interests.length === 0) {
+                    setError('Seleziona almeno un interesse');
+                    setLoading(false);
+                    return;
+                }
                 
+                // Signup
                 result = await supabase.auth.signUp({ 
                     email: formData.email, 
                     password: formData.password,
@@ -76,6 +83,7 @@ const Auth = memo(({ setUser }) => {
                     }
                 });
                 
+                // Crea profilo SOLO se signup OK
                 if (result.data?.user && !result.error) {
                     try {
                         const profileData = {
@@ -83,14 +91,21 @@ const Auth = memo(({ setUser }) => {
                             username: formData.fullName.trim(),
                             interests: formData.interests,
                             location: '',
-                            bio: ''
+                            bio: '',
+                            avatar_url: null
                         };
                         
-                        await supabase
+                        const { error: profileError } = await supabase
                             .from('profiles')
                             .insert(profileData);
+                            
+                        if (profileError) {
+                            console.error('Errore creazione profilo:', profileError);
+                            // Non blocchiamo il login per questo
+                        }
                     } catch (profileErr) {
                         console.error('Errore inserimento profilo:', profileErr);
+                        // Non blocchiamo il login
                     }
                 }
             }
