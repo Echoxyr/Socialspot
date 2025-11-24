@@ -1,7 +1,9 @@
 /// --- Configurazione Supabase ---
-const SUPABASE_URL = 'https://dtplarkoscdbmqbondri.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0cGxhcmtvc2NkYm1xYm9uZHJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzQ0NDYsImV4cCI6MjA3MjMxMDQ0Nn0.QKwzKbookhedLVK1kxjCVMVMUbz7GWt-eqzHuOkhNSU';
+const SUPABASE_URL = 'https://apxtdtijqcpfzmlvxyzt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFweHRkdGlqcWNwZnptbHZ4eXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTIyNDMsImV4cCI6MjA3OTU4ODI0M30.DPN_cG5s1oFxfM8v6Jozhq1pTmzXlbTsqHZ-2bR89JU';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
 // React hooks
 const { useState, useEffect, useCallback, useRef, memo } = React;
 
