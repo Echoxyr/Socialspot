@@ -19,229 +19,87 @@ const ITALIAN_CITIES = [
 
 // Auth Component
 const Auth = memo(({ setUser }) => {
-    const [isSignIn, setIsSignIn] = useState(true);
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        fullName: '',
-        interests: []
-    });
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
+  // ...
 
-    const handleInputChange = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-        setError(null);
-    };
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    const handleInterestToggle = (interest) => {
-        setFormData(prev => ({
-            ...prev,
-            interests: prev.interests.includes(interest)
-                ? prev.interests.filter(i => i !== interest)
-                : [...prev.interests, interest]
-        }));
-    };
-
-    const handleAuth = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        
-        try {
-            let result;
-            if (isSignIn) {
-                result = await supabase.auth.signInWithPassword({ 
-                    email: formData.email, 
-                    password: formData.password 
-                });
-            } else {
-                // Validazione signup
-                if (!formData.fullName.trim()) {
-                    setError('Inserisci il nome completo');
-                    setLoading(false);
-                    return;
-                }
-                if (formData.interests.length === 0) {
-                    setError('Seleziona almeno un interesse');
-                    setLoading(false);
-                    return;
-                }
-                
-                // Signup
-                result = await supabase.auth.signUp({ 
-                    email: formData.email, 
-                    password: formData.password,
-                    options: {
-                        data: {
-                            full_name: formData.fullName.trim(),
-                            interests: formData.interests
-                        }
-                    }
-                });
-                
-                // Crea profilo SOLO se signup OK
-                if (result.data?.user && !result.error) {
-                    try {
-                        const profileData = {
-                            id: result.data.user.id,
-                            username: formData.fullName.trim(),
-                            interests: formData.interests,
-                            location: '',
-                            bio: '',
-                            avatar_url: null
-                        };
-                        
-                        const { error: profileError } = await supabase
-                            .from('profiles')
-                            .insert(profileData);
-                            
-                        if (profileError) {
-                            console.error('Errore creazione profilo:', profileError);
-                            // Non blocchiamo il login per questo
-                        }
-                    } catch (profileErr) {
-                        console.error('Errore inserimento profilo:', profileErr);
-                        // Non blocchiamo il login
-                    }
-                }
-            }
-            
-            if (result.error) {
-                setError(result.error.message);
-            } else if (result.data.user) {
-                setUser(result.data.user);
-            }
-        } catch (err) {
-            console.error('Auth error:', err);
-            setError('Errore di connessione. Riprova.');
-        } finally {
-            setLoading(false);
+    try {
+      let result;
+      if (isSignIn) {
+        result = await supabase.auth.signInWithPassword({ 
+          email: formData.email, 
+          password: formData.password 
+        });
+      } else {
+        // Validazione signup
+        if (!formData.fullName.trim()) {
+          setError('Inserisci il nome completo');
+          setLoading(false);
+          return;
         }
-    };
+        if (formData.interests.length === 0) {
+          setError('Seleziona almeno un interesse');
+          setLoading(false);
+          return;
+        }
+        
+        // Signup
+        result = await supabase.auth.signUp({ 
+          email: formData.email, 
+          password: formData.password,
+          options: {
+            data: {
+              full_name: formData.fullName.trim(),
+              interests: formData.interests
+            }
+          }
+        });
+        
+        // Crea profilo SOLO se signup OK
+        if (result.data?.user && !result.error) {
+          try {
+            const profileData = {
+              id: result.data.user.id,
+              username: formData.fullName.trim(),
+              interests: formData.interests,
+              location: '',
+              bio: '',
+              avatar_url: null
+            };
+            
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert(profileData);
+              
+            if (profileError) {
+              console.error('Errore creazione profilo:', profileError);
+              // Non blocchiamo il login per questo
+            }
+          } catch (profileErr) {
+            console.error('Errore inserimento profilo:', profileErr);
+            // Non blocchiamo il login
+          }
+        }
+      }
+      
+      if (result.error) {
+        setError(result.error.message);
+      } else if (result.data.user) {
+        setUser(result.data.user);
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+      setError('Errore di connessione. Riprova.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const availableInterests = [
-        'Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 
-        'Viaggi', 'Arte', 'Lettura', 'Gaming', 'Fitness'
-    ];
-
-    return (
-        <div className="auth-wrapper">
-            <div className="auth-container">
-                <div className="auth-header">
-                    <div className="logo-icon">
-                        <span className="logo-text">SS</span>
-                    </div>
-                    <h1>SocialSpot</h1>
-                    <p>Connetti, Crea, Condividi</p>
-                </div>
-
-                <div className="auth-content">
-                    <div className="auth-tabs">
-                        <button 
-                            className={`auth-tab ${isSignIn ? 'active' : ''}`} 
-                            onClick={() => setIsSignIn(true)}
-                        >
-                            Accedi
-                        </button>
-                        <button 
-                            className={`auth-tab ${!isSignIn ? 'active' : ''}`} 
-                            onClick={() => setIsSignIn(false)}
-                        >
-                            Registrati
-                        </button>
-                    </div>
-
-                    <form onSubmit={handleAuth} className="auth-form">
-                        <div className="form-group">
-                            <input
-                                type="email"
-                                className="form-input"
-                                placeholder="Email"
-                                value={formData.email}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <input
-                                type="password"
-                                className="form-input"
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={(e) => handleInputChange('password', e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        {!isSignIn && (
-                            <>
-                                <div className="form-group">
-                                    <input
-                                        type="text"
-                                        className="form-input"
-                                        placeholder="Nome completo"
-                                        value={formData.fullName}
-                                        onChange={(e) => handleInputChange('fullName', e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Interessi ({formData.interests.length}/5)</label>
-                                    <div className="interests-grid">
-                                        {availableInterests.map(interest => (
-                                            <button
-                                                key={interest}
-                                                type="button"
-                                                className={`interest-chip ${
-                                                    formData.interests.includes(interest) ? 'selected' : ''
-                                                }`}
-                                                onClick={() => handleInterestToggle(interest)}
-                                                disabled={
-                                                    !formData.interests.includes(interest) && 
-                                                    formData.interests.length >= 5
-                                                }
-                                            >
-                                                {interest}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
-
-                        {error && (
-                            <div className="error-message">
-                                <i className="fas fa-exclamation-triangle"></i>
-                                {error}
-                            </div>
-                        )}
-
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? (
-                                <>
-                                    <i className="fas fa-spinner fa-spin"></i>
-                                    {isSignIn ? 'Accesso...' : 'Registrazione...'}
-                                </>
-                            ) : (
-                                <>
-                                    <i className={`fas ${isSignIn ? 'fa-sign-in-alt' : 'fa-user-plus'}`}></i>
-                                    {isSignIn ? 'Accedi' : 'Registrati'}
-                                </>
-                            )}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    );
+  // ...
 });
-
 // Location Input Component
 const LocationInput = ({ value, onChange, placeholder }) => {
     const [suggestions, setSuggestions] = useState([]);
