@@ -1,487 +1,348 @@
-/*
- * app.js - SocialSpot Application FIXED
- * Versione corretta con credenziali uniformi e gestione email verification
- */
+-- ========================================
+-- SOCIALSPOT - DATABASE SCHEMA CORRETTO
+-- ========================================
 
-// 🔹 Supabase Configuration - CREDENZIALI CORRETTE
-const SUPABASE_URL = 'https://ctixzrxyyqpumzwmyjyo.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aXh6cnh5eXFwdW16d215anlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTYzNDQsImV4cCI6MjA3OTU5MjM0NH0.k8HDt4WbU6RwMktolucWc1dekPwfbOk853o7AABRt4o';
+-- 1. ELIMINA TABELLE ESISTENTI (se necessario)
+DROP TABLE IF EXISTS public.notifications CASCADE;
+DROP TABLE IF EXISTS public.user_badges CASCADE;
+DROP TABLE IF EXISTS public.badges CASCADE;
+DROP TABLE IF EXISTS public.private_messages CASCADE;
+DROP TABLE IF EXISTS public.event_chats CASCADE;
+DROP TABLE IF EXISTS public.event_comments CASCADE;
+DROP TABLE IF EXISTS public.event_favorites CASCADE;
+DROP TABLE IF EXISTS public.event_participants CASCADE;
+DROP TABLE IF EXISTS public.events CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+-- 2. CREA TABELLA PROFILI CON TUTTI I CAMPI NECESSARI
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  username TEXT UNIQUE NOT NULL,
+  full_name TEXT NOT NULL,
+  date_of_birth DATE NOT NULL,
+  gender TEXT CHECK (gender IN ('male', 'female', 'other', 'prefer_not_to_say')),
+  phone TEXT,
+  avatar_url TEXT,
+  bio TEXT,
+  interests TEXT[] DEFAULT '{}',
+  location TEXT,
+  website TEXT,
+  social_links JSONB DEFAULT '{}',
+  privacy_settings JSONB DEFAULT '{"profile_visible": true, "events_visible": true}',
+  notification_settings JSONB DEFAULT '{"email": true, "push": true, "event_reminders": true}',
+  email_verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-// 🔹 PERFORMANCE MONITORING
-const PerformanceMonitor = {
-    startTime: performance.now(),
-    
-    logPageLoad() {
-        const loadTime = performance.now() - this.startTime;
-        console.log(`🚀 SocialSpot loaded in ${loadTime.toFixed(2)}ms`);
-    },
-    
-    logUserAction(action, duration = 0) {
-        console.log(`📊 User action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
-    }
-};
+-- 3. CREA TABELLA EVENTI
+CREATE TABLE IF NOT EXISTS public.events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  creator_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  category TEXT,
+  event_date TIMESTAMPTZ NOT NULL,
+  end_date TIMESTAMPTZ,
+  location TEXT NOT NULL,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  max_participants INTEGER,
+  is_private BOOLEAN DEFAULT FALSE,
+  requirements TEXT,
+  tags TEXT[] DEFAULT '{}',
+  images TEXT[] DEFAULT '{}',
+  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'completed')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-// 🔹 NOTIFICATION SYSTEM
-function NotificationSystem() {
-    const [notifications, setNotifications] = React.useState([]);
-    
-    const addNotification = React.useCallback((notification) => {
-        const id = Date.now();
-        const newNotification = { ...notification, id };
-        
-        setNotifications(prev => [...prev, newNotification]);
-        
-        setTimeout(() => {
-            setNotifications(prev => prev.filter(n => n.id !== id));
-        }, 5000);
-    }, []);
-    
-    const removeNotification = React.useCallback((id) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    }, []);
-    
-    React.useEffect(() => {
-        window.addNotification = addNotification;
-    }, [addNotification]);
-    
-    return React.createElement('div', {
-        className: 'notification-container',
-        style: {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 1500,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-        }
-    },
-        notifications.map((notification) =>
-            React.createElement('div', {
-                key: notification.id,
-                className: `notification ${notification.type || 'info'} animate-slide-in-right`,
-                style: {
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-xl)',
-                    padding: 'var(--space-4)',
-                    boxShadow: 'var(--shadow-lg)',
-                    maxWidth: '350px',
-                    cursor: 'pointer'
-                },
-                onClick: () => removeNotification(notification.id)
-            },
-                React.createElement('div', {
-                    style: {
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px'
-                    }
-                },
-                    React.createElement('i', {
-                        className: `fas ${notification.icon || 'fa-info-circle'}`,
-                        style: {
-                            color: notification.type === 'success' ? 'var(--color-success-500)' :
-                                   notification.type === 'error' ? 'var(--color-error-500)' :
-                                   notification.type === 'warning' ? 'var(--color-warning-500)' :
-                                   'var(--color-primary-500)'
-                        }
-                    }),
-                    React.createElement('div', { style: { flex: 1 } },
-                        React.createElement('div', {
-                            style: {
-                                fontWeight: 'var(--font-weight-semibold)',
-                                marginBottom: '4px'
-                            }
-                        }, notification.title),
-                        React.createElement('div', {
-                            style: {
-                                fontSize: 'var(--font-size-sm)',
-                                color: 'var(--color-text-muted)'
-                            }
-                        }, notification.message)
-                    ),
-                    React.createElement('i', {
-                        className: 'fas fa-times',
-                        style: {
-                            color: 'var(--color-text-muted)',
-                            fontSize: 'var(--font-size-xs)'
-                        }
-                    })
-                )
-            )
-        )
-    );
-}
+-- 4. CREA TABELLA PARTECIPANTI
+CREATE TABLE IF NOT EXISTS public.event_participants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  status TEXT DEFAULT 'confirmed' CHECK (status IN ('confirmed', 'pending', 'cancelled')),
+  joined_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(event_id, user_id)
+);
 
-// 🔹 LOADING SCREEN
-function LoadingScreen({ isVisible }) {
-    const [loadingText, setLoadingText] = React.useState('Caricamento in corso...');
-    
-    React.useEffect(() => {
-        if (!isVisible) return;
-        
-        const messages = [
-            'Caricamento in corso...',
-            'Connessione al server...',
-            'Preparazione interfaccia...',
-            'Quasi pronto...'
-        ];
-        
-        let index = 0;
-        const interval = setInterval(() => {
-            index = (index + 1) % messages.length;
-            setLoadingText(messages[index]);
-        }, 800);
-        
-        return () => clearInterval(interval);
-    }, [isVisible]);
+-- 5. CREA TABELLA FAVORITI
+CREATE TABLE IF NOT EXISTS public.event_favorites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(event_id, user_id)
+);
 
-    if (!isVisible) return null;
+-- 6. CREA TABELLA COMMENTI
+CREATE TABLE IF NOT EXISTS public.event_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  parent_id UUID REFERENCES public.event_comments(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  likes INTEGER DEFAULT 0,
+  is_edited BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-    return React.createElement('div', { className: 'loader-screen' },
-        React.createElement('div', { className: 'loader-content' },
-            React.createElement('div', { className: 'app-logo-loading' },
-                React.createElement('div', { className: 'logo-icon-loading' },
-                    React.createElement('span', { className: 'logo-text-loading' }, 'SS'),
-                    React.createElement('div', { className: 'loading-rings' },
-                        React.createElement('div', { className: 'ring ring-1' }),
-                        React.createElement('div', { className: 'ring ring-2' }),
-                        React.createElement('div', { className: 'ring ring-3' })
-                    )
-                ),
-                React.createElement('h1', { className: 'brand-name-loading' }, 'SocialSpot'),
-                React.createElement('p', { className: 'brand-tagline' }, 'Connetti • Scopri • Partecipa')
-            ),
-            React.createElement('div', { className: 'loading-progress' },
-                React.createElement('div', { className: 'progress-bar-loading' }),
-                React.createElement('p', { className: 'loading-text' }, loadingText)
-            )
-        )
-    );
-}
+-- 7. CREA TABELLA CHAT EVENTI
+CREATE TABLE IF NOT EXISTS public.event_chats (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  message_type TEXT DEFAULT 'text' CHECK (message_type IN ('text', 'image', 'file', 'system')),
+  metadata JSONB DEFAULT '{}',
+  is_deleted BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-// 🔹 EMAIL VERIFICATION NOTICE
-function EmailVerificationNotice({ email, onResendEmail }) {
-    const [resending, setResending] = React.useState(false);
-    const [cooldown, setCooldown] = React.useState(0);
+-- 8. CREA TABELLA MESSAGGI PRIVATI
+CREATE TABLE IF NOT EXISTS public.private_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  receiver_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  is_deleted_by_sender BOOLEAN DEFAULT FALSE,
+  is_deleted_by_receiver BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-    React.useEffect(() => {
-        if (cooldown > 0) {
-            const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [cooldown]);
+-- 9. CREA TABELLA BADGES
+CREATE TABLE IF NOT EXISTS public.badges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  icon TEXT,
+  category TEXT,
+  points INTEGER DEFAULT 0,
+  requirements JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-    const handleResend = async () => {
-        if (resending || cooldown > 0) return;
-        
-        setResending(true);
-        try {
-            const { error } = await supabase.auth.resend({
-                type: 'signup',
-                email: email
-            });
-            
-            if (error) {
-                window.addNotification?.({
-                    type: 'error',
-                    icon: 'fas fa-exclamation-triangle',
-                    title: 'Errore',
-                    message: 'Impossibile inviare l\'email. Riprova.'
-                });
-            } else {
-                window.addNotification?.({
-                    type: 'success',
-                    icon: 'fas fa-envelope',
-                    title: 'Email inviata!',
-                    message: 'Controlla la tua casella di posta.'
-                });
-                setCooldown(60);
-            }
-        } catch (err) {
-            console.error('Resend email error:', err);
-        } finally {
-            setResending(false);
-        }
-    };
+-- 10. CREA TABELLA USER BADGES
+CREATE TABLE IF NOT EXISTS public.user_badges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  badge_id UUID REFERENCES public.badges(id) ON DELETE CASCADE NOT NULL,
+  earned_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, badge_id)
+);
 
-    return React.createElement('div', {
-        style: {
-            background: 'var(--color-warning-50)',
-            border: '2px solid var(--color-warning-500)',
-            borderRadius: 'var(--radius-2xl)',
-            padding: 'var(--space-6)',
-            textAlign: 'center',
-            maxWidth: '500px',
-            margin: '0 auto'
-        }
-    },
-        React.createElement('i', {
-            className: 'fas fa-envelope-open-text',
-            style: {
-                fontSize: 'var(--font-size-5xl)',
-                color: 'var(--color-warning-600)',
-                marginBottom: 'var(--space-4)'
-            }
-        }),
-        React.createElement('h2', {
-            style: {
-                fontSize: 'var(--font-size-2xl)',
-                fontWeight: 'var(--font-weight-bold)',
-                color: 'var(--color-text)',
-                marginBottom: 'var(--space-3)'
-            }
-        }, 'Verifica la tua email'),
-        React.createElement('p', {
-            style: {
-                fontSize: 'var(--font-size-base)',
-                color: 'var(--color-text-muted)',
-                marginBottom: 'var(--space-6)',
-                lineHeight: '1.6'
-            }
-        }, `Ti abbiamo inviato un'email a ${email}. Clicca sul link nell'email per verificare il tuo account.`),
-        React.createElement('button', {
-            className: 'btn-primary',
-            onClick: handleResend,
-            disabled: resending || cooldown > 0,
-            style: {
-                marginTop: 'var(--space-4)'
-            }
-        },
-            resending ? [
-                React.createElement('i', {
-                    className: 'fas fa-spinner fa-spin',
-                    key: 'icon'
-                }),
-                ' Invio in corso...'
-            ] : cooldown > 0 ? `Riprova tra ${cooldown}s` : [
-                React.createElement('i', {
-                    className: 'fas fa-envelope',
-                    key: 'icon'
-                }),
-                ' Invia di nuovo'
-            ]
-        )
-    );
-}
+-- 11. CREA TABELLA NOTIFICHE
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('event_reminder', 'new_participant', 'new_comment', 'new_message', 'badge_earned', 'event_cancelled')),
+  title TEXT NOT NULL,
+  content TEXT,
+  data JSONB DEFAULT '{}',
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-// 🔹 MAIN APP COMPONENT
-function App() {
-    const [user, setUser] = React.useState(null);
-    const [page, setPage] = React.useState('feed');
-    const [initializing, setInitializing] = React.useState(true);
-    const [showLoader, setShowLoader] = React.useState(true);
-    const [emailVerified, setEmailVerified] = React.useState(true);
-    const [theme, setTheme] = React.useState(() => {
-        const stored = localStorage.getItem('theme');
-        if (stored) return stored;
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    });
+-- 12. CREA INDICI PER PERFORMANCE
+CREATE INDEX IF NOT EXISTS idx_profiles_username ON public.profiles(username);
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
+CREATE INDEX IF NOT EXISTS idx_events_creator_id ON public.events(creator_id);
+CREATE INDEX IF NOT EXISTS idx_events_event_date ON public.events(event_date);
+CREATE INDEX IF NOT EXISTS idx_events_category ON public.events(category);
+CREATE INDEX IF NOT EXISTS idx_event_participants_event_id ON public.event_participants(event_id);
+CREATE INDEX IF NOT EXISTS idx_event_participants_user_id ON public.event_participants(user_id);
+CREATE INDEX IF NOT EXISTS idx_event_favorites_user_id ON public.event_favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_event_chats_event_id ON public.event_chats(event_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
 
-    React.useEffect(() => {
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        
-        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-        if (themeColorMeta) {
-            themeColorMeta.content = theme === 'dark' ? '#1f2937' : '#2563eb';
-        }
-    }, [theme]);
+-- 13. FUNZIONE PER AGGIORNARE UPDATED_AT
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-    React.useEffect(() => {
-        const initAuth = async () => {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                if (session?.user) {
-                    setUser(session.user);
-                    setEmailVerified(session.user.email_confirmed_at !== null);
-                } else {
-                    setUser(null);
-                    setEmailVerified(true);
-                }
-            } catch (error) {
-                console.error('Auth initialization error:', error);
-                window.addNotification?.({
-                    type: 'error',
-                    icon: 'fas fa-exclamation-triangle',
-                    title: 'Errore di connessione',
-                    message: 'Problema durante l\'inizializzazione'
-                });
-            } finally {
-                setInitializing(false);
-            }
-        };
+-- 14. TRIGGER PER PROFILES
+DROP TRIGGER IF EXISTS profiles_updated_at ON public.profiles;
+CREATE TRIGGER profiles_updated_at
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
-        initAuth();
+-- 15. TRIGGER PER EVENTS
+DROP TRIGGER IF EXISTS events_updated_at ON public.events;
+CREATE TRIGGER events_updated_at
+  BEFORE UPDATE ON public.events
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('Auth event:', event);
-            
-            if (event === 'SIGNED_IN' && session?.user) {
-                setUser(session.user);
-                setEmailVerified(session.user.email_confirmed_at !== null);
-                
-                PerformanceMonitor.logUserAction('user_signed_in');
-                
-                if (session.user.email_confirmed_at) {
-                    window.addNotification?.({
-                        type: 'success',
-                        icon: 'fas fa-user-check',
-                        title: 'Accesso effettuato!',
-                        message: `Benvenuto ${session.user.email}`
-                    });
-                }
-            } else if (event === 'SIGNED_OUT') {
-                setUser(null);
-                setEmailVerified(true);
-            } else if (event === 'USER_UPDATED' && session?.user) {
-                setUser(session.user);
-                setEmailVerified(session.user.email_confirmed_at !== null);
-            }
-        });
+-- 16. ABILITA ROW LEVEL SECURITY
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_participants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_favorites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_chats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.private_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
-        return () => subscription.unsubscribe();
-    }, []);
+-- 17. POLICY PER PROFILES
+DROP POLICY IF EXISTS "Anyone can read profiles" ON public.profiles;
+CREATE POLICY "Anyone can read profiles" 
+  ON public.profiles FOR SELECT 
+  USING (true);
 
-    React.useEffect(() => {
-        if (!initializing) {
-            const timer = setTimeout(() => {
-                setShowLoader(false);
-                PerformanceMonitor.logPageLoad();
-            }, 1500);
-            
-            return () => clearTimeout(timer);
-        }
-    }, [initializing]);
+DROP POLICY IF EXISTS "Users can insert their profile" ON public.profiles;
+CREATE POLICY "Users can insert their profile"
+  ON public.profiles FOR INSERT 
+  WITH CHECK (auth.uid() = id);
 
-    const handleSignOut = async () => {
-        try {
-            await supabase.auth.signOut();
-            setUser(null);
-            setEmailVerified(true);
-            setPage('feed');
-            PerformanceMonitor.logUserAction('user_signed_out');
-            
-            window.addNotification?.({
-                type: 'info',
-                icon: 'fas fa-sign-out-alt',
-                title: 'Logout effettuato',
-                message: 'A presto su SocialSpot!'
-            });
-        } catch (error) {
-            console.error('Sign out error:', error);
-            window.addNotification?.({
-                type: 'error',
-                icon: 'fas fa-exclamation-triangle',
-                title: 'Errore logout',
-                message: 'Impossibile effettuare il logout'
-            });
-        }
-    };
+DROP POLICY IF EXISTS "Users can update their profile" ON public.profiles;
+CREATE POLICY "Users can update their profile"
+  ON public.profiles FOR UPDATE 
+  USING (auth.uid() = id);
 
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        PerformanceMonitor.logUserAction(`theme_changed_to_${newTheme}`);
-    };
+-- 18. POLICY PER EVENTS
+DROP POLICY IF EXISTS "Anyone can read events" ON public.events;
+CREATE POLICY "Anyone can read events" 
+  ON public.events FOR SELECT 
+  USING (true);
 
-    if (initializing || showLoader) {
-        return React.createElement(LoadingScreen, { isVisible: true });
-    }
+DROP POLICY IF EXISTS "Users can insert events" ON public.events;
+CREATE POLICY "Users can insert events" 
+  ON public.events FOR INSERT 
+  WITH CHECK (auth.uid() = creator_id);
 
-    if (!user) {
-        return React.createElement('div', null,
-            React.createElement(NotificationSystem),
-            React.createElement(Auth, { supabase, setUser })
-        );
-    }
+DROP POLICY IF EXISTS "Users can update their events" ON public.events;
+CREATE POLICY "Users can update their events" 
+  ON public.events FOR UPDATE 
+  USING (auth.uid() = creator_id);
 
-    if (!emailVerified) {
-        return React.createElement('div', { className: 'app-container' },
-            React.createElement(NotificationSystem),
-            React.createElement('div', {
-                style: {
-                    minHeight: '100vh',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 'var(--space-6)'
-                }
-            },
-                React.createElement(EmailVerificationNotice, {
-                    email: user.email,
-                    onResendEmail: () => {}
-                }),
-                React.createElement('button', {
-                    className: 'btn-outline',
-                    onClick: handleSignOut,
-                    style: {
-                        marginTop: 'var(--space-6)',
-                        display: 'block',
-                        margin: 'var(--space-6) auto 0'
-                    }
-                },
-                    React.createElement('i', { className: 'fas fa-sign-out-alt' }),
-                    ' Logout'
-                )
-            )
-        );
-    }
+DROP POLICY IF EXISTS "Users can delete their events" ON public.events;
+CREATE POLICY "Users can delete their events" 
+  ON public.events FOR DELETE 
+  USING (auth.uid() = creator_id);
 
-    return React.createElement('div', { className: 'app-container' },
-        React.createElement(NotificationSystem),
-        React.createElement('div', { style: { textAlign: 'center', padding: 'var(--space-12)' } },
-            React.createElement('h1', null, '🎉 Benvenuto su SocialSpot!'),
-            React.createElement('p', null, `Email: ${user.email}`),
-            React.createElement('p', null, 'L\'applicazione completa sarà disponibile a breve.'),
-            React.createElement('button', {
-                className: 'btn-primary',
-                onClick: handleSignOut,
-                style: { marginTop: 'var(--space-6)' }
-            },
-                React.createElement('i', { className: 'fas fa-sign-out-alt' }),
-                ' Logout'
-            )
-        )
-    );
-}
+-- 19. POLICY PER EVENT_PARTICIPANTS
+DROP POLICY IF EXISTS "Anyone can read participants" ON public.event_participants;
+CREATE POLICY "Anyone can read participants" 
+  ON public.event_participants FOR SELECT 
+  USING (true);
 
-// 🔹 RENDER
-document.addEventListener('DOMContentLoaded', () => {
-    const initialLoader = document.getElementById('initial-loader');
-    if (initialLoader) {
-        setTimeout(() => {
-            initialLoader.style.display = 'none';
-        }, 2000);
-    }
+DROP POLICY IF EXISTS "Users can insert their participation" ON public.event_participants;
+CREATE POLICY "Users can insert their participation" 
+  ON public.event_participants FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
+DROP POLICY IF EXISTS "Users can delete their participation" ON public.event_participants;
+CREATE POLICY "Users can delete their participation" 
+  ON public.event_participants FOR DELETE 
+  USING (auth.uid() = user_id);
 
-    PerformanceMonitor.logUserAction('app_initialized');
-});
+-- 20. POLICY PER EVENT_FAVORITES
+DROP POLICY IF EXISTS "Anyone can read favorites" ON public.event_favorites;
+CREATE POLICY "Anyone can read favorites" 
+  ON public.event_favorites FOR SELECT 
+  USING (true);
 
-// 🔹 SERVICE WORKER
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-                console.log('✅ Service Worker registered:', registration.scope);
-            })
-            .catch((error) => {
-                console.error('❌ Service Worker registration failed:', error);
-            });
-    });
-}
+DROP POLICY IF EXISTS "Users can manage their favorites" ON public.event_favorites;
+CREATE POLICY "Users can manage their favorites" 
+  ON public.event_favorites FOR ALL 
+  USING (auth.uid() = user_id) 
+  WITH CHECK (auth.uid() = user_id);
 
-window.SocialSpot = {
-    supabase,
-    PerformanceMonitor,
-    version: '2.1.0'
-};
+-- 21. POLICY PER EVENT_COMMENTS
+DROP POLICY IF EXISTS "Anyone can read comments" ON public.event_comments;
+CREATE POLICY "Anyone can read comments" 
+  ON public.event_comments FOR SELECT 
+  USING (true);
 
-console.log('🚀 SocialSpot v2.1.0 initialized successfully!');
+DROP POLICY IF EXISTS "Users can insert comments" ON public.event_comments;
+CREATE POLICY "Users can insert comments" 
+  ON public.event_comments FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their comments" ON public.event_comments;
+CREATE POLICY "Users can update their comments" 
+  ON public.event_comments FOR UPDATE 
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their comments" ON public.event_comments;
+CREATE POLICY "Users can delete their comments" 
+  ON public.event_comments FOR DELETE 
+  USING (auth.uid() = user_id);
+
+-- 22. POLICY PER EVENT_CHATS
+DROP POLICY IF EXISTS "Anyone can read chats" ON public.event_chats;
+CREATE POLICY "Anyone can read chats" 
+  ON public.event_chats FOR SELECT 
+  USING (true);
+
+DROP POLICY IF EXISTS "Users can insert chats" ON public.event_chats;
+CREATE POLICY "Users can insert chats" 
+  ON public.event_chats FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+-- 23. POLICY PER NOTIFICATIONS
+DROP POLICY IF EXISTS "Users can read their notifications" ON public.notifications;
+CREATE POLICY "Users can read their notifications"
+  ON public.notifications FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their notifications" ON public.notifications;
+CREATE POLICY "Users can update their notifications"
+  ON public.notifications FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- 24. POLICY PER BADGES
+DROP POLICY IF EXISTS "Anyone can read badges" ON public.badges;
+CREATE POLICY "Anyone can read badges"
+  ON public.badges FOR SELECT
+  USING (true);
+
+-- 25. POLICY PER USER_BADGES
+DROP POLICY IF EXISTS "Anyone can read user badges" ON public.user_badges;
+CREATE POLICY "Anyone can read user badges"
+  ON public.user_badges FOR SELECT
+  USING (true);
+
+-- 26. FUNZIONE PER CREARE PROFILO DOPO REGISTRAZIONE
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, username, full_name, date_of_birth, gender)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'username', SPLIT_PART(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE((NEW.raw_user_meta_data->>'date_of_birth')::DATE, CURRENT_DATE),
+    COALESCE(NEW.raw_user_meta_data->>'gender', 'prefer_not_to_say')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 27. TRIGGER PER CREAZIONE AUTO PROFILO
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 28. INSERISCI BADGES INIZIALI
+INSERT INTO public.badges (name, description, icon, category, points) VALUES
+  ('Primo Evento', 'Hai creato il tuo primo evento!', 'fa-calendar-plus', 'eventi', 10),
+  ('Prima Partecipazione', 'Hai partecipato al tuo primo evento!', 'fa-user-check', 'partecipazione', 5),
+  ('Organizzatore Esperto', 'Hai creato 10 eventi!', 'fa-star', 'eventi', 50),
+  ('Partecipante Attivo', 'Hai partecipato a 10 eventi!', 'fa-users', 'partecipazione', 25)
+ON CONFLICT (name) DO NOTHING;
+
+-- ========================================
+-- FINE SCHEMA - PRONTO PER L'USO
+-- ========================================
