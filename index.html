@@ -1910,7 +1910,7 @@
             return (
                 <div className="onboarding">
                     <div className="onboarding-card">
-                        <div className="ultimate-logo">SS</div>
+                        <div className="ultimate-logo">SP</div>
                         <h1>SocialSpot ULTIMATE</h1>
                         <p>🚀 La piattaforma sociale più avanzata del mondo</p>
                         
@@ -2701,6 +2701,9 @@
             const [location, setLocation] = useState('');
             const [date, setDate] = useState('');
             const [category, setCategory] = useState('');
+            const [genderPreference, setGenderPreference] = useState('both');
+            const [minAge, setMinAge] = useState(18);
+            const [maxAge, setMaxAge] = useState(99);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
             const [success, setSuccess] = useState(false);
@@ -2712,16 +2715,16 @@
                 setSuccess(false);
                 
                 try {
-                    // Verifica/crea profilo prima
-                    const { data: profileExists } = await supabase
+                    // PRIMA: Assicurati che il profilo esista SEMPRE
+                    const { data: checkProfile, error: profileCheckError } = await supabase
                         .from('profiles')
                         .select('id')
                         .eq('id', user.id)
-                        .single();
+                        .maybeSingle();
                     
-                    if (!profileExists) {
-                        // Crea profilo se non esiste
-                        await supabase.from('profiles').insert({
+                    if (!checkProfile) {
+                        console.log('Profilo mancante, lo creo ora...');
+                        const { error: insertError } = await supabase.from('profiles').insert({
                             id: user.id,
                             email: user.email,
                             username: user.email.split('@')[0],
@@ -2729,20 +2732,33 @@
                             date_of_birth: '2000-01-01',
                             gender: 'prefer_not_to_say'
                         });
+                        
+                        if (insertError) {
+                            console.error('Errore creazione profilo:', insertError);
+                            setError('Impossibile creare il profilo. Riprova.');
+                            setLoading(false);
+                            return;
+                        }
+                        
+                        // Aspetta 500ms per sicurezza
+                        await new Promise(resolve => setTimeout(resolve, 500));
                     }
                     
-                    // Ora crea l'evento
-                    const { error } = await supabase.from('events').insert({
+                    // ORA crea l'evento
+                    const { error: eventError } = await supabase.from('events').insert({
                         title,
                         description,
                         location,
                         event_date: date,
                         category,
+                        gender_preference: genderPreference,
+                        min_age: minAge,
+                        max_age: maxAge,
                         creator_id: user.id
                     });
                     
-                    if (error) {
-                        setError(error.message);
+                    if (eventError) {
+                        setError(eventError.message);
                     } else {
                         setTitle('');
                         setDescription('');
@@ -2845,6 +2861,57 @@
                                     onChange={(e) => setDate(e.target.value)} 
                                     required 
                                 />
+                            </div>
+                        </div>
+                        
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">
+                                    <i className="fas fa-venus-mars"></i>
+                                    Sesso preferito *
+                                </label>
+                                <select 
+                                    className="form-input form-select"
+                                    value={genderPreference} 
+                                    onChange={(e) => setGenderPreference(e.target.value)} 
+                                    required
+                                >
+                                    <option value="both">Entrambi</option>
+                                    <option value="male">Solo uomini</option>
+                                    <option value="female">Solo donne</option>
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">
+                                    <i className="fas fa-users"></i>
+                                    Fascia d'età *
+                                </label>
+                                <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                                    <input 
+                                        type="number" 
+                                        className="form-input"
+                                        value={minAge} 
+                                        onChange={(e) => setMinAge(parseInt(e.target.value))} 
+                                        min="13"
+                                        max="99"
+                                        required 
+                                        placeholder="Min"
+                                        style={{width: '80px'}}
+                                    />
+                                    <span>-</span>
+                                    <input 
+                                        type="number" 
+                                        className="form-input"
+                                        value={maxAge} 
+                                        onChange={(e) => setMaxAge(parseInt(e.target.value))} 
+                                        min="13"
+                                        max="99"
+                                        required 
+                                        placeholder="Max"
+                                        style={{width: '80px'}}
+                                    />
+                                </div>
                             </div>
                         </div>
                         
