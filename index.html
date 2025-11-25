@@ -2712,6 +2712,26 @@
                 setSuccess(false);
                 
                 try {
+                    // Verifica/crea profilo prima
+                    const { data: profileExists } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('id', user.id)
+                        .single();
+                    
+                    if (!profileExists) {
+                        // Crea profilo se non esiste
+                        await supabase.from('profiles').insert({
+                            id: user.id,
+                            email: user.email,
+                            username: user.email.split('@')[0],
+                            full_name: user.email.split('@')[0],
+                            date_of_birth: '2000-01-01',
+                            gender: 'prefer_not_to_say'
+                        });
+                    }
+                    
+                    // Ora crea l'evento
                     const { error } = await supabase.from('events').insert({
                         title,
                         description,
@@ -3112,12 +3132,8 @@
                     {/* Top Bar ULTIMATE */}
                     <div className="top-bar">
                         <div className="logo-ultimate">
-                            <div className="logo-icon">SS</div>
+                            <div className="logo-icon">SP</div>
                             <div className="logo-text">SocialSpot</div>
-                        </div>
-                        <div className="status-indicators">
-                            <div className="live-status">LIVE</div>
-                            <div className="ai-status">AI POWERED</div>
                         </div>
                     </div>
 
