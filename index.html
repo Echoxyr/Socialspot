@@ -1843,10 +1843,37 @@
                 setLoading(true);
                 setError('');
                 
+                // Validazione email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    setError('Inserisci un indirizzo email valido');
+                    setLoading(false);
+                    return;
+                }
+                
+                // Validazione password
+                if (password.length < 6) {
+                    setError('La password deve essere di almeno 6 caratteri');
+                    setLoading(false);
+                    return;
+                }
+                
                 try {
                     let result;
                     if (isSignIn) {
                         result = await supabase.auth.signInWithPassword({ email, password });
+                        
+                        if (result.error) {
+                            setError(result.error.message);
+                        } else if (result.data.user) {
+                            // Verifica email confermata
+                            if (!result.data.user.email_confirmed_at) {
+                                setError('Per favore, verifica la tua email prima di accedere');
+                                await supabase.auth.signOut();
+                                return;
+                            }
+                            onComplete(result.data.user);
+                        }
                     } else {
                         result = await supabase.auth.signUp({ 
                             email, 
@@ -1855,20 +1882,23 @@
                                 data: { username: username || email.split('@')[0] }
                             }
                         });
-                    }
-                    
-                    if (result.error) {
-                        setError(result.error.message);
-                    } else if (result.data.user) {
-                        // Crea/aggiorna profilo ULTIMATE
-                        await supabase.from('profiles').upsert({
-                            id: result.data.user.id,
-                            username: username || result.data.user.email.split('@')[0],
-                            location: 'Italia',
-                            interests: ['Tecnologia', 'Social']
-                        }, { onConflict: 'id' });
                         
-                        onComplete(result.data.user);
+                        if (result.error) {
+                            setError(result.error.message);
+                        } else if (result.data.user) {
+                            // Crea profilo
+                            await supabase.from('profiles').upsert({
+                                id: result.data.user.id,
+                                username: username || result.data.user.email.split('@')[0],
+                                location: 'Italia',
+                                interests: ['Tecnologia', 'Social']
+                            }, { onConflict: 'id' });
+                            
+                            // NON fare login, mostra messaggio
+                            setError('');
+                            alert('✅ Registrazione completata! Controlla la tua email per verificare l\'account.');
+                            setIsSignIn(true);
+                        }
                     }
                 } catch (err) {
                     setError(err.message);
