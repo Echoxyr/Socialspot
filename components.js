@@ -2,7 +2,7 @@
 const Auth = React.memo(({ supabase, setUser }) => {
     const [isSignIn, setIsSignIn] = React.useState(true);
     const [formData, setFormData] = React.useState({
-        email: '',
+        email: '', 
         password: '',
         fullName: '',
         interests: []
