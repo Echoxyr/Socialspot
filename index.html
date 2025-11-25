@@ -2458,6 +2458,17 @@
                                                 <span>{formatDate(event.event_date)}</span>
                                             </div>
                                             <div className="event-meta-item">
+                                                <i className="fas fa-venus-mars"></i>
+                                                <span>
+                                                    {event.gender_preference === 'both' ? 'Tutti' : 
+                                                     event.gender_preference === 'male' ? 'Uomini' : 'Donne'}
+                                                </span>
+                                            </div>
+                                            <div className="event-meta-item">
+                                                <i className="fas fa-user-friends"></i>
+                                                <span>{event.min_age}-{event.max_age} anni</span>
+                                            </div>
+                                            <div className="event-meta-item">
                                                 <i className="fas fa-users"></i>
                                                 <span>{participants.counts?.[event.id] || 0} partecipanti</span>
                                                 {participants.counts?.[event.id] > 0 && (
@@ -2483,6 +2494,17 @@
                                         >
                                             <i className="fas fa-user-plus"></i>
                                             {participants.userParticipations?.includes(event.id) ? 'Iscritto ✓' : 'Partecipa'}
+                                        </button>
+                                        <button 
+                                            className="action-btn"
+                                            onClick={() => {
+                                                const shareText = `🎉 ${event.title}\n📍 ${event.location}\n📅 ${formatDate(event.event_date)}\n\nPartecipa anche tu su SocialSpot!`;
+                                                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                                                window.open(whatsappUrl, '_blank');
+                                            }}
+                                        >
+                                            <i className="fas fa-share-alt"></i>
+                                            Condividi
                                         </button>
                                         <button 
                                             className="action-btn"
@@ -2981,6 +3003,25 @@
                     console.error('❌ Errore caricamento eventi:', err);
                 }
             };
+            
+            const deleteEvent = async (eventId) => {
+                if (!confirm('Sei sicuro di voler eliminare questo evento?')) return;
+                
+                try {
+                    const { error } = await supabase
+                        .from('events')
+                        .delete()
+                        .eq('id', eventId);
+                    
+                    if (!error) {
+                        setMyEvents(myEvents.filter(e => e.id !== eventId));
+                        alert('✅ Evento eliminato!');
+                    }
+                } catch (err) {
+                    console.error('❌ Errore eliminazione:', err);
+                    alert('❌ Impossibile eliminare l\'evento');
+                }
+            };
 
             if (loading) {
                 return (
@@ -3048,7 +3089,7 @@
                                 <span className="demo-badge">REAL</span>
                             </div>
                             <div className="events-grid">
-                                {myEvents.slice(0, 3).map(event => (
+                                {myEvents.slice(0, 10).map(event => (
                                     <div key={event.id} className="event-card">
                                         <div className="live-badge">MIO</div>
                                         <div className="event-content">
@@ -3064,6 +3105,20 @@
                                                     <span>{event.location}</span>
                                                 </div>
                                             </div>
+                                            <button 
+                                                className="action-btn" 
+                                                onClick={() => deleteEvent(event.id)}
+                                                style={{
+                                                    marginTop: '15px',
+                                                    width: '100%',
+                                                    background: 'rgba(239, 68, 68, 0.1)',
+                                                    borderColor: 'rgba(239, 68, 68, 0.3)',
+                                                    color: '#ef4444'
+                                                }}
+                                            >
+                                                <i className="fas fa-trash"></i>
+                                                Elimina evento
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
