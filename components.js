@@ -1,230 +1,6 @@
-/*
- * SocialSpot - React Components
- * Version: 3.0.0
- */
+// 🔹 COMPONENTE AUTH CORRETTO CON TUTTI I CAMPI E VERIFICA EMAIL
+const { useState, useEffect, memo, useCallback } = React;
 
-const { useState, useEffect, useCallback, useRef, memo } = React;
-
-// 🔹 CONSTANTS
-const CATEGORIES = [
-    'Sport', 'Musica', 'Arte', 'Cultura', 'Tecnologia', 
-    'Cibo', 'Viaggi', 'Cinema', 'All\'aperto', 'Business'
-];
-
-const ITALIAN_CITIES = [
-    'Roma, Lazio', 'Milano, Lombardia', 'Napoli, Campania', 'Torino, Piemonte',
-    'Palermo, Sicilia', 'Genova, Liguria', 'Bologna, Emilia-Romagna', 'Firenze, Toscana',
-    'Bari, Puglia', 'Catania, Sicilia', 'Venezia, Veneto', 'Verona, Veneto',
-    'Messina, Sicilia', 'Padova, Veneto', 'Trieste, Friuli-Venezia Giulia', 'Taranto, Puglia',
-    'Brescia, Lombardia', 'Prato, Toscana', 'Parma, Emilia-Romagna', 'Modena, Emilia-Romagna',
-    'Reggio Calabria, Calabria', 'Reggio Emilia, Emilia-Romagna', 'Perugia, Umbria', 'Livorno, Toscana',
-    'Ravenna, Emilia-Romagna', 'Cagliari, Sardegna', 'Foggia, Puglia', 'Rimini, Emilia-Romagna',
-    'Salerno, Campania', 'Ferrara, Emilia-Romagna', 'Sassari, Sardegna', 'Latina, Lazio'
-];
-
-const AVAILABLE_INTERESTS = [
-    'Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 
-    'Viaggi', 'Arte', 'Lettura', 'Gaming', 'Fitness',
-    'Fotografia', 'Moda', 'Natura', 'Business', 'Benessere'
-];
-
-const GENDER_OPTIONS = [
-    { value: 'male', label: 'Uomo' },
-    { value: 'female', label: 'Donna' },
-    { value: 'other', label: 'Altro' },
-    { value: 'prefer_not_to_say', label: 'Preferisco non dirlo' }
-];
-
-// 🔹 HOOK: STATISTICHE TOTALI CORRETTE
-function useRealTimeStats(userId, supabase) {
-    const [stats, setStats] = useState({ 
-        eventsCreated: 0, 
-        totalParticipants: 0, 
-        eventsJoined: 0 
-    });
-    const [loading, setLoading] = useState(true);
-
-    const calculateStats = useCallback(async () => {
-        if (!userId || !supabase) return;
-        
-        try {
-            // Eventi creati dall'utente (TOTALI)
-            const { data: myEvents } = await supabase
-                .from('events')
-                .select('id')
-                .eq('creator_id', userId);
-            
-            const eventsCreated = myEvents?.length || 0;
-            
-            // Partecipanti TOTALI agli eventi creati dall'utente
-            let totalParticipants = 0;
-            if (eventsCreated > 0) {
-                const { data: participants } = await supabase
-                    .from('event_participants')
-                    .select('user_id')
-                    .in('event_id', myEvents.map(e => e.id));
-                
-                const uniqueParticipants = new Set(participants?.map(p => p.user_id) || []);
-                totalParticipants = uniqueParticipants.size;
-            }
-            
-            // Eventi a cui l'utente partecipa (TOTALI)
-            const { data: myParticipations } = await supabase
-                .from('event_participants')
-                .select('event_id')
-                .eq('user_id', userId);
-            
-            const eventsJoined = myParticipations?.length || 0;
-            
-            setStats({
-                eventsCreated,
-                totalParticipants,
-                eventsJoined
-            });
-        } catch (err) {
-            console.error('❌ Errore calcolo statistiche:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, [userId, supabase]);
-
-    useEffect(() => {
-        calculateStats();
-        
-        if (!supabase) return;
-        
-        // Real-time updates
-        const eventsChannel = supabase.channel('events_stats')
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'events',
-                filter: `creator_id=eq.${userId}`
-            }, calculateStats)
-            .subscribe();
-
-        const participantsChannel = supabase.channel('participants_stats')
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'event_participants'
-            }, calculateStats)
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(eventsChannel);
-            supabase.removeChannel(participantsChannel);
-        };
-    }, [calculateStats, userId, supabase]);
-
-    return { stats, loading, refresh: calculateStats };
-}
-
-// 🔹 COMPONENT: HEADER
-function Header({ user, theme, toggleTheme, onSignOut }) {
-    const [showMenu, setShowMenu] = useState(false);
-
-    return React.createElement('header', { className: 'main-header' },
-        React.createElement('div', { className: 'header-container' },
-            React.createElement('button', {
-                className: 'hamburger-menu',
-                onClick: () => setShowMenu(true)
-            },
-                React.createElement('i', { className: 'fas fa-bars' })
-            ),
-            React.createElement('div', { className: 'app-logo-header' },
-                React.createElement('div', { className: 'logo-icon' },
-                    React.createElement('span', null, 'SS')
-                ),
-                React.createElement('span', { className: 'app-name' }, 'SocialSpot')
-            )
-        ),
-        showMenu && React.createElement(SideMenu, {
-            user,
-            theme,
-            toggleTheme,
-            onClose: () => setShowMenu(false),
-            onSignOut
-        })
-    );
-}
-
-// 🔹 COMPONENT: SIDE MENU
-function SideMenu({ user, theme, toggleTheme, onClose, onSignOut }) {
-    return React.createElement('div', null,
-        React.createElement('div', {
-            className: 'side-menu-overlay',
-            onClick: onClose
-        }),
-        React.createElement('div', { className: 'side-menu' },
-            React.createElement('div', { className: 'side-menu-header' },
-                React.createElement('div', { className: 'user-info' },
-                    React.createElement('div', { className: 'user-avatar' },
-                        user.email[0].toUpperCase()
-                    ),
-                    React.createElement('div', { className: 'user-details' },
-                        React.createElement('h3', null, user.email.split('@')[0]),
-                        React.createElement('p', null, user.email)
-                    )
-                ),
-                React.createElement('button', {
-                    className: 'side-menu-close',
-                    onClick: onClose
-                },
-                    React.createElement('i', { className: 'fas fa-times' })
-                )
-            ),
-            React.createElement('div', { className: 'side-menu-content' },
-                React.createElement('div', { className: 'theme-section' },
-                    React.createElement('div', { className: 'theme-toggle-section' },
-                        React.createElement('div', { className: 'theme-info' },
-                            React.createElement('i', { className: theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun' }),
-                            React.createElement('span', null, theme === 'dark' ? 'Tema Scuro' : 'Tema Chiaro')
-                        ),
-                        React.createElement('button', {
-                            className: 'theme-switch',
-                            onClick: toggleTheme
-                        },
-                            React.createElement('i', { 
-                                className: theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon' 
-                            })
-                        )
-                    )
-                )
-            ),
-            React.createElement('div', { className: 'side-menu-footer' },
-                React.createElement('p', null, 'SocialSpot v3.0.0'),
-                React.createElement('p', null, '© 2024 - Made with ❤️')
-            )
-        )
-    );
-}
-
-// 🔹 COMPONENT: BOTTOM NAV
-function BottomNav({ currentPage, setPage }) {
-    const navItems = [
-        { id: 'feed', icon: 'fa-home', label: 'Feed' },
-        { id: 'search', icon: 'fa-search', label: 'Cerca' },
-        { id: 'create', icon: 'fa-plus-circle', label: 'Crea' },
-        { id: 'notifications', icon: 'fa-bell', label: 'Notifiche' },
-        { id: 'profile', icon: 'fa-user', label: 'Profilo' }
-    ];
-
-    return React.createElement('nav', { className: 'bottom-nav' },
-        navItems.map(item =>
-            React.createElement('button', {
-                key: item.id,
-                className: `nav-btn ${currentPage === item.id ? 'active' : ''}`,
-                onClick: () => setPage(item.id)
-            },
-                React.createElement('i', { className: `fas ${item.icon}` }),
-                React.createElement('span', null, item.label)
-            )
-        )
-    );
-}
-
-// 🔹 COMPONENT: AUTH
 const Auth = memo(({ supabase, setUser }) => {
     const [isSignIn, setIsSignIn] = useState(true);
     const [formData, setFormData] = useState({
@@ -277,6 +53,7 @@ const Auth = memo(({ supabase, setUser }) => {
 
     const validateForm = () => {
         if (!isSignIn) {
+            // Validazione registrazione
             if (!formData.fullName.trim()) {
                 setError('Inserisci il tuo nome completo');
                 return false;
@@ -294,6 +71,7 @@ const Auth = memo(({ supabase, setUser }) => {
                 return false;
             }
             
+            // Verifica età minima (13 anni)
             const birthDate = new Date(formData.dateOfBirth);
             const today = new Date();
             const age = today.getFullYear() - birthDate.getFullYear();
@@ -325,6 +103,7 @@ const Auth = memo(({ supabase, setUser }) => {
             }
         }
         
+        // Validazione email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setError('Inserisci un indirizzo email valido');
@@ -349,6 +128,7 @@ const Auth = memo(({ supabase, setUser }) => {
             let result;
             
             if (isSignIn) {
+                // LOGIN
                 result = await supabase.auth.signInWithPassword({ 
                     email: formData.email, 
                     password: formData.password 
@@ -371,6 +151,7 @@ const Auth = memo(({ supabase, setUser }) => {
                     });
                 }
             } else {
+                // REGISTRAZIONE
                 result = await supabase.auth.signUp({ 
                     email: formData.email, 
                     password: formData.password,
@@ -399,15 +180,17 @@ const Auth = memo(({ supabase, setUser }) => {
                 }
                 
                 if (result.data.user) {
+                    // Mostra messaggio di conferma email
                     setSuccess('Registrazione completata! Controlla la tua email per verificare il tuo account.');
                     
                     window.addNotification?.({
                         type: 'success',
                         icon: 'fas fa-envelope-open-text',
                         title: 'Registrazione completata!',
-                        message: 'Ti abbiamo inviato un\'email di conferma.'
+                        message: 'Ti abbiamo inviato un\'email di conferma. Controlla la tua casella di posta.'
                     });
                     
+                    // Reset form
                     setFormData({
                         email: '',
                         password: '',
@@ -420,6 +203,7 @@ const Auth = memo(({ supabase, setUser }) => {
                         interests: []
                     });
                     
+                    // Switch a login dopo 3 secondi
                     setTimeout(() => {
                         setIsSignIn(true);
                         setSuccess(null);
@@ -434,6 +218,19 @@ const Auth = memo(({ supabase, setUser }) => {
         }
     };
 
+    const availableInterests = [
+        'Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 
+        'Viaggi', 'Arte', 'Lettura', 'Gaming', 'Fitness',
+        'Fotografia', 'Moda', 'Natura', 'Business', 'Benessere'
+    ];
+
+    const genderOptions = [
+        { value: 'male', label: 'Uomo' },
+        { value: 'female', label: 'Donna' },
+        { value: 'other', label: 'Altro' },
+        { value: 'prefer_not_to_say', label: 'Preferisco non dirlo' }
+    ];
+
     return React.createElement('div', { className: 'auth-wrapper' },
         React.createElement('div', { className: 'auth-container' },
             React.createElement('div', { className: 'auth-header' },
@@ -443,6 +240,7 @@ const Auth = memo(({ supabase, setUser }) => {
                 React.createElement('h1', null, 'SocialSpot'),
                 React.createElement('p', null, '✨ La tua community per eventi locali')
             ),
+
             React.createElement('div', { className: 'auth-content' },
                 React.createElement('div', { className: 'auth-tabs' },
                     React.createElement('button', {
@@ -462,10 +260,12 @@ const Auth = memo(({ supabase, setUser }) => {
                         }
                     }, 'Registrati')
                 ),
+
                 React.createElement('form', { 
                     onSubmit: handleAuth, 
                     className: 'auth-form' 
                 },
+                    // CAMPI REGISTRAZIONE
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-user' }),
@@ -480,6 +280,7 @@ const Auth = memo(({ supabase, setUser }) => {
                             required: !isSignIn
                         })
                     ),
+
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-at' }),
@@ -495,6 +296,8 @@ const Auth = memo(({ supabase, setUser }) => {
                             minLength: 3
                         })
                     ),
+
+                    // EMAIL (sempre visibile)
                     React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-envelope' }),
@@ -510,6 +313,7 @@ const Auth = memo(({ supabase, setUser }) => {
                             autoComplete: 'email'
                         })
                     ),
+
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-calendar' }),
@@ -524,6 +328,7 @@ const Auth = memo(({ supabase, setUser }) => {
                             required: !isSignIn
                         })
                     ),
+
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-venus-mars' }),
@@ -536,11 +341,12 @@ const Auth = memo(({ supabase, setUser }) => {
                             required: !isSignIn
                         },
                             React.createElement('option', { value: '', disabled: true }, 'Seleziona...'),
-                            GENDER_OPTIONS.map(opt =>
+                            genderOptions.map(opt =>
                                 React.createElement('option', { key: opt.value, value: opt.value }, opt.label)
                             )
                         )
                     ),
+
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-phone' }),
@@ -554,6 +360,8 @@ const Auth = memo(({ supabase, setUser }) => {
                             placeholder: '+39 123 456 7890'
                         })
                     ),
+
+                    // PASSWORD
                     React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-lock' }),
@@ -601,6 +409,7 @@ const Auth = memo(({ supabase, setUser }) => {
                             }, passwordStrength < 40 ? 'Debole' : passwordStrength < 70 ? 'Media' : 'Forte')
                         )
                     ),
+
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-lock' }),
@@ -617,13 +426,14 @@ const Auth = memo(({ supabase, setUser }) => {
                             autoComplete: 'new-password'
                         })
                     ),
+
                     !isSignIn && React.createElement('div', { className: 'form-group' },
                         React.createElement('label', { className: 'form-label' },
                             React.createElement('i', { className: 'fas fa-star' }),
                             ` Interessi (${formData.interests.length} selezionati) *`
                         ),
                         React.createElement('div', { className: 'interests-grid' },
-                            AVAILABLE_INTERESTS.map(interest =>
+                            availableInterests.map(interest =>
                                 React.createElement('button', {
                                     key: interest,
                                     type: 'button',
@@ -633,16 +443,19 @@ const Auth = memo(({ supabase, setUser }) => {
                             )
                         )
                     ),
+
                     error && React.createElement('div', { className: 'error-message' },
                         React.createElement('i', { className: 'fas fa-exclamation-triangle' }),
                         ' ',
                         error
                     ),
+
                     success && React.createElement('div', { className: 'success-message' },
                         React.createElement('i', { className: 'fas fa-check-circle' }),
                         ' ',
                         success
                     ),
+
                     React.createElement('button', {
                         type: 'submit',
                         className: 'btn-primary',
@@ -659,6 +472,7 @@ const Auth = memo(({ supabase, setUser }) => {
                             isSignIn ? ' Accedi' : ' Registrati'
                         ]
                     ),
+
                     !isSignIn && React.createElement('p', {
                         style: {
                             fontSize: 'var(--font-size-xs)',
@@ -673,75 +487,3 @@ const Auth = memo(({ supabase, setUser }) => {
         )
     );
 });
-
-// 🔹 COMPONENT: FEED (placeholder - to be implemented)
-function Feed({ user, supabase }) {
-    return React.createElement('div', { className: 'feed-wrapper' },
-        React.createElement('h1', null, 'Feed - In costruzione'),
-        React.createElement('p', null, 'Implementazione completa in arrivo...')
-    );
-}
-
-// 🔹 COMPONENT: SEARCH (placeholder)
-function Search({ user, supabase }) {
-    return React.createElement('div', { className: 'search-wrapper' },
-        React.createElement('h1', null, 'Cerca - In costruzione')
-    );
-}
-
-// 🔹 COMPONENT: CREATE EVENT (placeholder)
-function CreateEvent({ user, supabase, onEventCreated }) {
-    return React.createElement('div', { className: 'create-wrapper' },
-        React.createElement('h1', null, 'Crea Evento - In costruzione')
-    );
-}
-
-// 🔹 COMPONENT: PROFILE
-function Profile({ user, supabase, onSignOut }) {
-    const { stats, loading: statsLoading } = useRealTimeStats(user.id, supabase);
-
-    return React.createElement('div', { className: 'profile-wrapper' },
-        React.createElement('div', { className: 'profile-header' },
-            React.createElement('div', { className: 'profile-avatar' },
-                user.email[0].toUpperCase()
-            ),
-            React.createElement('h1', { className: 'profile-name' }, user.email.split('@')[0]),
-            React.createElement('p', { className: 'profile-email' }, user.email),
-            React.createElement('div', { className: 'stats-grid' },
-                React.createElement('div', { className: 'stat-item' },
-                    React.createElement('div', { className: 'stat-value' },
-                        statsLoading ? '...' : stats.eventsCreated
-                    ),
-                    React.createElement('div', { className: 'stat-label' }, 'Eventi Creati')
-                ),
-                React.createElement('div', { className: 'stat-item' },
-                    React.createElement('div', { className: 'stat-value' },
-                        statsLoading ? '...' : stats.totalParticipants
-                    ),
-                    React.createElement('div', { className: 'stat-label' }, 'Partecipanti Totali')
-                ),
-                React.createElement('div', { className: 'stat-item' },
-                    React.createElement('div', { className: 'stat-value' },
-                        statsLoading ? '...' : stats.eventsJoined
-                    ),
-                    React.createElement('div', { className: 'stat-label' }, 'Eventi Uniti')
-                )
-            ),
-            React.createElement('button', {
-                className: 'btn-primary',
-                onClick: onSignOut,
-                style: { marginTop: 'var(--space-6)' }
-            },
-                React.createElement('i', { className: 'fas fa-sign-out-alt' }),
-                ' Logout'
-            )
-        )
-    );
-}
-
-// 🔹 COMPONENT: NOTIFICATIONS (placeholder)
-function Notifications({ user, supabase }) {
-    return React.createElement('div', { className: 'notifications-wrapper' },
-        React.createElement('h1', null, 'Notifiche - In costruzione')
-    );
-}
