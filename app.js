@@ -1,15 +1,15 @@
 /*
- * app.js - SocialSpot Application FIXED
- * Versione corretta con credenziali uniformi e gestione email verification
+ * SocialSpot - Main Application
+ * Version: 3.0.0 ULTIMATE
  */
 
-// 🔹 Supabase Configuration - CREDENZIALI CORRETTE
+// 🔹 SUPABASE CONFIGURATION
 const SUPABASE_URL = 'https://ctixzrxyyqpumzwmyjyo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aXh6cnh5eXFwdW16d215anlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTYzNDQsImV4cCI6MjA3OTU5MjM0NH0.k8HDt4WbU6RwMktolucWc1dekPwfbOk853o7AABRt4o';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 🔹 PERFORMANCE MONITORING
+// 🔹 PERFORMANCE MONITOR
 const PerformanceMonitor = {
     startTime: performance.now(),
     
@@ -19,7 +19,7 @@ const PerformanceMonitor = {
     },
     
     logUserAction(action, duration = 0) {
-        console.log(`📊 User action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
+        console.log(`📊 ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
     }
 };
 
@@ -432,21 +432,31 @@ function App() {
         );
     }
 
+    // MAIN APP UI
     return React.createElement('div', { className: 'app-container' },
         React.createElement(NotificationSystem),
-        React.createElement('div', { style: { textAlign: 'center', padding: 'var(--space-12)' } },
-            React.createElement('h1', null, '🎉 Benvenuto su SocialSpot!'),
-            React.createElement('p', null, `Email: ${user.email}`),
-            React.createElement('p', null, 'L\'applicazione completa sarà disponibile a breve.'),
-            React.createElement('button', {
-                className: 'btn-primary',
-                onClick: handleSignOut,
-                style: { marginTop: 'var(--space-6)' }
-            },
-                React.createElement('i', { className: 'fas fa-sign-out-alt' }),
-                ' Logout'
-            )
-        )
+        React.createElement(Header, { 
+            user, 
+            theme, 
+            toggleTheme, 
+            onSignOut: handleSignOut 
+        }),
+        React.createElement('main', { className: 'main-content' },
+            page === 'feed' && React.createElement(Feed, { user, supabase }),
+            page === 'search' && React.createElement(Search, { user, supabase }),
+            page === 'create' && React.createElement(CreateEvent, { 
+                user, 
+                supabase,
+                onEventCreated: () => setPage('feed')
+            }),
+            page === 'profile' && React.createElement(Profile, { 
+                user, 
+                supabase, 
+                onSignOut: handleSignOut 
+            }),
+            page === 'notifications' && React.createElement(Notifications, { user, supabase })
+        ),
+        React.createElement(BottomNav, { currentPage: page, setPage })
     );
 }
 
@@ -465,23 +475,12 @@ document.addEventListener('DOMContentLoaded', () => {
     PerformanceMonitor.logUserAction('app_initialized');
 });
 
-// 🔹 SERVICE WORKER
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-                console.log('✅ Service Worker registered:', registration.scope);
-            })
-            .catch((error) => {
-                console.error('❌ Service Worker registration failed:', error);
-            });
-    });
-}
-
+// 🔹 EXPORT GLOBALS
 window.SocialSpot = {
     supabase,
     PerformanceMonitor,
-    version: '2.1.0'
+    version: '3.0.0'
 };
 
-console.log('🚀 SocialSpot v2.1.0 initialized successfully!');
+console.log('🚀 SocialSpot v3.0.0 initialized successfully!');
+                                   
