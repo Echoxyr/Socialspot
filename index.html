@@ -1894,10 +1894,15 @@
                                 interests: ['Tecnologia', 'Social']
                             }, { onConflict: 'id' });
                             
-                            // NON fare login, mostra messaggio
+                            // Mostra successo e switch a login
                             setError('');
-                            alert('✅ Registrazione completata! Controlla la tua email per verificare l\'account.');
-                            setIsSignIn(true);
+                            setSuccess('✅ Registrazione completata! Controlla la tua email per verificare l\'account.');
+                            
+                            // Switch automatico a login dopo 2 secondi
+                            setTimeout(() => {
+                                setIsSignIn(true);
+                                setSuccess(null);
+                            }, 2000);
                         }
                     }
                 } catch (err) {
@@ -2254,13 +2259,16 @@
         // 🌟 COMPONENT FEED ULTIMATE
         function Feed({ user }) {
             const [events, setEvents] = useState([]);
+            const [suggestedEvents, setSuggestedEvents] = useState([]);
             const [loading, setLoading] = useState(true);
             const [favorites, setFavorites] = useState([]);
             const [participants, setParticipants] = useState({});
             const [selectedEvent, setSelectedEvent] = useState(null);
             const [realTimeUpdate, setRealTimeUpdate] = useState(false);
+            const [userProfile, setUserProfile] = useState(null);
 
             useEffect(() => {
+                loadUserProfile();
                 loadEvents();
                 loadFavorites();
                 loadParticipants();
@@ -2293,6 +2301,61 @@
                     supabase.removeChannel(participantsChannel);
                 };
             }, []);
+            
+            const loadUserProfile = async () => {
+                try {
+                    const { data } = await supabase
+                        .from('profiles')
+                        .select('location, current_city, interests')
+                        .eq('id', user.id)
+                        .single();
+                    
+                    if (data) {
+                        setUserProfile(data);
+                        loadSuggestedEvents(data);
+                    }
+                } catch (err) {
+                    console.error('❌ Errore profilo:', err);
+                }
+            };
+            
+            const loadSuggestedEvents = async (profile) => {
+                try {
+                    const targetCity = profile.current_city || profile.location;
+                    
+                    const { data, error } = await supabase
+                        .from('events')
+                        .select(`
+                            *,
+                            profiles!events_creator_id_fkey(username, location)
+                        `)
+                        .eq('location', targetCity)
+                        .in('category', profile.interests || [])
+                        .gte('event_date', new Date().toISOString())
+                        .order('event_date', { ascending: true })
+                        .limit(3);
+                    
+                    if (!error && data && data.length > 0) {
+                        setSuggestedEvents(data);
+                    } else {
+                        // Fallback: eventi popolari della città
+                        const { data: fallbackData } = await supabase
+                            .from('events')
+                            .select(`
+                                *,
+                                profiles!events_creator_id_fkey(username, location)
+                            `)
+                            .eq('location', targetCity)
+                            .gte('event_date', new Date().toISOString())
+                            .order('created_at', { ascending: false })
+                            .limit(3);
+                        
+                        setSuggestedEvents(fallbackData || []);
+                    }
+                } catch (err) {
+                    console.error('❌ Errore suggerimenti:', err);
+                }
+            };
 
             const loadEvents = async () => {
                 try {
@@ -2423,6 +2486,79 @@
                         <p className="feed-subtitle">Scopri esperienze incredibili nella tua zona</p>
                     </div>
                     
+                    {/* Sezione Suggerimenti Personalizzati */}
+                    {suggestedEvents.length > 0 && (
+                        <div style={{
+                            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(249, 115, 22, 0.1))',
+                            borderRadius: '20px',
+                            padding: '25px',
+                            marginBottom: '30px',
+                            border: '2px solid rgba(37, 99, 235, 0.3)'
+                        }}>
+                            <div className="section-title" style={{marginBottom: '20px'}}>
+                                <i className="fas fa-star"></i>
+                                🎯 Consigliati per te
+                                <span style={{
+                                    fontSize: '12px',
+                                    color: 'var(--color-text-muted)',
+                                    fontWeight: 'normal',
+                                    marginLeft: '10px'
+                                }}>
+                                    Basati su {userProfile?.current_city || userProfile?.location} e i tuoi interessi
+                                </span>
+                            </div>
+                            <div className="events-grid">
+                                {suggestedEvents.map(event => (
+                                    <div key={event.id} className="event-card" style={{
+                                        border: '2px solid rgba(37, 99, 235, 0.5)',
+                                        boxShadow: '0 8px 32px rgba(37, 99, 235, 0.2)'
+                                    }}>
+                                        <div className="live-badge" style={{background: 'linear-gradient(135deg, #2563eb, #f97316)'}}>
+                                            ⭐ PER TE
+                                        </div>
+                                        <div className="event-header">
+                                            <div className="event-avatar ultimate-float">
+                                                {event.profiles?.username?.[0]?.toUpperCase() || 'U'}
+                                            </div>
+                                            <div className="event-info">
+                                                <div className="event-creator">{event.profiles?.username || 'Utente'}</div>
+                                                <div className="event-location">
+                                                    <i className="fas fa-map-marker-alt"></i>
+                                                    {event.location}
+                                                </div>
+                                            </div>
+                                            <div className="event-category ultimate-pulse">{event.category}</div>
+                                        </div>
+                                        <div className="event-content">
+                                            <h3 className="event-title">{event.title}</h3>
+                                            <p className="event-description">{event.description}</p>
+                                            <div className="event-meta">
+                                                <div className="event-meta-item">
+                                                    <i className="fas fa-calendar"></i>
+                                                    <span>{formatDate(event.event_date)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="event-actions">
+                                            <button 
+                                                className="action-btn"
+                                                onClick={() => setSelectedEvent(event)}
+                                            >
+                                                <i className="fas fa-info-circle"></i>
+                                                Dettagli
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Tutti gli eventi */}
+                    <div className="section-title" style={{marginBottom: '20px'}}>
+                        <i className="fas fa-calendar-alt"></i>
+                        Tutti gli eventi
+                    </div>
                     <div className="events-grid">
                         {events.length === 0 ? (
                             <div className="empty-state">
@@ -2961,9 +3097,11 @@
         // 🚀 COMPONENT PROFILE ULTIMATE
         function Profile({ user, onSignOut }) {
             const { stats, loading: statsLoading } = useRealTimeStats(user.id);
-            const [profile, setProfile] = useState({ username: '', location: '', interests: [] });
+            const [profile, setProfile] = useState({ username: '', location: '', interests: [], bio: '' });
             const [myEvents, setMyEvents] = useState([]);
             const [loading, setLoading] = useState(true);
+            const [isEditing, setIsEditing] = useState(false);
+            const [editForm, setEditForm] = useState({ bio: '', location: '', current_city: '' });
 
             useEffect(() => {
                 loadProfile();
@@ -2980,11 +3118,38 @@
                     
                     if (data) {
                         setProfile(data);
+                        setEditForm({
+                            bio: data.bio || '',
+                            location: data.location || '',
+                            current_city: data.current_city || ''
+                        });
                     }
                 } catch (err) {
                     console.error('❌ Errore caricamento profilo:', err);
                 } finally {
                     setLoading(false);
+                }
+            };
+            
+            const saveProfile = async () => {
+                try {
+                    const { error } = await supabase
+                        .from('profiles')
+                        .update({
+                            bio: editForm.bio,
+                            location: editForm.location,
+                            current_city: editForm.current_city || editForm.location
+                        })
+                        .eq('id', user.id);
+                    
+                    if (!error) {
+                        setProfile({...profile, ...editForm, current_city: editForm.current_city || editForm.location});
+                        setIsEditing(false);
+                        alert('✅ Profilo aggiornato!');
+                    }
+                } catch (err) {
+                    console.error('❌ Errore salvataggio:', err);
+                    alert('❌ Errore durante il salvataggio');
                 }
             };
 
@@ -3063,7 +3228,7 @@
                         </div>
                         
                         <div className="profile-actions">
-                            <button className="profile-btn">
+                            <button className="profile-btn" onClick={() => setIsEditing(true)}>
                                 <i className="fas fa-edit"></i>
                                 Modifica Profilo
                             </button>
@@ -3073,6 +3238,68 @@
                             </button>
                         </div>
                     </div>
+                    
+                    {/* Modal Edit Profile */}
+                    {isEditing && (
+                        <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">Modifica Profilo</h2>
+                                    <button className="modal-close" onClick={() => setIsEditing(false)}>
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="form-group">
+                                        <label className="form-label">
+                                            <i className="fas fa-align-left"></i>
+                                            Bio
+                                        </label>
+                                        <textarea
+                                            className="form-input form-textarea"
+                                            value={editForm.bio}
+                                            onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                                            placeholder="Racconta qualcosa di te..."
+                                            maxLength={200}
+                                        />
+                                        <small style={{color: 'var(--color-text-muted)', fontSize: '12px'}}>
+                                            {editForm.bio.length}/200 caratteri
+                                        </small>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">
+                                            <i className="fas fa-map-marker-alt"></i>
+                                            Città
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            value={editForm.location}
+                                            onChange={(e) => setEditForm({...editForm, location: e.target.value})}
+                                            placeholder="Es: Milano, Lombardia"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">
+                                            <i className="fas fa-plane"></i>
+                                            Città attuale (viaggiatore)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            value={editForm.current_city}
+                                            onChange={(e) => setEditForm({...editForm, current_city: e.target.value})}
+                                            placeholder="Lascia vuoto se sei a casa"
+                                        />
+                                    </div>
+                                    <button className="btn-primary" onClick={saveProfile}>
+                                        <i className="fas fa-save"></i>
+                                        Salva Modifiche
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {myEvents.length > 0 && (
                         <div style={{
@@ -3252,6 +3479,81 @@
             );
         }
 
+        // 🌟 COMPONENT LIVE STATS COUNTER
+        function LiveStatsCounter({ user }) {
+            const [stats, setStats] = useState({ activeEvents: 0, todayParticipants: 0, totalUsers: 0 });
+            
+            useEffect(() => {
+                loadStats();
+                const interval = setInterval(loadStats, 30000); // Update ogni 30 sec
+                return () => clearInterval(interval);
+            }, []);
+            
+            const loadStats = async () => {
+                try {
+                    // Eventi attivi
+                    const { count: eventsCount } = await supabase
+                        .from('events')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('status', 'active')
+                        .gte('event_date', new Date().toISOString());
+                    
+                    // Partecipanti oggi
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const { count: participantsCount } = await supabase
+                        .from('event_participants')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('joined_at', today.toISOString());
+                    
+                    // Utenti totali
+                    const { count: usersCount } = await supabase
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true });
+                    
+                    setStats({
+                        activeEvents: eventsCount || 0,
+                        todayParticipants: participantsCount || 0,
+                        totalUsers: usersCount || 0
+                    });
+                } catch (err) {
+                    console.error('❌ Errore stats:', err);
+                }
+            };
+            
+            return (
+                <div style={{
+                    background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(249, 115, 22, 0.15))',
+                    backdropFilter: 'blur(10px)',
+                    padding: '12px 20px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '30px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    position: 'sticky',
+                    top: '70px',
+                    zIndex: 100,
+                    animation: 'slideDown 0.5s ease'
+                }}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <span style={{fontSize: '20px'}}>🎉</span>
+                        <span style={{fontWeight: '600', color: 'var(--color-primary)'}}>{stats.activeEvents}</span>
+                        <span style={{fontSize: '13px', color: 'var(--color-text-muted)'}}>eventi attivi</span>
+                    </div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <span style={{fontSize: '20px'}}>👥</span>
+                        <span style={{fontWeight: '600', color: 'var(--color-secondary)'}}>{stats.todayParticipants}</span>
+                        <span style={{fontSize: '13px', color: 'var(--color-text-muted)'}}>iscritti oggi</span>
+                    </div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <span style={{fontSize: '20px'}}>🌟</span>
+                        <span style={{fontWeight: '600', color: 'var(--color-accent)'}}>{stats.totalUsers}</span>
+                        <span style={{fontSize: '13px', color: 'var(--color-text-muted)'}}>utenti</span>
+                    </div>
+                </div>
+            );
+        }
+
         // 🚀 COMPONENT PRINCIPALE APP ULTIMATE
         function App() {
             const [user, setUser] = useState(null);
@@ -3330,6 +3632,9 @@
                             <div className="logo-text">SocialSpot</div>
                         </div>
                     </div>
+                    
+                    {/* Live Stats Counter */}
+                    <LiveStatsCounter user={user} />
 
                     {/* Content ULTIMATE */}
                     <div className="content">
