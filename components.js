@@ -1,35 +1,26 @@
-// 🔹 COMPONENTE AUTH CORRETTO CON TUTTI I CAMPI E VERIFICA EMAIL
-const { useState, useEffect, memo, useCallback } = React;
-
-const Auth = memo(({ supabase, setUser }) => {
-    const [isSignIn, setIsSignIn] = useState(true);
-    const [formData, setFormData] = useState({
+// 🔹 AUTH E COMPONENTI
+const Auth = React.memo(({ supabase, setUser }) => {
+    const [isSignIn, setIsSignIn] = React.useState(true);
+    const [formData, setFormData] = React.useState({
         email: '',
         password: '',
-        confirmPassword: '',
         fullName: '',
-        username: '',
-        dateOfBirth: '',
-        gender: '',
-        phone: '',
         interests: []
     });
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(null);
-    const [passwordStrength, setPasswordStrength] = useState(0);
+    const [error, setError] = React.useState(null);
+    const [loading, setLoading] = React.useState(false);
+    const [passwordStrength, setPasswordStrength] = React.useState(0);
 
-    const calculatePasswordStrength = useCallback((password) => {
+    const calculatePasswordStrength = React.useCallback((password) => {
         let strength = 0;
         if (password.length >= 8) strength += 25;
-        if (password.length >= 12) strength += 10;
         if (/[A-Z]/.test(password)) strength += 25;
         if (/[0-9]/.test(password)) strength += 25;
-        if (/[^A-Za-z0-9]/.test(password)) strength += 15;
-        return Math.min(strength, 100);
+        if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+        return strength;
     }, []);
 
-    useEffect(() => {
+    React.useEffect(() => {
         setPasswordStrength(calculatePasswordStrength(formData.password));
     }, [formData.password, calculatePasswordStrength]);
 
@@ -39,7 +30,6 @@ const Auth = memo(({ supabase, setUser }) => {
             [field]: value
         }));
         setError(null);
-        setSuccessMessage(null);
     };
 
     const handleInterestToggle = (interest) => {
@@ -51,164 +41,75 @@ const Auth = memo(({ supabase, setUser }) => {
         }));
     };
 
-    const validateForm = () => {
-        if (!isSignIn) {
-            // Validazione registrazione
-            if (!formData.fullName.trim()) {
-                setError('Inserisci il tuo nome completo');
-                return false;
-            }
-            if (!formData.username.trim()) {
-                setError('Inserisci un username');
-                return false;
-            }
-            if (formData.username.length < 3) {
-                setError('L\'username deve essere di almeno 3 caratteri');
-                return false;
-            }
-            if (!formData.dateOfBirth) {
-                setError('Inserisci la tua data di nascita');
-                return false;
-            }
-            
-            // Verifica età minima (13 anni)
-            const birthDate = new Date(formData.dateOfBirth);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (age < 13 || (age === 13 && monthDiff < 0)) {
-                setError('Devi avere almeno 13 anni per registrarti');
-                return false;
-            }
-            
-            if (!formData.gender) {
-                setError('Seleziona il tuo genere');
-                return false;
-            }
-            
-            if (formData.password !== formData.confirmPassword) {
-                setError('Le password non corrispondono');
-                return false;
-            }
-            
-            if (formData.password.length < 8) {
-                setError('La password deve essere di almeno 8 caratteri');
-                return false;
-            }
-            
-            if (formData.interests.length === 0) {
-                setError('Seleziona almeno un interesse');
-                return false;
-            }
-        }
-        
-        // Validazione email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            setError('Inserisci un indirizzo email valido');
-            return false;
-        }
-        
-        return true;
-    };
-
     const handleAuth = async (e) => {
         e.preventDefault();
-        
-        if (!validateForm()) {
-            return;
-        }
-        
         setLoading(true);
         setError(null);
-        setSuccessMessage(null);
         
         try {
             let result;
-            
             if (isSignIn) {
-                // LOGIN
                 result = await supabase.auth.signInWithPassword({ 
                     email: formData.email, 
                     password: formData.password 
                 });
-                
-                if (result.error) {
-                    setError(result.error.message === 'Invalid login credentials' 
-                        ? 'Email o password non corretti' 
-                        : result.error.message);
+            } else {
+                if (!formData.fullName.trim()) {
+                    setError('Inserisci il nome completo');
+                    setLoading(false);
+                    return;
+                }
+                if (formData.interests.length === 0) {
+                    setError('Seleziona almeno un interesse');
+                    setLoading(false);
                     return;
                 }
                 
-                if (result.data.user) {
-                    setUser(result.data.user);
-                    window.addNotification?.({
-                        type: 'success',
-                        icon: 'fas fa-check-circle',
-                        title: 'Accesso effettuato!',
-                        message: 'Bentornato su SocialSpot!'
-                    });
-                }
-            } else {
-                // REGISTRAZIONE
                 result = await supabase.auth.signUp({ 
                     email: formData.email, 
                     password: formData.password,
                     options: {
                         data: {
                             full_name: formData.fullName.trim(),
-                            username: formData.username.trim().toLowerCase(),
-                            date_of_birth: formData.dateOfBirth,
-                            gender: formData.gender,
-                            phone: formData.phone || null,
                             interests: formData.interests
-                        },
-                        emailRedirectTo: window.location.origin
+                        }
                     }
                 });
                 
-                if (result.error) {
-                    if (result.error.message.includes('already registered')) {
-                        setError('Questa email è già registrata. Prova ad effettuare il login.');
-                    } else if (result.error.message.includes('Username')) {
-                        setError('Questo username è già in uso. Scegline un altro.');
-                    } else {
-                        setError(result.error.message);
+                if (result.data?.user && !result.error) {
+                    try {
+                        const profileData = {
+                            id: result.data.user.id,
+                            username: formData.fullName.trim(),
+                            interests: formData.interests,
+                            location: '',
+                            bio: '',
+                            avatar_url: null
+                        };
+                        
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert(profileData);
+                            
+                        if (profileError) {
+                            console.error('Errore creazione profilo:', profileError);
+                        }
+                    } catch (profileErr) {
+                        console.error('Errore inserimento profilo:', profileErr);
                     }
-                    return;
                 }
-                
-                if (result.data.user) {
-                    // Mostra messaggio di conferma email
-                    setSuccessMessage('Registrazione completata! Controlla la tua email per verificare il tuo account.');
-                    
-                    window.addNotification?.({
-                        type: 'success',
-                        icon: 'fas fa-envelope-open-text',
-                        title: 'Registrazione completata!',
-                        message: 'Ti abbiamo inviato un\'email di conferma. Controlla la tua casella di posta.'
-                    });
-                    
-                    // Reset form
-                    setFormData({
-                        email: '',
-                        password: '',
-                        confirmPassword: '',
-                        fullName: '',
-                        username: '',
-                        dateOfBirth: '',
-                        gender: '',
-                        phone: '',
-                        interests: []
-                    });
-                    
-                    // Switch a login dopo 3 secondi
-                    setTimeout(() => {
-                        setIsSignIn(true);
-                        setSuccessMessage(null);
-                    }, 3000);
-                }
+            }
+            
+            if (result.error) {
+                setError(result.error.message);
+            } else if (result.data.user) {
+                setUser(result.data.user);
+                window.addNotification?.({
+                    type: 'success',
+                    icon: 'fas fa-check-circle',
+                    title: isSignIn ? 'Accesso effettuato!' : 'Registrazione completata!',
+                    message: isSignIn ? 'Bentornato!' : 'Benvenuto in SocialSpot!'
+                });
             }
         } catch (err) {
             console.error('Auth error:', err);
@@ -221,269 +122,487 @@ const Auth = memo(({ supabase, setUser }) => {
     const availableInterests = [
         'Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 
         'Viaggi', 'Arte', 'Lettura', 'Gaming', 'Fitness',
-        'Fotografia', 'Moda', 'Natura', 'Business', 'Benessere'
+        'Fotografia', 'Moda', 'Nature'
     ];
 
-    const genderOptions = [
-        { value: 'male', label: 'Uomo' },
-        { value: 'female', label: 'Donna' },
-        { value: 'other', label: 'Altro' },
-        { value: 'prefer_not_to_say', label: 'Preferisco non dirlo' }
-    ];
+    return (
+        <div className="auth-wrapper">
+            <div className="auth-container">
+                <div className="auth-header">
+                    <div className="logo-icon">
+                        <span className="logo-text">SS</span>
+                    </div>
+                    <h1>SocialSpot</h1>
+                    <p>Connetti, Crea, Condividi</p>
+                </div>
 
-    return React.createElement('div', { className: 'auth-wrapper' },
-        React.createElement('div', { className: 'auth-container' },
-            React.createElement('div', { className: 'auth-header' },
-                React.createElement('div', { className: 'logo-icon' },
-                    React.createElement('span', { className: 'logo-text' }, 'SS')
-                ),
-                React.createElement('h1', null, 'SocialSpot'),
-                React.createElement('p', null, '✨ La tua community per eventi locali')
-            ),
+                <div className="auth-content">
+                    <div className="auth-tabs">
+                        <button 
+                            className={`auth-tab ${isSignIn ? 'active' : ''}`} 
+                            onClick={() => setIsSignIn(true)}
+                        >
+                            Accedi
+                        </button>
+                        <button 
+                            className={`auth-tab ${!isSignIn ? 'active' : ''}`} 
+                            onClick={() => setIsSignIn(false)}
+                        >
+                            Registrati
+                        </button>
+                    </div>
 
-            React.createElement('div', { className: 'auth-content' },
-                React.createElement('div', { className: 'auth-tabs' },
-                    React.createElement('button', {
-                        className: `auth-tab ${isSignIn ? 'active' : ''}`,
-                        onClick: () => {
-                            setIsSignIn(true);
-                            setError(null);
-                            setSuccessMessage(null);
-                        }
-                    }, 'Accedi'),
-                    React.createElement('button', {
-                        className: `auth-tab ${!isSignIn ? 'active' : ''}`,
-                        onClick: () => {
-                            setIsSignIn(false);
-                            setError(null);
-                            setSuccessMessage(null);
-                        }
-                    }, 'Registrati')
-                ),
+                    <form onSubmit={handleAuth} className="auth-form">
+                        <div className="form-group">
+                            <label className="form-label">Email</label>
+                            <input
+                                type="email"
+                                className="form-input"
+                                value={formData.email}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
+                                placeholder="Il tuo indirizzo email"
+                                required
+                            />
+                        </div>
 
-                React.createElement('form', { 
-                    onSubmit: handleAuth, 
-                    className: 'auth-form' 
-                },
-                    // CAMPI REGISTRAZIONE
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-user' }),
-                            ' Nome completo *'
-                        ),
-                        React.createElement('input', {
-                            type: 'text',
-                            className: 'form-input',
-                            value: formData.fullName,
-                            onChange: (e) => handleInputChange('fullName', e.target.value),
-                            placeholder: 'Es: Mario Rossi',
-                            required: !isSignIn
-                        })
-                    ),
+                        <div className="form-group">
+                            <label className="form-label">Password</label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                value={formData.password}
+                                onChange={(e) => handleInputChange('password', e.target.value)}
+                                placeholder="La tua password"
+                                required
+                            />
+                            {!isSignIn && formData.password && (
+                                <div className="password-strength">
+                                    <div 
+                                        className="strength-bar" 
+                                        style={{ width: `${passwordStrength}%` }}
+                                    ></div>
+                                    <span className="strength-text">
+                                        {passwordStrength < 50 ? 'Debole' : passwordStrength < 80 ? 'Media' : 'Forte'}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
 
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-at' }),
-                            ' Username *'
-                        ),
-                        React.createElement('input', {
-                            type: 'text',
-                            className: 'form-input',
-                            value: formData.username,
-                            onChange: (e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')),
-                            placeholder: 'Es: mario_rossi',
-                            required: !isSignIn,
-                            minLength: 3
-                        })
-                    ),
+                        {!isSignIn && (
+                            <>
+                                <div className="form-group">
+                                    <label className="form-label">Nome completo</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={formData.fullName}
+                                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                                        placeholder="Il tuo nome completo"
+                                        required
+                                    />
+                                </div>
 
-                    // EMAIL (sempre visibile)
-                    React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-envelope' }),
-                            ' Email *'
-                        ),
-                        React.createElement('input', {
-                            type: 'email',
-                            className: 'form-input',
-                            value: formData.email,
-                            onChange: (e) => handleInputChange('email', e.target.value),
-                            placeholder: 'il-tuo-indirizzo@email.com',
-                            required: true,
-                            autoComplete: 'email'
-                        })
-                    ),
+                                <div className="form-group">
+                                    <label className="form-label">Interessi ({formData.interests.length}/5)</label>
+                                    <div className="interests-grid">
+                                        {availableInterests.map(interest => (
+                                            <button
+                                                key={interest}
+                                                type="button"
+                                                className={`interest-chip ${
+                                                    formData.interests.includes(interest) ? 'selected' : ''
+                                                }`}
+                                                onClick={() => handleInterestToggle(interest)}
+                                                disabled={
+                                                    !formData.interests.includes(interest) && 
+                                                    formData.interests.length >= 5
+                                                }
+                                            >
+                                                <span>{interest}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-calendar' }),
-                            ' Data di nascita *'
-                        ),
-                        React.createElement('input', {
-                            type: 'date',
-                            className: 'form-input',
-                            value: formData.dateOfBirth,
-                            onChange: (e) => handleInputChange('dateOfBirth', e.target.value),
-                            max: new Date().toISOString().split('T')[0],
-                            required: !isSignIn
-                        })
-                    ),
+                        {error && (
+                            <div className="error-message">
+                                <i className="fas fa-exclamation-triangle"></i>
+                                {error}
+                            </div>
+                        )}
 
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-venus-mars' }),
-                            ' Genere *'
-                        ),
-                        React.createElement('select', {
-                            className: 'form-input',
-                            value: formData.gender,
-                            onChange: (e) => handleInputChange('gender', e.target.value),
-                            required: !isSignIn
-                        },
-                            React.createElement('option', { value: '', disabled: true }, 'Seleziona...'),
-                            genderOptions.map(opt =>
-                                React.createElement('option', { key: opt.value, value: opt.value }, opt.label)
-                            )
-                        )
-                    ),
-
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-phone' }),
-                            ' Telefono (opzionale)'
-                        ),
-                        React.createElement('input', {
-                            type: 'tel',
-                            className: 'form-input',
-                            value: formData.phone,
-                            onChange: (e) => handleInputChange('phone', e.target.value),
-                            placeholder: '+39 123 456 7890'
-                        })
-                    ),
-
-                    // PASSWORD
-                    React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-lock' }),
-                            ' Password *'
-                        ),
-                        React.createElement('input', {
-                            type: 'password',
-                            className: 'form-input',
-                            value: formData.password,
-                            onChange: (e) => handleInputChange('password', e.target.value),
-                            placeholder: '••••••••',
-                            required: true,
-                            minLength: 8,
-                            autoComplete: isSignIn ? 'current-password' : 'new-password'
-                        }),
-                        !isSignIn && formData.password && React.createElement('div', { 
-                            className: 'password-strength',
-                            style: {
-                                marginTop: 'var(--space-2)',
-                                height: '4px',
-                                background: 'var(--color-border)',
-                                borderRadius: 'var(--radius-full)',
-                                overflow: 'hidden'
-                            }
-                        },
-                            React.createElement('div', {
-                                className: 'strength-bar',
-                                style: {
-                                    width: `${passwordStrength}%`,
-                                    height: '100%',
-                                    background: passwordStrength < 40 ? 'var(--color-error-500)' : 
-                                               passwordStrength < 70 ? 'var(--color-warning-500)' : 
-                                               'var(--color-success-500)',
-                                    transition: 'var(--transition-all)'
-                                }
-                            }),
-                            React.createElement('span', {
-                                className: 'strength-text',
-                                style: {
-                                    fontSize: 'var(--font-size-xs)',
-                                    color: 'var(--color-text-muted)',
-                                    marginTop: 'var(--space-1)',
-                                    display: 'block'
-                                }
-                            }, passwordStrength < 40 ? 'Debole' : passwordStrength < 70 ? 'Media' : 'Forte')
-                        )
-                    ),
-
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-lock' }),
-                            ' Conferma Password *'
-                        ),
-                        React.createElement('input', {
-                            type: 'password',
-                            className: 'form-input',
-                            value: formData.confirmPassword,
-                            onChange: (e) => handleInputChange('confirmPassword', e.target.value),
-                            placeholder: '••••••••',
-                            required: !isSignIn,
-                            minLength: 8,
-                            autoComplete: 'new-password'
-                        })
-                    ),
-
-                    !isSignIn && React.createElement('div', { className: 'form-group' },
-                        React.createElement('label', { className: 'form-label' },
-                            React.createElement('i', { className: 'fas fa-star' }),
-                            ` Interessi (${formData.interests.length} selezionati) *`
-                        ),
-                        React.createElement('div', { className: 'interests-grid' },
-                            availableInterests.map(interest =>
-                                React.createElement('button', {
-                                    key: interest,
-                                    type: 'button',
-                                    className: `interest-chip ${formData.interests.includes(interest) ? 'selected' : ''}`,
-                                    onClick: () => handleInterestToggle(interest)
-                                }, interest)
-                            )
-                        )
-                    ),
-
-                    error && React.createElement('div', { className: 'error-message' },
-                        React.createElement('i', { className: 'fas fa-exclamation-triangle' }),
-                        ' ',
-                        error
-                    ),
-
-                    successMessage && React.createElement('div', { className: 'success-message' },
-                        React.createElement('i', { className: 'fas fa-check-circle' }),
-                        ' ',
-                        successMessage
-                    ),
-
-                    React.createElement('button', {
-                        type: 'submit',
-                        className: 'btn-primary',
-                        disabled: loading
-                    },
-                        loading ? [
-                            React.createElement('i', { className: 'fas fa-spinner fa-spin', key: 'icon' }),
-                            isSignIn ? ' Accesso in corso...' : ' Registrazione in corso...'
-                        ] : [
-                            React.createElement('i', { 
-                                className: `fas ${isSignIn ? 'fa-sign-in-alt' : 'fa-user-plus'}`,
-                                key: 'icon'
-                            }),
-                            isSignIn ? ' Accedi' : ' Registrati'
-                        ]
-                    ),
-
-                    !isSignIn && React.createElement('p', {
-                        style: {
-                            fontSize: 'var(--font-size-xs)',
-                            color: 'var(--color-text-muted)',
-                            textAlign: 'center',
-                            marginTop: 'var(--space-4)',
-                            lineHeight: '1.6'
-                        }
-                    }, 'Registrandoti accetti i nostri Termini di Servizio e la Privacy Policy')
-                )
-            )
-        )
+                        <button type="submit" className="btn-primary" disabled={loading}>
+                            {loading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    {isSignIn ? 'Accesso...' : 'Registrazione...'}
+                                </>
+                            ) : (
+                                <>
+                                    <i className={`fas ${isSignIn ? 'fa-sign-in-alt' : 'fa-user-plus'}`}></i>
+                                    {isSignIn ? 'Accedi' : 'Registrati'}
+                                </>
+                            )}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     );
 });
+
+// 🔹 EVENT FEED
+function EventFeed({ supabase, user }) {
+    const [events, setEvents] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [selectedEvent, setSelectedEvent] = React.useState(null);
+    const [favorites, setFavorites] = React.useState([]);
+    const [participants, setParticipants] = React.useState({});
+
+    React.useEffect(() => {
+        loadEvents();
+        loadFavorites();
+        loadParticipants();
+        
+        const channel = supabase
+            .channel('events_realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, loadEvents)
+            .subscribe();
+
+        return () => supabase.removeChannel(channel);
+    }, []);
+
+    const loadEvents = async () => {
+        const { data, error } = await supabase
+            .from('events')
+            .select(`
+                *,
+                profiles!events_creator_id_fkey(username, location)
+            `)
+            .order('event_date', { ascending: false });
+
+        if (!error) setEvents(data || []);
+        setLoading(false);
+    };
+
+    const loadFavorites = async () => {
+        const { data } = await supabase
+            .from('event_favorites')
+            .select('event_id')
+            .eq('user_id', user.id);
+        setFavorites(data ? data.map(f => f.event_id) : []);
+    };
+
+    const loadParticipants = async () => {
+        const { data } = await supabase
+            .from('event_participants')
+            .select('event_id, user_id');
+        
+        const counts = {};
+        const userParticipations = [];
+        
+        (data || []).forEach(p => {
+            counts[p.event_id] = (counts[p.event_id] || 0) + 1;
+            if (p.user_id === user.id) {
+                userParticipations.push(p.event_id);
+            }
+        });
+        
+        setParticipants({ counts, userParticipations });
+    };
+
+    const toggleFavorite = async (eventId) => {
+        const isFavorite = favorites.includes(eventId);
+        if (isFavorite) {
+            await supabase.from('event_favorites').delete().eq('event_id', eventId).eq('user_id', user.id);
+            setFavorites(favorites.filter(id => id !== eventId));
+        } else {
+            await supabase.from('event_favorites').insert({ event_id: eventId, user_id: user.id });
+            setFavorites([...favorites, eventId]);
+        }
+    };
+
+    const toggleJoin = async (eventId) => {
+        const isJoined = participants.userParticipations?.includes(eventId);
+        if (isJoined) {
+            await supabase.from('event_participants').delete().eq('event_id', eventId).eq('user_id', user.id);
+        } else {
+            await supabase.from('event_participants').insert({ event_id: eventId, user_id: user.id });
+        }
+        loadParticipants();
+    };
+
+    if (loading) {
+        return (
+            <div className="loading">
+                <div className="spinner"></div>
+                <div className="loading-text">Caricamento eventi...</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="feed-wrapper">
+            <div className="feed-header">
+                <h1 className="feed-title">Eventi</h1>
+                <p className="feed-subtitle">Scopri cosa succede vicino a te</p>
+            </div>
+            
+            <div className="event-list">
+                {events.length === 0 ? (
+                    <div className="empty-state">
+                        <i className="fas fa-calendar-times"></i>
+                        <h3>Nessun evento</h3>
+                        <p>Crea il primo evento nella tua zona!</p>
+                    </div>
+                ) : (
+                    events.map(event => (
+                        <div key={event.id} className="event-card">
+                            <div className="event-header">
+                                <div className="event-avatar">
+                                    {event.profiles?.username?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <div className="event-info">
+                                    <div className="event-creator">{event.profiles?.username || 'Utente'}</div>
+                                    <div className="event-location">
+                                        <i className="fas fa-map-marker-alt"></i>
+                                        {event.location}
+                                    </div>
+                                </div>
+                                <div className="event-category">{event.category}</div>
+                            </div>
+                            
+                            <div className="event-content">
+                                <h3 className="event-title">{event.title}</h3>
+                                <p className="event-description">{event.description}</p>
+                                
+                                <div className="event-meta">
+                                    <div className="event-meta-item">
+                                        <i className="fas fa-calendar"></i>
+                                        <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
+                                    </div>
+                                    <div className="event-meta-item">
+                                        <i className="fas fa-users"></i>
+                                        <span>{participants.counts?.[event.id] || 0} partecipanti</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="event-actions">
+                                <button 
+                                    className={`btn-secondary ${favorites.includes(event.id) ? 'active' : ''}`}
+                                    onClick={() => toggleFavorite(event.id)}
+                                >
+                                    <i className={favorites.includes(event.id) ? 'fas fa-heart' : 'far fa-heart'}></i>
+                                    <span>Mi piace</span>
+                                </button>
+                                <button 
+                                    className={`btn-secondary ${participants.userParticipations?.includes(event.id) ? 'active' : ''}`}
+                                    onClick={() => toggleJoin(event.id)}
+                                >
+                                    <i className="fas fa-user-plus"></i>
+                                    <span>{participants.userParticipations?.includes(event.id) ? 'Iscritto' : 'Partecipa'}</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+}
+
+// 🔹 CREATE EVENT
+function CreateEvent({ supabase, user, onEventCreated }) {
+    const [formData, setFormData] = React.useState({
+        title: '',
+        description: '',
+        category: '',
+        location: '',
+        event_date: ''
+    });
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState('');
+
+    const CATEGORIES = ['Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 'Viaggi', 'Arte', 'Gaming', 'Altro'];
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setError('');
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const { error } = await supabase.from('events').insert({
+                ...formData,
+                creator_id: user.id
+            });
+
+            if (error) throw error;
+
+            window.addNotification?.({
+                type: 'success',
+                icon: 'fas fa-check-circle',
+                title: 'Evento creato!',
+                message: 'Il tuo evento è stato pubblicato'
+            });
+            
+            onEventCreated();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="create-wrapper">
+            <div className="create-header">
+                <h1 className="create-title">Crea Evento</h1>
+                <p className="create-subtitle">Organizza qualcosa di speciale</p>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="create-form">
+                <div className="form-row">
+                    <div className="form-group">
+                        <label className="form-label">Titolo</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Nome evento"
+                            value={formData.title}
+                            onChange={(e) => handleChange('title', e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Categoria</label>
+                        <select
+                            className="form-input form-select"
+                            value={formData.category}
+                            onChange={(e) => handleChange('category', e.target.value)}
+                            required
+                        >
+                            <option value="">Seleziona</option>
+                            {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        </select>
+                    </div>
+                </div>
+                
+                <div className="form-group form-group-full">
+                    <label className="form-label">Descrizione</label>
+                    <textarea
+                        className="form-input form-textarea"
+                        placeholder="Racconta di cosa si tratta..."
+                        value={formData.description}
+                        onChange={(e) => handleChange('description', e.target.value)}
+                        required
+                    />
+                </div>
+                
+                <div className="form-row">
+                    <div className="form-group">
+                        <label className="form-label">Luogo</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Dove si terrà"
+                            value={formData.location}
+                            onChange={(e) => handleChange('location', e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Data/Ora</label>
+                        <input
+                            type="datetime-local"
+                            className="form-input"
+                            value={formData.event_date}
+                            onChange={(e) => handleChange('event_date', e.target.value)}
+                            required
+                        />
+                    </div>
+                </div>
+                
+                {error && (
+                    <div className="error-message">
+                        <i className="fas fa-exclamation-circle"></i>
+                        <span>{error}</span>
+                    </div>
+                )}
+                
+                <button type="submit" className="btn-primary" disabled={loading}>
+                    {loading ? (
+                        <>
+                            <i className="fas fa-spinner fa-spin"></i>
+                            <span>Creazione...</span>
+                        </>
+                    ) : (
+                        <>
+                            <i className="fas fa-plus-circle"></i>
+                            <span>Crea Evento</span>
+                        </>
+                    )}
+                </button>
+            </form>
+        </div>
+    );
+}
+
+// 🔹 PROFILE PAGE
+function ProfilePage({ supabase, user, theme, onToggleTheme }) {
+    const [stats, setStats] = React.useState({ events: 0, joined: 0, points: 0 });
+
+    React.useEffect(() => {
+        loadStats();
+    }, []);
+
+    const loadStats = async () => {
+        const { data: created } = await supabase.from('events').select('id').eq('creator_id', user.id);
+        const { data: joined } = await supabase.from('event_participants').select('event_id').eq('user_id', user.id);
+        
+        const eventsCount = created?.length || 0;
+        const joinedCount = joined?.length || 0;
+        const points = eventsCount * 5 + joinedCount * 2;
+        
+        setStats({ events: eventsCount, joined: joinedCount, points });
+    };
+
+    return (
+        <div className="profile-wrapper">
+            <div className="profile-header">
+                <div className="profile-avatar">
+                    {user.email[0].toUpperCase()}
+                </div>
+                <div className="profile-name">{user.email}</div>
+                <div className="profile-email">Membro SocialSpot</div>
+                
+                <div className="profile-stats">
+                    <div className="stat-item">
+                        <div className="stat-number">{stats.events}</div>
+                        <div className="stat-label">Eventi Creati</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-number">{stats.joined}</div>
+                        <div className="stat-label">Partecipazioni</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-number">{stats.points}</div>
+                        <div className="stat-label">Punti</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+window.Auth = Auth;
+window.EventFeed = EventFeed;
+window.CreateEvent = CreateEvent;
+window.ProfilePage = ProfilePage;
