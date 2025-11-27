@@ -3479,16 +3479,7 @@
             );
         }
 
-        // 🌟 COMPONENT LIVE STATS COUNTER
-        function LiveStatsCounter({ user }) {
-            const [stats, setStats] = useState({ activeEvents: 0, todayParticipants: 0, totalUsers: 0 });
-            
-            useEffect(() => {
-                loadStats();
-                const interval = setInterval(loadStats, 30000); // Update ogni 30 sec
-                return () => clearInterval(interval);
-            }, []);
-            
+        
             const loadStats = async () => {
                 try {
                     // Eventi attivi
@@ -3633,8 +3624,7 @@
                         </div>
                     </div>
                     
-                    {/* Live Stats Counter */}
-                    <LiveStatsCounter user={user} />
+                   
 
                     {/* Content ULTIMATE */}
                     <div className="content">
