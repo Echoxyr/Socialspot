@@ -621,3 +621,482 @@ const NotificationsBell = memo(({ supabase, user }) => {
         ]
     );
 });
+// ========================================
+// AGGIUNGI QUESTO ALLA FINE DI components.js
+// ========================================
+
+// EventFeed Component
+function EventFeed({ supabase, user }) {
+    const [events, setEvents] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [favorites, setFavorites] = React.useState([]);
+    const [participants, setParticipants] = React.useState({});
+    const [selectedEvent, setSelectedEvent] = React.useState(null);
+
+    React.useEffect(() => {
+        loadEvents();
+        loadFavorites();
+        loadParticipants();
+    }, []);
+
+    const loadEvents = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('events')
+                .select('*, profiles!events_creator_id_fkey(username, location)')
+                .order('created_at', { ascending: false });
+            
+            if (!error) {
+                setEvents(data || []);
+            }
+        } catch (err) {
+            console.error('Errore caricamento eventi:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadFavorites = async () => {
+        try {
+            const { data } = await supabase
+                .from('event_favorites')
+                .select('event_id')
+                .eq('user_id', user.id);
+            setFavorites(data ? data.map(f => f.event_id) : []);
+        } catch (err) {
+            console.error('Errore caricamento favoriti:', err);
+        }
+    };
+
+    const loadParticipants = async () => {
+        try {
+            const { data } = await supabase
+                .from('event_participants')
+                .select('event_id, user_id');
+            
+            const counts = {};
+            const userParticipations = [];
+            
+            (data || []).forEach(p => {
+                counts[p.event_id] = (counts[p.event_id] || 0) + 1;
+                if (p.user_id === user.id) {
+                    userParticipations.push(p.event_id);
+                }
+            });
+            
+            setParticipants({ counts, userParticipations });
+        } catch (err) {
+            console.error('Errore caricamento partecipanti:', err);
+        }
+    };
+
+    const toggleFavorite = async (eventId) => {
+        const isFavorite = favorites.includes(eventId);
+        try {
+            if (isFavorite) {
+                await supabase
+                    .from('event_favorites')
+                    .delete()
+                    .eq('event_id', eventId)
+                    .eq('user_id', user.id);
+                setFavorites(favorites.filter(id => id !== eventId));
+            } else {
+                await supabase
+                    .from('event_favorites')
+                    .insert({ event_id: eventId, user_id: user.id });
+                setFavorites([...favorites, eventId]);
+            }
+        } catch (err) {
+            console.error('Errore toggle favorito:', err);
+        }
+    };
+
+    const toggleJoin = async (eventId) => {
+        const isJoined = participants.userParticipations?.includes(eventId);
+        try {
+            if (isJoined) {
+                await supabase
+                    .from('event_participants')
+                    .delete()
+                    .eq('event_id', eventId)
+                    .eq('user_id', user.id);
+            } else {
+                await supabase
+                    .from('event_participants')
+                    .insert({ event_id: eventId, user_id: user.id });
+            }
+            loadParticipants();
+        } catch (err) {
+            console.error('Errore toggle partecipazione:', err);
+        }
+    };
+
+    if (loading) {
+        return React.createElement('div', { className: 'loading' },
+            React.createElement('div', { className: 'spinner' }),
+            React.createElement('div', { className: 'loading-text' }, 'Caricamento eventi...')
+        );
+    }
+
+    return React.createElement('div', { className: 'feed-wrapper' },
+        React.createElement('div', { className: 'feed-header' },
+            React.createElement('h1', { className: 'feed-title' }, '🚀 Scopri Eventi'),
+            React.createElement('p', { className: 'feed-subtitle' }, 'Trova esperienze nella tua zona')
+        ),
+        React.createElement('div', { className: 'event-list' },
+            events.length === 0 ? 
+                React.createElement('div', { className: 'empty-state' },
+                    React.createElement('i', { className: 'fas fa-calendar-times empty-icon' }),
+                    React.createElement('h4', null, 'Nessun evento ancora'),
+                    React.createElement('p', null, 'Sii il primo a creare un evento!')
+                ) :
+                events.map(event => 
+                    React.createElement('div', { key: event.id, className: 'event-card' },
+                        React.createElement('div', { className: 'event-image' },
+                            React.createElement('i', { className: 'fas fa-calendar-alt' })
+                        ),
+                        React.createElement('div', { className: 'event-content' },
+                            React.createElement('div', { className: 'event-header' },
+                                React.createElement('div', null,
+                                    React.createElement('h3', { className: 'event-title' }, event.title),
+                                    React.createElement('span', { className: 'event-category' }, event.category || 'Generale')
+                                ),
+                                React.createElement('button', {
+                                    className: `favorite-btn ${favorites.includes(event.id) ? 'favorited' : ''}`,
+                                    onClick: () => toggleFavorite(event.id)
+                                },
+                                    React.createElement('i', { 
+                                        className: favorites.includes(event.id) ? 'fas fa-heart' : 'far fa-heart'
+                                    })
+                                )
+                            ),
+                            React.createElement('p', { className: 'event-description' }, event.description),
+                            React.createElement('div', { className: 'event-meta' },
+                                React.createElement('div', { className: 'event-meta-item' },
+                                    React.createElement('i', { className: 'fas fa-user' }),
+                                    React.createElement('span', null, event.profiles?.username || 'Utente')
+                                ),
+                                React.createElement('div', { className: 'event-meta-item' },
+                                    React.createElement('i', { className: 'fas fa-map-marker-alt' }),
+                                    React.createElement('span', null, event.location || 'Online')
+                                ),
+                                React.createElement('div', { className: 'event-meta-item' },
+                                    React.createElement('i', { className: 'fas fa-calendar' }),
+                                    React.createElement('span', null, event.event_date ? new Date(event.event_date).toLocaleDateString('it-IT') : 'Data da definire')
+                                ),
+                                React.createElement('div', { className: 'event-meta-item' },
+                                    React.createElement('i', { className: 'fas fa-users' }),
+                                    React.createElement('span', null, `${participants.counts?.[event.id] || 0} partecipanti`)
+                                )
+                            ),
+                            React.createElement('div', { className: 'event-actions' },
+                                React.createElement('button', {
+                                    className: `btn-primary ${participants.userParticipations?.includes(event.id) ? 'btn-outline' : ''}`,
+                                    onClick: () => toggleJoin(event.id)
+                                },
+                                    React.createElement('i', { className: 'fas fa-user-plus' }),
+                                    participants.userParticipations?.includes(event.id) ? ' Iscritto' : ' Partecipa'
+                                ),
+                                React.createElement('button', {
+                                    className: 'btn-outline',
+                                    onClick: () => setSelectedEvent(event)
+                                },
+                                    React.createElement('i', { className: 'fas fa-info-circle' }),
+                                    ' Dettagli'
+                                )
+                            )
+                        )
+                    )
+                )
+        )
+    );
+}
+
+// CreateEvent Component
+function CreateEvent({ supabase, user, onEventCreated }) {
+    const [formData, setFormData] = React.useState({
+        title: '',
+        description: '',
+        location: '',
+        event_date: '',
+        category: ''
+    });
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState('');
+    const [success, setSuccess] = React.useState(false);
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setError('');
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        
+        try {
+            const { error: insertError } = await supabase
+                .from('events')
+                .insert({
+                    title: formData.title,
+                    description: formData.description,
+                    location: formData.location,
+                    event_date: formData.event_date,
+                    category: formData.category,
+                    creator_id: user.id
+                });
+            
+            if (insertError) {
+                setError(insertError.message);
+            } else {
+                setSuccess(true);
+                setFormData({
+                    title: '',
+                    description: '',
+                    location: '',
+                    event_date: '',
+                    category: ''
+                });
+                
+                setTimeout(() => {
+                    if (onEventCreated) onEventCreated();
+                }, 1500);
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const categories = ['Sport', 'Musica', 'Arte', 'Cultura', 'Tecnologia', 'Cibo', 'Viaggi', 'Cinema', 'All\'aperto', 'Business'];
+
+    return React.createElement('div', { className: 'create-wrapper' },
+        React.createElement('div', { className: 'create-header' },
+            React.createElement('h1', { className: 'create-title' }, '✨ Crea Nuovo Evento'),
+            React.createElement('p', { className: 'create-subtitle' }, 'Condividi un\'esperienza unica con la community')
+        ),
+        React.createElement('form', { onSubmit: handleSubmit, className: 'create-form' },
+            React.createElement('div', { className: 'form-row' },
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', { className: 'form-label' },
+                        React.createElement('i', { className: 'fas fa-heading' }),
+                        ' Titolo evento'
+                    ),
+                    React.createElement('input', {
+                        type: 'text',
+                        className: 'form-input',
+                        value: formData.title,
+                        onChange: (e) => handleChange('title', e.target.value),
+                        placeholder: 'Es: Torneo di calcetto',
+                        required: true
+                    })
+                ),
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', { className: 'form-label' },
+                        React.createElement('i', { className: 'fas fa-tag' }),
+                        ' Categoria'
+                    ),
+                    React.createElement('select', {
+                        className: 'form-input form-select',
+                        value: formData.category,
+                        onChange: (e) => handleChange('category', e.target.value),
+                        required: true
+                    },
+                        React.createElement('option', { value: '', disabled: true }, 'Seleziona categoria'),
+                        categories.map(cat => 
+                            React.createElement('option', { key: cat, value: cat }, cat)
+                        )
+                    )
+                )
+            ),
+            React.createElement('div', { className: 'form-group full-width' },
+                React.createElement('label', { className: 'form-label' },
+                    React.createElement('i', { className: 'fas fa-align-left' }),
+                    ' Descrizione'
+                ),
+                React.createElement('textarea', {
+                    className: 'form-input form-textarea',
+                    value: formData.description,
+                    onChange: (e) => handleChange('description', e.target.value),
+                    placeholder: 'Descrivi il tuo evento...',
+                    required: true,
+                    rows: 5
+                })
+            ),
+            React.createElement('div', { className: 'form-row' },
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', { className: 'form-label' },
+                        React.createElement('i', { className: 'fas fa-map-marker-alt' }),
+                        ' Luogo'
+                    ),
+                    React.createElement('input', {
+                        type: 'text',
+                        className: 'form-input',
+                        value: formData.location,
+                        onChange: (e) => handleChange('location', e.target.value),
+                        placeholder: 'Es: Milano, Piazza Duomo',
+                        required: true
+                    })
+                ),
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', { className: 'form-label' },
+                        React.createElement('i', { className: 'fas fa-calendar' }),
+                        ' Data e ora'
+                    ),
+                    React.createElement('input', {
+                        type: 'datetime-local',
+                        className: 'form-input',
+                        value: formData.event_date,
+                        onChange: (e) => handleChange('event_date', e.target.value),
+                        required: true
+                    })
+                )
+            ),
+            error && React.createElement('div', { className: 'error-message' },
+                React.createElement('i', { className: 'fas fa-exclamation-triangle' }),
+                ' ',
+                error
+            ),
+            success && React.createElement('div', { className: 'success-message' },
+                React.createElement('i', { className: 'fas fa-check-circle' }),
+                ' Evento creato con successo!'
+            ),
+            React.createElement('button', {
+                type: 'submit',
+                className: 'btn-primary',
+                disabled: loading
+            },
+                loading ? [
+                    React.createElement('i', { className: 'fas fa-spinner fa-spin', key: 'icon' }),
+                    ' Creazione in corso...'
+                ] : [
+                    React.createElement('i', { className: 'fas fa-plus-circle', key: 'icon' }),
+                    ' Crea Evento'
+                ]
+            )
+        )
+    );
+}
+
+// ProfilePage Component
+function ProfilePage({ supabase, user, theme, onToggleTheme }) {
+    const [profile, setProfile] = React.useState(null);
+    const [myEvents, setMyEvents] = React.useState([]);
+    const [stats, setStats] = React.useState({ created: 0, joined: 0 });
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        loadProfile();
+        loadMyEvents();
+        loadStats();
+    }, []);
+
+    const loadProfile = async () => {
+        try {
+            const { data } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+            
+            if (data) {
+                setProfile(data);
+            }
+        } catch (err) {
+            console.error('Errore caricamento profilo:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadMyEvents = async () => {
+        try {
+            const { data } = await supabase
+                .from('events')
+                .select('*')
+                .eq('creator_id', user.id)
+                .order('event_date', { ascending: false });
+            
+            setMyEvents(data || []);
+        } catch (err) {
+            console.error('Errore caricamento eventi:', err);
+        }
+    };
+
+    const loadStats = async () => {
+        try {
+            const { data: created } = await supabase
+                .from('events')
+                .select('id')
+                .eq('creator_id', user.id);
+            
+            const { data: joined } = await supabase
+                .from('event_participants')
+                .select('event_id')
+                .eq('user_id', user.id);
+            
+            setStats({
+                created: created?.length || 0,
+                joined: joined?.length || 0
+            });
+        } catch (err) {
+            console.error('Errore caricamento statistiche:', err);
+        }
+    };
+
+    if (loading) {
+        return React.createElement('div', { className: 'loading' },
+            React.createElement('div', { className: 'spinner' }),
+            React.createElement('div', { className: 'loading-text' }, 'Caricamento profilo...')
+        );
+    }
+
+    return React.createElement('div', { className: 'profile-wrapper' },
+        React.createElement('div', { className: 'profile-header' },
+            React.createElement('div', { className: 'profile-avatar' },
+                (profile?.username || user.email)[0].toUpperCase()
+            ),
+            React.createElement('h2', { className: 'profile-name' }, profile?.username || 'Utente'),
+            React.createElement('p', { className: 'profile-email' }, user.email),
+            React.createElement('div', { className: 'profile-stats' },
+                React.createElement('div', { className: 'stat-item' },
+                    React.createElement('div', { className: 'stat-number' }, stats.created),
+                    React.createElement('div', { className: 'stat-label' }, 'Eventi Creati')
+                ),
+                React.createElement('div', { className: 'stat-item' },
+                    React.createElement('div', { className: 'stat-number' }, stats.joined),
+                    React.createElement('div', { className: 'stat-label' }, 'Partecipazioni')
+                )
+            )
+        ),
+        myEvents.length > 0 && React.createElement('div', { className: 'profile-section' },
+            React.createElement('h3', { className: 'section-title-small' },
+                React.createElement('i', { className: 'fas fa-calendar-check' }),
+                ` I miei eventi (${myEvents.length})`
+            ),
+            React.createElement('div', { className: 'my-events-list' },
+                myEvents.slice(0, 5).map(event =>
+                    React.createElement('div', { key: event.id, className: 'my-event-item' },
+                        React.createElement('div', { className: 'event-info' },
+                            React.createElement('div', { className: 'event-title' }, event.title),
+                            React.createElement('div', { className: 'event-details' },
+                                React.createElement('span', { className: 'event-date' },
+                                    React.createElement('i', { className: 'fas fa-calendar' }),
+                                    ' ',
+                                    new Date(event.event_date).toLocaleDateString('it-IT')
+                                ),
+                                React.createElement('span', { className: 'event-location' },
+                                    React.createElement('i', { className: 'fas fa-map-marker-alt' }),
+                                    ' ',
+                                    event.location
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    );
+}
