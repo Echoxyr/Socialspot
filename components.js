@@ -16,7 +16,7 @@ const Auth = memo(({ supabase, setUser }) => {
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
     const [passwordStrength, setPasswordStrength] = useState(0);
 
     const calculatePasswordStrength = useCallback((password) => {
@@ -39,7 +39,7 @@ const Auth = memo(({ supabase, setUser }) => {
             [field]: value
         }));
         setError(null);
-        setSuccess(null);
+        setSuccessMessage(null);
     };
 
     const handleInterestToggle = (interest) => {
@@ -122,7 +122,7 @@ const Auth = memo(({ supabase, setUser }) => {
         
         setLoading(true);
         setError(null);
-        setSuccess(null);
+        setSuccessMessage(null);
         
         try {
             let result;
@@ -181,7 +181,7 @@ const Auth = memo(({ supabase, setUser }) => {
                 
                 if (result.data.user) {
                     // Mostra messaggio di conferma email
-                    setSuccess('Registrazione completata! Controlla la tua email per verificare il tuo account.');
+                    setSuccessMessage('Registrazione completata! Controlla la tua email per verificare il tuo account.');
                     
                     window.addNotification?.({
                         type: 'success',
@@ -206,7 +206,7 @@ const Auth = memo(({ supabase, setUser }) => {
                     // Switch a login dopo 3 secondi
                     setTimeout(() => {
                         setIsSignIn(true);
-                        setSuccess(null);
+                        setSuccessMessage(null);
                     }, 3000);
                 }
             }
@@ -248,7 +248,7 @@ const Auth = memo(({ supabase, setUser }) => {
                         onClick: () => {
                             setIsSignIn(true);
                             setError(null);
-                            setSuccess(null);
+                            setSuccessMessage(null);
                         }
                     }, 'Accedi'),
                     React.createElement('button', {
@@ -256,7 +256,7 @@ const Auth = memo(({ supabase, setUser }) => {
                         onClick: () => {
                             setIsSignIn(false);
                             setError(null);
-                            setSuccess(null);
+                            setSuccessMessage(null);
                         }
                     }, 'Registrati')
                 ),
@@ -450,10 +450,10 @@ const Auth = memo(({ supabase, setUser }) => {
                         error
                     ),
 
-                    success && React.createElement('div', { className: 'success-message' },
+                    successMessage && React.createElement('div', { className: 'success-message' },
                         React.createElement('i', { className: 'fas fa-check-circle' }),
                         ' ',
-                        success
+                        successMessage
                     ),
 
                     React.createElement('button', {
