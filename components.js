@@ -460,8 +460,3 @@ index.html
 +36
 -7564
 
-/*
- * app.js - SocialSpot Enhanced Application
- * Versione avanzata con performance ottimizzate, nuove funzionalità e UX migliorata
- */
-// 🔹 Supabas
