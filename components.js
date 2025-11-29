@@ -293,6 +293,7 @@ const ITALIAN_CITIES = [
     'Roma', 'Milano', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze',
     'Bari', 'Catania', 'Venezia', 'Verona', 'Messina', 'Padova', 'Trieste', 'Taranto',
     'Brescia', 'Prato', 'Parma', 'Modena', 'Reggio Calabria', 'Reggio Emilia', 'Perugia',
+@@ -174,73 +438,73 @@ function EventFeed({ supabase, user }) {
             
             window.addNotification?.({
                 type: 'info',
@@ -375,6 +376,7 @@ const ITALIAN_CITIES = [
                                         }}>
                                             {event.event_status === 'da_iniziare' && 'Da iniziare'}
                                             {event.event_status === 'in_esecuzione' && 'In corso'}
+@@ -365,51 +629,51 @@ function EventFeed({ supabase, user }) {
                     })
                 )}
             </div>
@@ -427,6 +429,182 @@ function EventModal({ event, onClose, user, supabase, onUpdate }) {
             }, () => {
                 loadParticipants();
                 loadPendingRequests();
+@@ -941,105 +1205,105 @@ function EventChat({ eventId, user, supabase }) {
+                .from('event_chats')
+                .insert({
+                    event_id: eventId,
+                    user_id: user.id,
+                    content: newMessage.trim()
+                });
+            
+            setNewMessage('');
+        } catch (err) {
+            console.error('Errore invio messaggio:', err);
+        }
+    };
+
+    if (loading) {
+        return <div style={{ padding: '20px', textAlign: 'center' }}>Caricamento chat...</div>;
+    }
+
+    return (
+        <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '15px',
+            overflow: 'hidden'
+        }}>
+            <div style={{
+                padding: '15px',
+                background: 'rgba(37, 99, 235, 0.05)',
+                borderBottom: '1px solid #e5e7eb',
+                background: 'rgba(124, 58, 237, 0.08)',
+                borderBottom: '1px solid var(--color-border)',
+                fontWeight: '700'
+            }}>
+                <i className="fas fa-comments"></i> Chat Evento
+            </div>
+            
+
+            <div style={{
+                maxHeight: '400px',
+                overflowY: 'auto',
+                padding: '20px',
+                background: '#f9fafb'
+                background: 'var(--color-surface-elevated)'
+            }}>
+                {messages.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                    <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>
+                        <i className="fas fa-comment-slash" style={{ fontSize: '32px', marginBottom: '10px' }}></i>
+                        <p>Nessun messaggio ancora. Rompi il ghiaccio!</p>
+                    </div>
+                ) : (
+                    messages.map(msg => (
+                        <div key={msg.id} style={{
+                            marginBottom: '15px',
+                            padding: '12px',
+                            background: msg.user_id === user.id ? 'rgba(37, 99, 235, 0.1)' : 'white',
+                            background: msg.user_id === user.id ? 'rgba(124, 58, 237, 0.15)' : 'var(--color-surface)',
+                            borderRadius: '10px',
+                            border: '1px solid #e5e7eb'
+                            border: '1px solid var(--color-border)'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                marginBottom: '8px'
+                            }}>
+                                <span style={{ fontWeight: '600', color: '#2563eb' }}>
+                                <span style={{ fontWeight: '600', color: 'var(--color-primary-600)' }}>
+                                    {msg.profiles?.username || 'Utente'}
+                                </span>
+                                <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                                <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                    {new Date(msg.created_at).toLocaleTimeString('it-IT', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </span>
+                            </div>
+                            <p style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                                {msg.content}
+                            </p>
+                        </div>
+                    ))
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+            
+            <form onSubmit={handleSendMessage} style={{
+                padding: '15px',
+                background: 'white',
+                borderTop: '1px solid #e5e7eb',
+                background: 'var(--color-surface)',
+                borderTop: '1px solid var(--color-border)',
+                display: 'flex',
+                gap: '10px'
+            }}>
+                <input
+                    type="text"
+                    className="form-input"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Scrivi un messaggio..."
+                    style={{ flex: 1, margin: 0 }}
+                />
+                <button type="submit" className="btn-primary" style={{ padding: '12px 20px' }}>
+                    <i className="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    );
+}
+
+// 🔹 COMPONENT: CreateEvent (MODIFICATO con età e sesso)
+function CreateEvent({ supabase, user, onEventCreated }) {
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        location: '',
+@@ -1163,55 +1427,55 @@ function CreateEvent({ supabase, user, onEventCreated }) {
+                            className="form-input"
+                            value={formData.location}
+                            onChange={(e) => handleChange('location', e.target.value)}
+                            placeholder="Es: Bar Centrale, Milano"
+                            required
+                        />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label className="form-label">
+                            <i className="fas fa-clock"></i> Data e ora
+                        </label>
+                        <input
+                            type="datetime-local"
+                            className="form-input"
+                            value={formData.event_date}
+                            onChange={(e) => handleChange('event_date', e.target.value)}
+                            required
+                        />
+                    </div>
+                </div>
+                
+                {/* NUOVI CAMPI: ETÀ E SESSO PREFERITI */}
+                <div style={{
+                    padding: '20px',
+                    background: 'rgba(37, 99, 235, 0.05)',
+                    background: 'rgba(124, 58, 237, 0.08)',
+                    borderRadius: '15px',
+                    marginBottom: '25px'
+                }}>
+                    <h4 style={{ marginBottom: '20px', fontWeight: '700', color: '#2563eb' }}>
+                    <h4 style={{ marginBottom: '20px', fontWeight: '700', color: 'var(--color-primary-600)' }}>
+                        <i className="fas fa-users"></i> Preferenze partecipanti
+                    </h4>
+                    
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label className="form-label">
+                                <i className="fas fa-birthday-cake"></i> Fascia d'età preferita
+                            </label>
+                            <select
+                                className="form-input form-select"
+                                value={formData.preferred_age_range}
+                                onChange={(e) => handleChange('preferred_age_range', e.target.value)}
+                                required
+                            >
+                                {AGE_RANGES.map(range => (
+                                    <option key={range.value} value={range.value}>
+                                        {range.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        <div className="form-group">
+                            <label className="form-label">
+                                <i className="fas fa-venus-mars"></i> Sesso partecipanti
+@@ -1732,28 +1996,29 @@ function ProfilePage({ supabase, user }) {
                                         marginTop: '8px',
                                         display: 'inline-block',
                                         padding: '4px 12px',
@@ -456,7 +634,3 @@ window.Auth = Auth;
 window.EventFeed = EventFeed;
 window.CreateEvent = CreateEvent;
 window.ProfilePage = ProfilePage;
-index.html
-+36
--7564
-
