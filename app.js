@@ -6,7 +6,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // 🔹 PERFORMANCE MONITORING
 const PerformanceMonitor = {
     startTime: performance.now(),
-    
+     
     logPageLoad() {
         const loadTime = performance.now() - this.startTime;
         console.log(`🚀 SocialSpot loaded in ${loadTime.toFixed(2)}ms`);
