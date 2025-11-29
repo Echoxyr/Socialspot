@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "dev": "http-server . -p 3000",
+    "start": "http-server . -p 3000",
+    "build": "echo \"Static build ready\""
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "6.7.2",
     "@fortawesome/fontawesome-svg-core": "6.7.2",
@@ -18,4 +23,3 @@
     "typescript": "5.8.3"
   }
 }
-
