@@ -1,3 +1,4 @@
+@@ -7,50 +7,60 @@
 const SUPABASE_URL = 'https://ctixzrxyyqpumzwmyjyo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aXh6cnh5eXFwdW16d215anlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTYzNDQsImV4cCI6MjA3OTU5MjM0NH0.k8HDt4WbU6RwMktolucWc1dekPwfbOk853o7AABRt4o';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -58,6 +59,7 @@ function WelcomePopup({ user, onClose }) {
             icon: 'fas fa-star',
             title: 'Gamification',
             description: 'Guadagna punti, sali di livello e sblocca achievement speciali'
+@@ -66,97 +76,97 @@ function WelcomePopup({ user, onClose }) {
 
     React.useEffect(() => {
         if (showPopup) {
@@ -122,6 +124,7 @@ function WelcomePopup({ user, onClose }) {
                                     height: '8px',
                                     borderRadius: '50%',
                                     backgroundColor: index === currentFeature ? '#2563eb' : '#d1d5db',
+                                    backgroundColor: index === currentFeature ? 'var(--color-primary-600)' : 'var(--color-border-light)',
                                     transition: 'all 0.3s ease'
                                 }}
                             />
@@ -157,6 +160,7 @@ function NotificationSystem() {
     const removeNotification = React.useCallback((id) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
+@@ -424,51 +434,51 @@ function Header({ user, currentPage, setPage, onSignOut, theme, onToggleTheme })
 
    const handlePageChange = (page) => {
        setPage(page);
@@ -209,6 +213,7 @@ function NotificationSystem() {
                        >
                            <i className="fas fa-user"></i>
                            <span>Profilo</span>
+@@ -496,57 +506,57 @@ function LoadingScreen({ isVisible }) {
    const [loadingText, setLoadingText] = React.useState('Caricamento in corso...');
    
    React.useEffect(() => {
@@ -273,6 +278,70 @@ function PWAInstallPrompt() {
            e.preventDefault();
            setDeferredPrompt(e);
            setShowInstallButton(true);
+@@ -633,60 +643,60 @@ class ErrorBoundary extends React.Component {
+                   <button 
+                       className="btn-primary"
+                       onClick={() => window.location.reload()}
+                       style={{ marginTop: '20px' }}
+                   >
+                       <i className="fas fa-redo"></i>
+                       Ricarica la pagina
+                   </button>
+               </div>
+           );
+       }
+
+       return this.props.children;
+   }
+}
+
+// 🔹 MAIN APP COMPONENT
+function App() {
+   const [user, setUser] = React.useState(null);
+   const [page, setPage] = React.useState('feed');
+   const [initializing, setInitializing] = React.useState(true);
+   const [showLoader, setShowLoader] = React.useState(true);
+   const [theme, setTheme] = React.useState(() => {
+       const stored = localStorage.getItem('theme');
+       if (stored) return stored;
+       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+       return 'dark';
+   });
+
+   React.useEffect(() => {
+       document.body.setAttribute('data-theme', theme);
+       localStorage.setItem('theme', theme);
+       
+       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+       if (themeColorMeta) {
+           themeColorMeta.content = theme === 'dark' ? '#1f2937' : '#2563eb';
+           themeColorMeta.content = theme === 'dark' ? '#0a0f24' : '#7c3aed';
+       }
+   }, [theme]);
+
+   React.useEffect(() => {
+       const initAuth = async () => {
+           try {
+               const { data: { session } } = await supabase.auth.getSession();
+               setUser(session?.user ?? null);
+           } catch (error) {
+               console.error('Auth initialization error:', error);
+               window.addNotification?.({
+                   type: 'error',
+                   icon: 'fas fa-exclamation-triangle',
+                   title: 'Errore di connessione',
+                   message: 'Problema durante l\'inizializzazione dell\'app'
+               });
+           } finally {
+               setInitializing(false);
+           }
+       };
+
+       initAuth();
+
+       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+           setUser(session?.user ?? null);
+@@ -807,63 +817,73 @@ function App() {
                <WelcomePopup user={user} />
                
                <Header
