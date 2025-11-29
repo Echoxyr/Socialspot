@@ -7,10 +7,14 @@ const CACHE_NAME = 'socialspot-cache-v2';
 const URLS_TO_CACHE = [
     '/',
     '/index.html',
-    '/styles.css',
+    '/style.css',
     '/app.js',
     '/components.js',
-    '/sw.js'
+    '/sw.js',
+    '/manifest.json',
+    '/icon-192.png',
+    '/icon-512.png',
+    '/favicon.ico'
 ];
 
 // Installazione: pre-caching delle risorse essenziali
@@ -52,7 +56,7 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-// Gestione notifiche push. Ã responsabilitÃ  del server inviare payload idonei.
+// Gestione notifiche push: responsabilita del server inviare payload idonei.
 self.addEventListener('push', (event) => {
     let data = { title: 'SocialSpot', body: 'Hai una nuova notifica' };
     if (event.data) {
