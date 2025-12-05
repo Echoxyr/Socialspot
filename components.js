@@ -1,23 +1,17 @@
-// =====================================================
-// components-addon.js - MODIFICATO CON NUOVE FUNZIONALITÀ
-// =====================================================
-
-const { useState, useEffect, useCallback, useRef } = React;
-
-// 🔹 COMPONENTE DI AUTENTICAZIONE (ripristinato)
+// AUTH E COMPONENTI
 const Auth = React.memo(({ supabase, setUser }) => {
-    const [isSignIn, setIsSignIn] = useState(true);
-    const [formData, setFormData] = useState({
+    const [isSignIn, setIsSignIn] = React.useState(true);
+    const [formData, setFormData] = React.useState({
         email: '',
         password: '',
         fullName: '',
         interests: []
     });
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [passwordStrength, setPasswordStrength] = useState(0);
+    const [error, setError] = React.useState(null);
+    const [loading, setLoading] = React.useState(false);
+    const [passwordStrength, setPasswordStrength] = React.useState(0);
 
-    const calculatePasswordStrength = useCallback((password) => {
+    const calculatePasswordStrength = React.useCallback((password) => {
         let strength = 0;
         if (password.length >= 8) strength += 25;
         if (/[A-Z]/.test(password)) strength += 25;
@@ -26,12 +20,12 @@ const Auth = React.memo(({ supabase, setUser }) => {
         return strength;
     }, []);
 
-    useEffect(() => {
+    React.useEffect(() => {
         setPasswordStrength(calculatePasswordStrength(formData.password));
     }, [formData.password, calculatePasswordStrength]);
 
     const handleInputChange = (field, value) => {
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
             [field]: value
         }));
@@ -39,10 +33,10 @@ const Auth = React.memo(({ supabase, setUser }) => {
     };
 
     const handleInterestToggle = (interest) => {
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
             interests: prev.interests.includes(interest)
-                ? prev.interests.filter((i) => i !== interest)
+                ? prev.interests.filter(i => i !== interest)
                 : [...prev.interests, interest]
         }));
     };
@@ -51,13 +45,13 @@ const Auth = React.memo(({ supabase, setUser }) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+        
         try {
             let result;
             if (isSignIn) {
-                result = await supabase.auth.signInWithPassword({
-                    email: formData.email,
-                    password: formData.password
+                result = await supabase.auth.signInWithPassword({ 
+                    email: formData.email, 
+                    password: formData.password 
                 });
             } else {
                 if (!formData.fullName.trim()) {
@@ -70,9 +64,9 @@ const Auth = React.memo(({ supabase, setUser }) => {
                     setLoading(false);
                     return;
                 }
-
-                result = await supabase.auth.signUp({
-                    email: formData.email,
+                
+                result = await supabase.auth.signUp({ 
+                    email: formData.email, 
                     password: formData.password,
                     options: {
                         data: {
@@ -81,8 +75,31 @@ const Auth = React.memo(({ supabase, setUser }) => {
                         }
                     }
                 });
+                
+                if (result.data?.user && !result.error) {
+                    try {
+                        const profileData = {
+                            id: result.data.user.id,
+                            username: formData.fullName.trim(),
+                            interests: formData.interests,
+                            location: '',
+                            bio: '',
+                            avatar_url: null
+                        };
+                        
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert(profileData);
+                            
+                        if (profileError) {
+                            console.error('Errore creazione profilo:', profileError);
+                        }
+                    } catch (profileErr) {
+                        console.error('Errore inserimento profilo:', profileErr);
+                    }
+                }
             }
-
+            
             if (result.error) {
                 setError(result.error.message);
             } else if (result.data.user) {
@@ -103,9 +120,9 @@ const Auth = React.memo(({ supabase, setUser }) => {
     };
 
     const availableInterests = [
-        'Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina',
+        'Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 
         'Viaggi', 'Arte', 'Lettura', 'Gaming', 'Fitness',
-        'Fotografia', 'Moda', 'Natura'
+        'Fotografia', 'Moda', 'Nature'
     ];
 
     return (
@@ -113,56 +130,31 @@ const Auth = React.memo(({ supabase, setUser }) => {
             <div className="auth-container">
                 <div className="auth-header">
                     <div className="logo-icon">
-                        <span className="logo-mark">
-                            <i className="fas fa-search"></i>
-                            <i className="fas fa-map-marker-alt logo-pin"></i>
-                        </span>
+                        <span className="logo-text">SS</span>
                     </div>
                     <h1>SocialSpot</h1>
-                    <p>Un nuovo modo di incontrarsi</p>
+                    <p>Connetti, Crea, Condividi</p>
                 </div>
 
                 <div className="auth-content">
                     <div className="auth-tabs">
-                        <button
-                            className={`auth-tab ${isSignIn ? 'active' : ''}`}
+                        <button 
+                            className={`auth-tab ${isSignIn ? 'active' : ''}`} 
                             onClick={() => setIsSignIn(true)}
-                            type="button"
                         >
                             Accedi
                         </button>
-                        <button
-                            className={`auth-tab ${!isSignIn ? 'active' : ''}`}
+                        <button 
+                            className={`auth-tab ${!isSignIn ? 'active' : ''}`} 
                             onClick={() => setIsSignIn(false)}
-                            type="button"
                         >
                             Registrati
                         </button>
                     </div>
 
                     <form onSubmit={handleAuth} className="auth-form">
-                        {!isSignIn && (
-                            <div className="form-group">
-                                <label className="form-label">
-                                    <i className="fas fa-user"></i>
-                                    Nome completo
-                                </label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={formData.fullName}
-                                    onChange={(e) => handleInputChange('fullName', e.target.value)}
-                                    placeholder="Il tuo nome completo"
-                                    required={!isSignIn}
-                                />
-                            </div>
-                        )}
-
                         <div className="form-group">
-                            <label className="form-label">
-                                <i className="fas fa-envelope"></i>
-                                Email
-                            </label>
+                            <label className="form-label">Email</label>
                             <input
                                 type="email"
                                 className="form-input"
@@ -174,10 +166,7 @@ const Auth = React.memo(({ supabase, setUser }) => {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">
-                                <i className="fas fa-lock"></i>
-                                Password
-                            </label>
+                            <label className="form-label">Password</label>
                             <input
                                 type="password"
                                 className="form-input"
@@ -187,80 +176,76 @@ const Auth = React.memo(({ supabase, setUser }) => {
                                 required
                             />
                             {!isSignIn && formData.password && (
-                                <div className="password-strength" style={{ marginTop: 'var(--space-2)' }}>
-                                    <div
-                                        className="strength-bar"
-                                        style={{
-                                            width: `${passwordStrength}%`,
-                                            height: '4px',
-                                            background:
-                                                passwordStrength < 50
-                                                    ? 'var(--color-error-500)'
-                                                    : passwordStrength < 80
-                                                        ? 'var(--color-warning-500)'
-                                                        : 'var(--color-success-500)',
-                                            transition: 'var(--transition-all)',
-                                            borderRadius: 'var(--radius-full)'
-                                        }}
-                                    />
+                                <div className="password-strength">
+                                    <div 
+                                        className="strength-bar" 
+                                        style={{ width: `${passwordStrength}%` }}
+                                    ></div>
                                     <span className="strength-text">
-                                        {passwordStrength < 50 && 'Debole'}
-                                        {passwordStrength >= 50 && passwordStrength < 80 && 'Media'}
-                                        {passwordStrength >= 80 && 'Forte'}
+                                        {passwordStrength < 50 ? 'Debole' : passwordStrength < 80 ? 'Media' : 'Forte'}
                                     </span>
                                 </div>
                             )}
                         </div>
 
                         {!isSignIn && (
-                            <div className="form-group">
-                                <label className="form-label">
-                                    <i className="fas fa-star"></i>
-                                    Interessi principali
-                                </label>
-                                <div className="interests-grid">
-                                    {availableInterests.map((interest) => (
-                                        <button
-                                            key={interest}
-                                            type="button"
-                                            className={`interest-chip ${formData.interests.includes(interest) ? 'selected' : ''}`}
-                                            onClick={() => handleInterestToggle(interest)}
-                                        >
-                                            {interest}
-                                        </button>
-                                    ))}
+                            <>
+                                <div className="form-group">
+                                    <label className="form-label">Nome completo</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={formData.fullName}
+                                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                                        placeholder="Il tuo nome completo"
+                                        required
+                                    />
                                 </div>
-                            </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Interessi ({formData.interests.length}/5)</label>
+                                    <div className="interests-grid">
+                                        {availableInterests.map(interest => (
+                                            <button
+                                                key={interest}
+                                                type="button"
+                                                className={`interest-chip ${
+                                                    formData.interests.includes(interest) ? 'selected' : ''
+                                                }`}
+                                                onClick={() => handleInterestToggle(interest)}
+                                                disabled={
+                                                    !formData.interests.includes(interest) && 
+                                                    formData.interests.length >= 5
+                                                }
+                                            >
+                                                <span>{interest}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                         {error && (
-                            <div className="alert error">
+                            <div className="error-message">
                                 <i className="fas fa-exclamation-triangle"></i>
                                 {error}
                             </div>
                         )}
 
-                        <button className="btn-primary w-full" type="submit" disabled={loading}>
+                        <button type="submit" className="btn-primary" disabled={loading}>
                             {loading ? (
                                 <>
-                                    <i className="fas fa-circle-notch fa-spin"></i>
-                                    {isSignIn ? 'Accesso in corso...' : 'Creazione account...'}
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    {isSignIn ? 'Accesso...' : 'Registrazione...'}
                                 </>
                             ) : (
                                 <>
-                                    <i className={isSignIn ? 'fas fa-sign-in-alt' : 'fas fa-user-plus'}></i>
+                                    <i className={`fas ${isSignIn ? 'fa-sign-in-alt' : 'fa-user-plus'}`}></i>
                                     {isSignIn ? 'Accedi' : 'Registrati'}
                                 </>
                             )}
                         </button>
-
-                        <div className="auth-footer">
-                            <div className="security-badges">
-                                <span><i className="fas fa-shield-alt"></i> Dati protetti</span>
-                                <span><i className="fas fa-lock"></i> Password cifrate</span>
-                                <span><i className="fas fa-user-check"></i> Verifica email</span>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -268,43 +253,85 @@ const Auth = React.memo(({ supabase, setUser }) => {
     );
 });
 
-// 🌟 DATI E COSTANTI
-const CATEGORIES = [
-    'Sport', 'Musica', 'Arte', 'Cultura', 'Tecnologia', 
-    'Cibo', 'Viaggi', 'Cinema', 'All\'aperto', 'Business'
-];
+// EVENT FEED
+function EventFeed({ supabase, user }) {
+    const [events, setEvents] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [selectedEvent, setSelectedEvent] = React.useState(null);
+    const [favorites, setFavorites] = React.useState([]);
+    const [participants, setParticipants] = React.useState({});
 
-const AGE_RANGES = [
-    { value: '18-25', label: '18-25 anni' },
-    { value: '26-35', label: '26-35 anni' },
-    { value: '36-50', label: '36-50 anni' },
-    { value: '50+', label: '50+ anni' },
-    { value: 'tutte', label: 'Tutte le età' }
-];
+    React.useEffect(() => {
+        loadEvents();
+        loadFavorites();
+        loadParticipants();
+        
+        const channel = supabase
+            .channel('events_realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, loadEvents)
+            .subscribe();
 
-const GENDER_OPTIONS = [
-    { value: 'uomo', label: 'Uomo' },
-    { value: 'donna', label: 'Donna' },
-    { value: 'tutti', label: 'Tutti/Entrambi' }
-];
+        return () => supabase.removeChannel(channel);
+    }, []);
 
-// Lista completa città italiane (parziale - da espandere)
-const ITALIAN_CITIES = [
-    'Roma', 'Milano', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze',
-    'Bari', 'Catania', 'Venezia', 'Verona', 'Messina', 'Padova', 'Trieste', 'Taranto',
-    'Brescia', 'Prato', 'Parma', 'Modena', 'Reggio Calabria', 'Reggio Emilia', 'Perugia',
-@@ -174,73 +438,73 @@ function EventFeed({ supabase, user }) {
-            
-            window.addNotification?.({
-                type: 'info',
-                icon: 'fas fa-times-circle',
-                title: 'Richiesta annullata',
-                message: 'La tua richiesta è stata rimossa'
-            });
-            loadMyRequests();
-        } catch (err) {
-            console.error('Errore annullamento richiesta:', err);
+    const loadEvents = async () => {
+        const { data, error } = await supabase
+            .from('events')
+            .select(`
+                *,
+                profiles!events_creator_id_fkey(username, location)
+            `)
+            .order('event_date', { ascending: false });
+
+        if (!error) setEvents(data || []);
+        setLoading(false);
+    };
+
+    const loadFavorites = async () => {
+        const { data } = await supabase
+            .from('event_favorites')
+            .select('event_id')
+            .eq('user_id', user.id);
+        setFavorites(data ? data.map(f => f.event_id) : []);
+    };
+
+    const loadParticipants = async () => {
+        const { data } = await supabase
+            .from('event_participants')
+            .select('event_id, user_id');
+        
+        const counts = {};
+        const userParticipations = [];
+        
+        (data || []).forEach(p => {
+            counts[p.event_id] = (counts[p.event_id] || 0) + 1;
+            if (p.user_id === user.id) {
+                userParticipations.push(p.event_id);
+            }
+        });
+        
+        setParticipants({ counts, userParticipations });
+    };
+
+    const toggleFavorite = async (eventId) => {
+        const isFavorite = favorites.includes(eventId);
+        if (isFavorite) {
+            await supabase.from('event_favorites').delete().eq('event_id', eventId).eq('user_id', user.id);
+            setFavorites(favorites.filter(id => id !== eventId));
+        } else {
+            await supabase.from('event_favorites').insert({ event_id: eventId, user_id: user.id });
+            setFavorites([...favorites, eventId]);
         }
+    };
+
+    const toggleJoin = async (eventId) => {
+        const isJoined = participants.userParticipations?.includes(eventId);
+        if (isJoined) {
+            await supabase.from('event_participants').delete().eq('event_id', eventId).eq('user_id', user.id);
+        } else {
+            await supabase.from('event_participants').insert({ event_id: eventId, user_id: user.id });
+        }
+        loadParticipants();
     };
 
     if (loading) {
@@ -319,246 +346,180 @@ const ITALIAN_CITIES = [
     return (
         <div className="feed-wrapper">
             <div className="feed-header">
-                <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '15px',
-                    marginBottom: '20px'
-                }}>
-                    <i className="fas fa-search-location" style={{ 
-                        fontSize: '48px',
-                        color: '#2563eb',
-                        animation: 'float 3s ease-in-out infinite'
-                    }}></i>
-                    <div className="handshake-graphic">
-                        <i className="fas fa-user-friends base"></i>
-                        <i className="fas fa-handshake handshake"></i>
-                        <i className="fas fa-mobile-alt phone"></i>
-                    </div>
-                </div>
-                <h1 className="feed-title">Un nuovo modo di incontrarsi</h1>
-                <p className="feed-subtitle">Cerca, trova, partecipa</p>
+                <h1 className="feed-title">Eventi</h1>
+                <p className="feed-subtitle">Scopri cosa succede vicino a te</p>
             </div>
             
             <div className="event-list">
                 {events.length === 0 ? (
                     <div className="empty-state">
-                        <i className="fas fa-users" style={{ fontSize: '64px', marginBottom: '20px' }}></i>
-                        <h3>Nessun evento disponibile</h3>
-                        <p>Sii il primo a creare un evento nella tua zona!</p>
-                        <p>Cerca, trova, partecipa</p>
+                        <i className="fas fa-calendar-times"></i>
+                        <h3>Nessun evento</h3>
+                        <p>Crea il primo evento nella tua zona!</p>
                     </div>
                 ) : (
-                    events.map(event => {
-                        const myStatus = getMyRequestStatus(event.id);
-                        const isCreator = event.creator_id === user.id;
-                        
-                        return (
-                            <div key={event.id} className="event-card">
-                                <div className="event-image">
-                                    <i className="fas fa-calendar-alt"></i>
-                                    {event.event_status && (
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '20px',
-                                            right: '20px',
-                                            background: event.event_status === 'concluso' ? '#10b981' :
-                                                       event.event_status === 'in_esecuzione' ? '#f59e0b' : '#6b7280',
-                                            color: 'white',
-                                            padding: '8px 16px',
-                                            borderRadius: '20px',
-                                            fontSize: '12px',
-                                            fontWeight: '700'
-                                        }}>
-                                            {event.event_status === 'da_iniziare' && 'Da iniziare'}
-                                            {event.event_status === 'in_esecuzione' && 'In corso'}
-@@ -365,51 +629,51 @@ function EventFeed({ supabase, user }) {
-                    })
-                )}
-            </div>
-
-            {selectedEvent && (
-                <EventModal 
-                    event={selectedEvent}
-                    onClose={() => setSelectedEvent(null)}
-                    user={user}
-                    supabase={supabase}
-                    onUpdate={loadEvents}
-                />
-            )}
-        </div>
-    );
-}
-
-// Continua nella PARTE 2...
-// =====================================================
-// components-addon.js PARTE 2 - EventModal completo
-// =====================================================
-
-// 🔹 COMPONENT: EventModal (NUOVO - gestione completa evento)
-function EventModal({ event, onClose, user, supabase, onUpdate }) {
-    const [participants, setParticipants] = useState([]);
-    const [pending Requests, setPendingRequests] = useState([]);
-    const [pendingRequests, setPendingRequests] = useState([]);
-    const [reviews, setReviews] = useState([]);
-    const [myStatus, setMyStatus] = useState(null);
-    const [showChat, setShowChat] = useState(false);
-    const [showReviewForm, setShowReviewForm] = useState(false);
-    const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
-    const [presenceValidated, setPresenceValidated] = useState(false);
-    
-    const isCreator = event.creator_id === user.id;
-
-    useEffect(() => {
-        loadParticipants();
-        loadPendingRequests();
-        loadReviews();
-        checkMyStatus();
-        
-        // Real-time updates
-        const channel = supabase.channel(`event_${event.id}`)
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'event_participants',
-                filter: `event_id=eq.${event.id}`
-            }, () => {
-                loadParticipants();
-                loadPendingRequests();
-@@ -941,105 +1205,105 @@ function EventChat({ eventId, user, supabase }) {
-                .from('event_chats')
-                .insert({
-                    event_id: eventId,
-                    user_id: user.id,
-                    content: newMessage.trim()
-                });
-            
-            setNewMessage('');
-        } catch (err) {
-            console.error('Errore invio messaggio:', err);
-        }
-    };
-
-    if (loading) {
-        return <div style={{ padding: '20px', textAlign: 'center' }}>Caricamento chat...</div>;
-    }
-
-    return (
-        <div style={{
-            border: '1px solid #e5e7eb',
-            borderRadius: '15px',
-            overflow: 'hidden'
-        }}>
-            <div style={{
-                padding: '15px',
-                background: 'rgba(37, 99, 235, 0.05)',
-                borderBottom: '1px solid #e5e7eb',
-                background: 'rgba(124, 58, 237, 0.08)',
-                borderBottom: '1px solid var(--color-border)',
-                fontWeight: '700'
-            }}>
-                <i className="fas fa-comments"></i> Chat Evento
-            </div>
-            
-
-            <div style={{
-                maxHeight: '400px',
-                overflowY: 'auto',
-                padding: '20px',
-                background: '#f9fafb'
-                background: 'var(--color-surface-elevated)'
-            }}>
-                {messages.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-                    <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>
-                        <i className="fas fa-comment-slash" style={{ fontSize: '32px', marginBottom: '10px' }}></i>
-                        <p>Nessun messaggio ancora. Rompi il ghiaccio!</p>
-                    </div>
-                ) : (
-                    messages.map(msg => (
-                        <div key={msg.id} style={{
-                            marginBottom: '15px',
-                            padding: '12px',
-                            background: msg.user_id === user.id ? 'rgba(37, 99, 235, 0.1)' : 'white',
-                            background: msg.user_id === user.id ? 'rgba(124, 58, 237, 0.15)' : 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid #e5e7eb'
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                marginBottom: '8px'
-                            }}>
-                                <span style={{ fontWeight: '600', color: '#2563eb' }}>
-                                <span style={{ fontWeight: '600', color: 'var(--color-primary-600)' }}>
-                                    {msg.profiles?.username || 'Utente'}
-                                </span>
-                                <span style={{ fontSize: '12px', color: '#6b7280' }}>
-                                <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                    {new Date(msg.created_at).toLocaleTimeString('it-IT', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </span>
+                    events.map(event => (
+                        <div key={event.id} className="event-card">
+                            <div className="event-header">
+                                <div className="event-avatar">
+                                    {event.profiles?.username?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <div className="event-info">
+                                    <div className="event-creator">{event.profiles?.username || 'Utente'}</div>
+                                    <div className="event-location">
+                                        <i className="fas fa-map-marker-alt"></i>
+                                        {event.location}
+                                    </div>
+                                </div>
+                                <div className="event-category">{event.category}</div>
                             </div>
-                            <p style={{ fontSize: '14px', lineHeight: '1.5' }}>
-                                {msg.content}
-                            </p>
+                            
+                            <div className="event-content">
+                                <h3 className="event-title">{event.title}</h3>
+                                <p className="event-description">{event.description}</p>
+                                
+                                <div className="event-meta">
+                                    <div className="event-meta-item">
+                                        <i className="fas fa-calendar"></i>
+                                        <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
+                                    </div>
+                                    <div className="event-meta-item">
+                                        <i className="fas fa-users"></i>
+                                        <span>{participants.counts?.[event.id] || 0} partecipanti</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="event-actions">
+                                <button 
+                                    className={`btn-secondary ${favorites.includes(event.id) ? 'active' : ''}`}
+                                    onClick={() => toggleFavorite(event.id)}
+                                >
+                                    <i className={favorites.includes(event.id) ? 'fas fa-heart' : 'far fa-heart'}></i>
+                                    <span>Mi piace</span>
+                                </button>
+                                <button 
+                                    className={`btn-secondary ${participants.userParticipations?.includes(event.id) ? 'active' : ''}`}
+                                    onClick={() => toggleJoin(event.id)}
+                                >
+                                    <i className="fas fa-user-plus"></i>
+                                    <span>{participants.userParticipations?.includes(event.id) ? 'Iscritto' : 'Partecipa'}</span>
+                                </button>
+                            </div>
                         </div>
                     ))
                 )}
-                <div ref={messagesEndRef} />
             </div>
-            
-            <form onSubmit={handleSendMessage} style={{
-                padding: '15px',
-                background: 'white',
-                borderTop: '1px solid #e5e7eb',
-                background: 'var(--color-surface)',
-                borderTop: '1px solid var(--color-border)',
-                display: 'flex',
-                gap: '10px'
-            }}>
-                <input
-                    type="text"
-                    className="form-input"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Scrivi un messaggio..."
-                    style={{ flex: 1, margin: 0 }}
-                />
-                <button type="submit" className="btn-primary" style={{ padding: '12px 20px' }}>
-                    <i className="fas fa-paper-plane"></i>
-                </button>
-            </form>
         </div>
     );
 }
 
-// 🔹 COMPONENT: CreateEvent (MODIFICATO con età e sesso)
+// CREATE EVENT
 function CreateEvent({ supabase, user, onEventCreated }) {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = React.useState({
         title: '',
         description: '',
+        category: '',
         location: '',
-@@ -1163,55 +1427,55 @@ function CreateEvent({ supabase, user, onEventCreated }) {
+        event_date: ''
+    });
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState('');
+
+    const CATEGORIES = ['Sport', 'Musica', 'Cinema', 'Tecnologia', 'Cucina', 'Viaggi', 'Arte', 'Gaming', 'Altro'];
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setError('');
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const { error } = await supabase.from('events').insert({
+                ...formData,
+                creator_id: user.id
+            });
+
+            if (error) throw error;
+
+            window.addNotification?.({
+                type: 'success',
+                icon: 'fas fa-check-circle',
+                title: 'Evento creato!',
+                message: 'Il tuo evento e stato pubblicato'
+            });
+            
+            onEventCreated();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="create-wrapper">
+            <div className="create-header">
+                <h1 className="create-title">Crea Evento</h1>
+                <p className="create-subtitle">Organizza qualcosa di speciale</p>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="create-form">
+                <div className="form-row">
+                    <div className="form-group">
+                        <label className="form-label">Titolo</label>
+                        <input
+                            type="text"
                             className="form-input"
-                            value={formData.location}
-                            onChange={(e) => handleChange('location', e.target.value)}
-                            placeholder="Es: Bar Centrale, Milano"
+                            placeholder="Nome evento"
+                            value={formData.title}
+                            onChange={(e) => handleChange('title', e.target.value)}
                             required
                         />
                     </div>
-                    
                     <div className="form-group">
-                        <label className="form-label">
-                            <i className="fas fa-clock"></i> Data e ora
-                        </label>
+                        <label className="form-label">Categoria</label>
+                        <select
+                            className="form-input form-select"
+                            value={formData.category}
+                            onChange={(e) => handleChange('category', e.target.value)}
+                            required
+                        >
+                            <option value="">Seleziona</option>
+                            {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        </select>
+                    </div>
+                </div>
+                
+                <div className="form-group form-group-full">
+                    <label className="form-label">Descrizione</label>
+                    <textarea
+                        className="form-input form-textarea"
+                        placeholder="Racconta di cosa si tratta..."
+                        value={formData.description}
+                        onChange={(e) => handleChange('description', e.target.value)}
+                        required
+                    />
+                </div>
+                
+                <div className="form-row">
+                    <div className="form-group">
+                        <label className="form-label">Luogo</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Dove si terra"
+                            value={formData.location}
+                            onChange={(e) => handleChange('location', e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Data/Ora</label>
                         <input
                             type="datetime-local"
                             className="form-input"
@@ -569,67 +530,78 @@ function CreateEvent({ supabase, user, onEventCreated }) {
                     </div>
                 </div>
                 
-                {/* NUOVI CAMPI: ETÀ E SESSO PREFERITI */}
-                <div style={{
-                    padding: '20px',
-                    background: 'rgba(37, 99, 235, 0.05)',
-                    background: 'rgba(124, 58, 237, 0.08)',
-                    borderRadius: '15px',
-                    marginBottom: '25px'
-                }}>
-                    <h4 style={{ marginBottom: '20px', fontWeight: '700', color: '#2563eb' }}>
-                    <h4 style={{ marginBottom: '20px', fontWeight: '700', color: 'var(--color-primary-600)' }}>
-                        <i className="fas fa-users"></i> Preferenze partecipanti
-                    </h4>
-                    
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label className="form-label">
-                                <i className="fas fa-birthday-cake"></i> Fascia d'età preferita
-                            </label>
-                            <select
-                                className="form-input form-select"
-                                value={formData.preferred_age_range}
-                                onChange={(e) => handleChange('preferred_age_range', e.target.value)}
-                                required
-                            >
-                                {AGE_RANGES.map(range => (
-                                    <option key={range.value} value={range.value}>
-                                        {range.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label className="form-label">
-                                <i className="fas fa-venus-mars"></i> Sesso partecipanti
-@@ -1732,28 +1996,29 @@ function ProfilePage({ supabase, user }) {
-                                        marginTop: '8px',
-                                        display: 'inline-block',
-                                        padding: '4px 12px',
-                                        background: event.event_status === 'concluso' ? '#10b981' :
-                                                   event.event_status === 'in_esecuzione' ? '#f59e0b' : '#6b7280',
-                                        color: 'white',
-                                        borderRadius: '12px',
-                                        fontSize: '11px',
-                                        fontWeight: '600'
-                                    }}>
-                                        {event.event_status === 'da_iniziare' && 'Da iniziare'}
-                                        {event.event_status === 'in_esecuzione' && 'In corso'}
-                                        {event.event_status === 'concluso' && 'Concluso'}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                {error && (
+                    <div className="error-message">
+                        <i className="fas fa-exclamation-circle"></i>
+                        <span>{error}</span>
                     </div>
-                </div>
-            )}
+                )}
+                
+                <button type="submit" className="btn-primary" disabled={loading}>
+                    {loading ? (
+                        <>
+                            <i className="fas fa-spinner fa-spin"></i>
+                            <span>Creazione...</span>
+                        </>
+                    ) : (
+                        <>
+                            <i className="fas fa-plus-circle"></i>
+                            <span>Crea Evento</span>
+                        </>
+                    )}
+                </button>
+            </form>
         </div>
     );
 }
 
-// EXPORT dei componenti
+// PROFILE PAGE
+function ProfilePage({ supabase, user, theme, onToggleTheme }) {
+    const [stats, setStats] = React.useState({ events: 0, joined: 0, points: 0 });
+
+    React.useEffect(() => {
+        loadStats();
+    }, []);
+
+    const loadStats = async () => {
+        const { data: created } = await supabase.from('events').select('id').eq('creator_id', user.id);
+        const { data: joined } = await supabase.from('event_participants').select('event_id').eq('user_id', user.id);
+        
+        const eventsCount = created?.length || 0;
+        const joinedCount = joined?.length || 0;
+        const points = eventsCount * 5 + joinedCount * 2;
+        
+        setStats({ events: eventsCount, joined: joinedCount, points });
+    };
+
+    return (
+        <div className="profile-wrapper">
+            <div className="profile-header">
+                <div className="profile-avatar">
+                    {user.email[0].toUpperCase()}
+                </div>
+                <div className="profile-name">{user.email}</div>
+                <div className="profile-email">Membro SocialSpot</div>
+                
+                <div className="profile-stats">
+                    <div className="stat-item">
+                        <div className="stat-number">{stats.events}</div>
+                        <div className="stat-label">Eventi Creati</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-number">{stats.joined}</div>
+                        <div className="stat-label">Partecipazioni</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-number">{stats.points}</div>
+                        <div className="stat-label">Punti</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 window.Auth = Auth;
 window.EventFeed = EventFeed;
 window.CreateEvent = CreateEvent;
