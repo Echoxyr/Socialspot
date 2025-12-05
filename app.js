@@ -1,148 +1,29 @@
-@@ -7,50 +7,60 @@
+/*
+ * app.js - SocialSpot Application
+ * Versione ORIGINALE RIPRISTINATA
+ */
+
+// Supabase Configuration
 const SUPABASE_URL = 'https://ctixzrxyyqpumzwmyjyo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aXh6cnh5eXFwdW16d215anlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTYzNDQsImV4cCI6MjA3OTU5MjM0NH0.k8HDt4WbU6RwMktolucWc1dekPwfbOk853o7AABRt4o';
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 🔹 PERFORMANCE MONITORING
+// Performance monitoring
 const PerformanceMonitor = {
     startTime: performance.now(),
-     
+    
     logPageLoad() {
         const loadTime = performance.now() - this.startTime;
-        console.log(`🚀 SocialSpot loaded in ${loadTime.toFixed(2)}ms`);
-        
-        if (window.gtag) {
-            window.gtag('event', 'page_load_time', {
-                value: Math.round(loadTime),
-                event_category: 'Performance'
-            });
-        }
+        console.log(`SocialSpot loaded in ${loadTime.toFixed(2)}ms`);
     },
     
     logUserAction(action, duration = 0) {
-        console.log(`📊 User action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
+        console.log(`User action: ${action} ${duration > 0 ? `(${duration}ms)` : ''}`);
     }
 };
 
-// 🔹 BRAND MARK COMPONENT
-function LogoMark({ className = '' }) {
-    return (
-        <div className={`logo-mark ${className}`.trim()} aria-hidden="true">
-            <i className="fas fa-search"></i>
-            <i className="fas fa-map-marker-alt logo-pin"></i>
-        </div>
-    );
-}
-
-// 🔹 ENHANCED WELCOME POPUP
-function WelcomePopup({ user, onClose }) {
-    const [showPopup, setShowPopup] = React.useState(false);
-    const [currentFeature, setCurrentFeature] = React.useState(0);
-    
-    const features = [
-        {
-            icon: 'fas fa-calendar-plus',
-            title: 'Crea Eventi',
-            description: 'Organizza eventi unici e coinvolgi la tua community locale'
-        },
-        {
-            icon: 'fas fa-users',
-            title: 'Partecipa',
-            description: 'Scopri eventi interessanti e conosci persone con i tuoi stessi interessi'
-        },
-        {
-            icon: 'fas fa-comments',
-            title: 'Chatta',
-            description: 'Comunica in tempo reale con altri partecipanti nelle chat di gruppo'
-        },
-        {
-            icon: 'fas fa-star',
-            title: 'Gamification',
-            description: 'Guadagna punti, sali di livello e sblocca achievement speciali'
-@@ -66,97 +76,97 @@ function WelcomePopup({ user, onClose }) {
-
-    React.useEffect(() => {
-        if (showPopup) {
-            const interval = setInterval(() => {
-                setCurrentFeature((prev) => (prev + 1) % features.length);
-            }, 3000);
-            
-            return () => clearInterval(interval);
-        }
-    }, [showPopup, features.length]);
-
-    const handleClose = () => {
-        localStorage.setItem(`welcomed_${user.id}`, 'true');
-        setShowPopup(false);
-        PerformanceMonitor.logUserAction('welcome_popup_closed');
-        if (onClose) onClose();
-    };
-
-    if (!showPopup) return null;
-
-    return (
-        <div className="welcome-popup-overlay" onClick={handleClose}>
-            <div className="welcome-popup animate-scale-in" onClick={(e) => e.stopPropagation()}>
-                <div className="welcome-header">
-                    <div className="logo-icon float-animation">
-                        <span className="logo-text">SS</span>
-                        <LogoMark />
-                    </div>
-                    <h2>Benvenuto in SocialSpot! 🎉</h2>
-                    <p>Siamo felici di averti nella nostra community!</p>
-                </div>
-                
-                <div className="welcome-content">
-                    <div className="welcome-features">
-                        {features.map((feature, index) => (
-                            <div 
-                                key={index}
-                                className={`feature-item ${index === currentFeature ? 'animate-fade-in-up' : ''}`}
-                                style={{
-                                    opacity: index === currentFeature ? 1 : 0.7,
-                                    transform: index === currentFeature ? 'scale(1.05)' : 'scale(1)'
-                                }}
-                            >
-                                <i className={feature.icon}></i>
-                                <h3>{feature.title}</h3>
-                                <p>{feature.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                    
-                    <div className="feature-indicators" style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        gap: '8px', 
-                        marginTop: '20px' 
-                    }}>
-                        {features.map((_, index) => (
-                            <div
-                                key={index}
-                                style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    borderRadius: '50%',
-                                    backgroundColor: index === currentFeature ? '#2563eb' : '#d1d5db',
-                                    backgroundColor: index === currentFeature ? 'var(--color-primary-600)' : 'var(--color-border-light)',
-                                    transition: 'all 0.3s ease'
-                                }}
-                            />
-                        ))}
-                    </div>
-                </div>
-                
-                <button className="btn-primary welcome-btn glow-animation" onClick={handleClose}>
-                    <i className="fas fa-rocket"></i>
-                    <i className="fas fa-handshake"></i>
-                    Inizia la tua avventura!
-                </button>
-            </div>
-        </div>
-    );
-}
-
-// 🔹 ENHANCED NOTIFICATION SYSTEM
+// Notification system
 function NotificationSystem() {
     const [notifications, setNotifications] = React.useState([]);
     
@@ -160,261 +41,434 @@ function NotificationSystem() {
     const removeNotification = React.useCallback((id) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
-@@ -424,51 +434,51 @@ function Header({ user, currentPage, setPage, onSignOut, theme, onToggleTheme })
-
-   const handlePageChange = (page) => {
-       setPage(page);
-       PerformanceMonitor.logUserAction(`navigate_to_${page}`);
-   };
-
-   return (
-       <>
-           <header className={`main-header ${isScrolled ? 'scrolled' : ''}`} style={{
-               boxShadow: isScrolled ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
-               background: isScrolled ? 
-                   'rgba(255, 255, 255, 0.95)' : 
-                   'rgba(255, 255, 255, 0.8)'
-           }}>
-               <div className="header-container">
-                   <button 
-                       className="hamburger-menu"
-                       onClick={() => setSideMenuOpen(true)}
-                       aria-label="Menu"
-                   >
-                       <i className="fas fa-bars"></i>
-                   </button>
-
-                   <div className="app-logo-header" onClick={() => handlePageChange('feed')} style={{ cursor: 'pointer' }}>
-                       <div className="logo-icon glow-animation">
-                           <span className="logo-text">SS</span>
-                           <LogoMark />
-                       </div>
-                       <span className="app-name">SocialSpot</span>
-                   </div>
-
-                   <nav className="header-nav">
-                       <button 
-                           className={`nav-btn ${currentPage === 'feed' ? 'active' : ''}`}
-                           onClick={() => handlePageChange('feed')}
-                       >
-                           <i className="fas fa-home"></i>
-                           <span>Eventi</span>
-                       </button>
-                       <button 
-                           className={`nav-btn ${currentPage === 'create' ? 'active' : ''}`}
-                           onClick={() => handlePageChange('create')}
-                       >
-                           <i className="fas fa-plus"></i>
-                           <span>Crea</span>
-                       </button>
-                       <button 
-                           className={`nav-btn ${currentPage === 'profile' ? 'active' : ''}`}
-                           onClick={() => handlePageChange('profile')}
-                       >
-                           <i className="fas fa-user"></i>
-                           <span>Profilo</span>
-@@ -496,57 +506,57 @@ function LoadingScreen({ isVisible }) {
-   const [loadingText, setLoadingText] = React.useState('Caricamento in corso...');
-   
-   React.useEffect(() => {
-       if (!isVisible) return;
-       
-       const messages = [
-           'Caricamento in corso...',
-           'Connessione al server...',
-           'Preparazione interfaccia...',
-           'Quasi pronto...'
-       ];
-       
-       let index = 0;
-       const interval = setInterval(() => {
-           index = (index + 1) % messages.length;
-           setLoadingText(messages[index]);
-       }, 800);
-       
-       return () => clearInterval(interval);
-   }, [isVisible]);
-
-   if (!isVisible) return null;
-
-   return (
-       <div className="loader-screen">
-           <div className="loader-content">
-               <div className="app-logo-loading">
-                   <div className="logo-icon-loading">
-                       <span className="logo-text-loading">SS</span>
-                       <div className="loading-rings">
-                           <div className="ring ring-1"></div>
-                           <div className="ring ring-2"></div>
-            <div className="loader-content">
-                <div className="app-logo-loading">
-                    <div className="logo-icon-loading">
-                        <LogoMark />
-                        <div className="loading-rings">
-                            <div className="ring ring-1"></div>
-                            <div className="ring ring-2"></div>
-                           <div className="ring ring-3"></div>
-                       </div>
-                   </div>
-                   <h1 className="brand-name-loading">SocialSpot</h1>
-                   <p className="brand-tagline">Connetti • Scopri • Partecipa</p>
-               </div>
-               <div className="loading-progress">
-                   <div className="progress-bar-loading"></div>
-                   <p className="loading-text">{loadingText}</p>
-               </div>
-           </div>
-       </div>
-   );
+    
+    React.useEffect(() => {
+        window.addNotification = addNotification;
+    }, [addNotification]);
+    
+    return React.createElement('div', {
+        className: 'notification-container',
+        style: {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 1500,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+        }
+    },
+        notifications.map((notification) =>
+            React.createElement('div', {
+                key: notification.id,
+                className: `notification ${notification.type || 'info'} animate-slide-in-right`,
+                style: {
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: 'var(--space-4)',
+                    boxShadow: 'var(--shadow-lg)',
+                    maxWidth: '350px',
+                    cursor: 'pointer'
+                },
+                onClick: () => removeNotification(notification.id)
+            },
+                React.createElement('div', {
+                    style: {
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px'
+                    }
+                },
+                    React.createElement('i', {
+                        className: `fas ${notification.icon || 'fa-info-circle'}`,
+                        style: {
+                            color: notification.type === 'success' ? 'var(--color-success-500)' :
+                                   notification.type === 'error' ? 'var(--color-error-500)' :
+                                   notification.type === 'warning' ? 'var(--color-warning-500)' :
+                                   'var(--color-primary-500)'
+                        }
+                    }),
+                    React.createElement('div', { style: { flex: 1 } },
+                        React.createElement('div', {
+                            style: {
+                                fontWeight: 'var(--font-weight-semibold)',
+                                marginBottom: '4px'
+                            }
+                        }, notification.title),
+                        React.createElement('div', {
+                            style: {
+                                fontSize: 'var(--font-size-sm)',
+                                color: 'var(--color-text-muted)'
+                            }
+                        }, notification.message)
+                    ),
+                    React.createElement('i', {
+                        className: 'fas fa-times',
+                        style: {
+                            color: 'var(--color-text-muted)',
+                            fontSize: 'var(--font-size-xs)'
+                        }
+                    })
+                )
+            )
+        )
+    );
 }
 
-// 🔹 PWA INSTALL PROMPT
-function PWAInstallPrompt() {
-   const [deferredPrompt, setDeferredPrompt] = React.useState(null);
-   const [showInstallButton, setShowInstallButton] = React.useState(false);
+// Loading screen
+function LoadingScreen({ isVisible }) {
+    const [loadingText, setLoadingText] = React.useState('Caricamento in corso...');
+    
+    React.useEffect(() => {
+        if (!isVisible) return;
+        
+        const messages = [
+            'Caricamento in corso...',
+            'Connessione al server...',
+            'Preparazione interfaccia...',
+            'Quasi pronto...'
+        ];
+        
+        let index = 0;
+        const interval = setInterval(() => {
+            index = (index + 1) % messages.length;
+            setLoadingText(messages[index]);
+        }, 800);
+        
+        return () => clearInterval(interval);
+    }, [isVisible]);
 
-   React.useEffect(() => {
-       const handleBeforeInstallPrompt = (e) => {
-           e.preventDefault();
-           setDeferredPrompt(e);
-           setShowInstallButton(true);
-@@ -633,60 +643,60 @@ class ErrorBoundary extends React.Component {
-                   <button 
-                       className="btn-primary"
-                       onClick={() => window.location.reload()}
-                       style={{ marginTop: '20px' }}
-                   >
-                       <i className="fas fa-redo"></i>
-                       Ricarica la pagina
-                   </button>
-               </div>
-           );
-       }
+    if (!isVisible) return null;
 
-       return this.props.children;
-   }
+    return React.createElement('div', { className: 'loader-screen' },
+        React.createElement('div', { className: 'loader-content' },
+            React.createElement('div', { className: 'app-logo-loading' },
+                React.createElement('div', { className: 'logo-icon-loading' },
+                    React.createElement('span', { className: 'logo-text-loading' }, 'SS'),
+                    React.createElement('div', { className: 'loading-rings' },
+                        React.createElement('div', { className: 'ring ring-1' }),
+                        React.createElement('div', { className: 'ring ring-2' }),
+                        React.createElement('div', { className: 'ring ring-3' })
+                    )
+                ),
+                React.createElement('h1', { className: 'brand-name-loading' }, 'SocialSpot'),
+                React.createElement('p', { className: 'brand-tagline' }, 'Connetti - Scopri - Partecipa')
+            ),
+            React.createElement('div', { className: 'loading-progress' },
+                React.createElement('div', { className: 'progress-bar-loading' }),
+                React.createElement('p', { className: 'loading-text' }, loadingText)
+            )
+        )
+    );
 }
 
-// 🔹 MAIN APP COMPONENT
+// Email verification notice
+function EmailVerificationNotice({ email, onResendEmail }) {
+    const [resending, setResending] = React.useState(false);
+    const [cooldown, setCooldown] = React.useState(0);
+
+    React.useEffect(() => {
+        if (cooldown > 0) {
+            const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [cooldown]);
+
+    const handleResend = async () => {
+        if (resending || cooldown > 0) return;
+        
+        setResending(true);
+        try {
+            const { error } = await supabase.auth.resend({
+                type: 'signup',
+                email: email
+            });
+            
+            if (error) {
+                window.addNotification?.({
+                    type: 'error',
+                    icon: 'fas fa-exclamation-triangle',
+                    title: 'Errore',
+                    message: 'Impossibile inviare l\'email. Riprova.'
+                });
+            } else {
+                window.addNotification?.({
+                    type: 'success',
+                    icon: 'fas fa-envelope',
+                    title: 'Email inviata!',
+                    message: 'Controlla la tua casella di posta.'
+                });
+                setCooldown(60);
+            }
+        } catch (err) {
+            console.error('Resend email error:', err);
+        } finally {
+            setResending(false);
+        }
+    };
+
+    return React.createElement('div', {
+        style: {
+            background: 'var(--color-warning-50)',
+            border: '2px solid var(--color-warning-500)',
+            borderRadius: 'var(--radius-2xl)',
+            padding: 'var(--space-6)',
+            textAlign: 'center',
+            maxWidth: '500px',
+            margin: '0 auto'
+        }
+    },
+        React.createElement('i', {
+            className: 'fas fa-envelope-open-text',
+            style: {
+                fontSize: 'var(--font-size-5xl)',
+                color: 'var(--color-warning-600)',
+                marginBottom: 'var(--space-4)'
+            }
+        }),
+        React.createElement('h2', {
+            style: {
+                fontSize: 'var(--font-size-2xl)',
+                fontWeight: 'var(--font-weight-bold)',
+                color: 'var(--color-text)',
+                marginBottom: 'var(--space-3)'
+            }
+        }, 'Verifica la tua email'),
+        React.createElement('p', {
+            style: {
+                fontSize: 'var(--font-size-base)',
+                color: 'var(--color-text-muted)',
+                marginBottom: 'var(--space-6)',
+                lineHeight: '1.6'
+            }
+        }, `Ti abbiamo inviato un'email a ${email}. Clicca sul link nell'email per verificare il tuo account.`),
+        React.createElement('button', {
+            className: 'btn-primary',
+            onClick: handleResend,
+            disabled: resending || cooldown > 0,
+            style: {
+                marginTop: 'var(--space-4)'
+            }
+        },
+            resending ? [
+                React.createElement('i', {
+                    className: 'fas fa-spinner fa-spin',
+                    key: 'icon'
+                }),
+                ' Invio in corso...'
+            ] : cooldown > 0 ? `Riprova tra ${cooldown}s` : [
+                React.createElement('i', {
+                    className: 'fas fa-envelope',
+                    key: 'icon'
+                }),
+                ' Invia di nuovo'
+            ]
+        )
+    );
+}
+
+// Main app component
 function App() {
-   const [user, setUser] = React.useState(null);
-   const [page, setPage] = React.useState('feed');
-   const [initializing, setInitializing] = React.useState(true);
-   const [showLoader, setShowLoader] = React.useState(true);
-   const [theme, setTheme] = React.useState(() => {
-       const stored = localStorage.getItem('theme');
-       if (stored) return stored;
-       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-       return 'dark';
-   });
+    const [user, setUser] = React.useState(null);
+    const [page, setPage] = React.useState('feed');
+    const [initializing, setInitializing] = React.useState(true);
+    const [showLoader, setShowLoader] = React.useState(true);
+    const [emailVerified, setEmailVerified] = React.useState(true);
+    const [theme, setTheme] = React.useState(() => {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    });
 
-   React.useEffect(() => {
-       document.body.setAttribute('data-theme', theme);
-       localStorage.setItem('theme', theme);
-       
-       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-       if (themeColorMeta) {
-           themeColorMeta.content = theme === 'dark' ? '#1f2937' : '#2563eb';
-           themeColorMeta.content = theme === 'dark' ? '#0a0f24' : '#7c3aed';
-       }
-   }, [theme]);
+    React.useEffect(() => {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = theme === 'dark' ? '#1f2937' : '#2563eb';
+        }
+    }, [theme]);
 
-   React.useEffect(() => {
-       const initAuth = async () => {
-           try {
-               const { data: { session } } = await supabase.auth.getSession();
-               setUser(session?.user ?? null);
-           } catch (error) {
-               console.error('Auth initialization error:', error);
-               window.addNotification?.({
-                   type: 'error',
-                   icon: 'fas fa-exclamation-triangle',
-                   title: 'Errore di connessione',
-                   message: 'Problema durante l\'inizializzazione dell\'app'
-               });
-           } finally {
-               setInitializing(false);
-           }
-       };
+    React.useEffect(() => {
+        const initAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session?.user) {
+                    setUser(session.user);
+                    setEmailVerified(session.user.email_confirmed_at !== null);
+                } else {
+                    setUser(null);
+                    setEmailVerified(true);
+                }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                window.addNotification?.({
+                    type: 'error',
+                    icon: 'fas fa-exclamation-triangle',
+                    title: 'Errore di connessione',
+                    message: 'Problema durante l\'inizializzazione'
+                });
+            } finally {
+                setInitializing(false);
+            }
+        };
 
-       initAuth();
+        initAuth();
 
-       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-           setUser(session?.user ?? null);
-@@ -807,63 +817,73 @@ function App() {
-               <WelcomePopup user={user} />
-               
-               <Header
-                   user={user}
-                   currentPage={page}
-                   setPage={handlePageChange}
-                   onSignOut={handleSignOut}
-                   theme={theme}
-                   onToggleTheme={toggleTheme}
-               />
-               
-               <main className="main-content">
-                   <div className="page-transition-enter-active">
-                       {page === 'feed' && <EventFeed supabase={supabase} user={user} />}
-                       {page === 'create' && <CreateEvent supabase={supabase} user={user} onEventCreated={() => handlePageChange('feed')} />}
-                       {page === 'profile' && <ProfilePage supabase={supabase} user={user} theme={theme} onToggleTheme={toggleTheme} />}
-                   </div>
-               </main>
-               
-               <PWAInstallPrompt />
-           </div>
-       </ErrorBoundary>
-   );
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth event:', event);
+            
+            if (event === 'SIGNED_IN' && session?.user) {
+                setUser(session.user);
+                setEmailVerified(session.user.email_confirmed_at !== null);
+                
+                PerformanceMonitor.logUserAction('user_signed_in');
+                
+                if (session.user.email_confirmed_at) {
+                    window.addNotification?.({
+                        type: 'success',
+                        icon: 'fas fa-user-check',
+                        title: 'Accesso effettuato!',
+                        message: `Benvenuto ${session.user.email}`
+                    });
+                }
+            } else if (event === 'SIGNED_OUT') {
+                setUser(null);
+                setEmailVerified(true);
+            } else if (event === 'USER_UPDATED' && session?.user) {
+                setUser(session.user);
+                setEmailVerified(session.user.email_confirmed_at !== null);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    React.useEffect(() => {
+        if (!initializing) {
+            const timer = setTimeout(() => {
+                setShowLoader(false);
+                PerformanceMonitor.logPageLoad();
+            }, 1500);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [initializing]);
+
+    const handleSignOut = async () => {
+        try {
+            await supabase.auth.signOut();
+            setUser(null);
+            setEmailVerified(true);
+            setPage('feed');
+            PerformanceMonitor.logUserAction('user_signed_out');
+            
+            window.addNotification?.({
+                type: 'info',
+                icon: 'fas fa-sign-out-alt',
+                title: 'Logout effettuato',
+                message: 'A presto su SocialSpot!'
+            });
+        } catch (error) {
+            console.error('Sign out error:', error);
+            window.addNotification?.({
+                type: 'error',
+                icon: 'fas fa-exclamation-triangle',
+                title: 'Errore logout',
+                message: 'Impossibile effettuare il logout'
+            });
+        }
+    };
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        PerformanceMonitor.logUserAction(`theme_changed_to_${newTheme}`);
+    };
+
+    if (initializing || showLoader) {
+        return React.createElement(LoadingScreen, { isVisible: true });
+    }
+
+    if (!user) {
+        return React.createElement('div', null,
+            React.createElement(NotificationSystem),
+            React.createElement(Auth, { supabase, setUser })
+        );
+    }
+
+    if (!emailVerified) {
+        return React.createElement('div', { className: 'app-container' },
+            React.createElement(NotificationSystem),
+            React.createElement('div', {
+                style: {
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 'var(--space-6)'
+                }
+            },
+                React.createElement(EmailVerificationNotice, {
+                    email: user.email,
+                    onResendEmail: () => {}
+                }),
+                React.createElement('button', {
+                    className: 'btn-outline',
+                    onClick: handleSignOut,
+                    style: {
+                        marginTop: 'var(--space-6)',
+                        display: 'block',
+                        margin: 'var(--space-6) auto 0'
+                    }
+                },
+                    React.createElement('i', { className: 'fas fa-sign-out-alt' }),
+                    ' Logout'
+                )
+            )
+        );
+    }
+
+    return React.createElement('div', { className: 'app-container' },
+        React.createElement(NotificationSystem),
+        React.createElement('div', { style: { textAlign: 'center', padding: 'var(--space-12)' } },
+            React.createElement('h1', null, 'Benvenuto su SocialSpot!'),
+            React.createElement('p', null, `Email: ${user.email}`),
+            React.createElement('p', null, 'L\'applicazione e pronta e funzionante.'),
+            React.createElement('button', {
+                className: 'btn-primary',
+                onClick: handleSignOut,
+                style: { marginTop: 'var(--space-6)' }
+            },
+                React.createElement('i', { className: 'fas fa-sign-out-alt' }),
+                ' Logout'
+            )
+        )
+    );
 }
 
+// Render
 document.addEventListener('DOMContentLoaded', () => {
-function initializeApp() {
-   const initialLoader = document.getElementById('initial-loader');
-   if (initialLoader) {
-       setTimeout(() => {
-           initialLoader.style.display = 'none';
-       }, 2000);
-   }
+    const initialLoader = document.getElementById('initial-loader');
+    if (initialLoader) {
+        setTimeout(() => {
+            initialLoader.style.display = 'none';
+        }, 2000);
+    }
 
-   const root = ReactDOM.createRoot(document.getElementById('root'));
-   const rootElement = document.getElementById('root');
-   if (!rootElement || rootElement.dataset.initialized) return;
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
 
-   rootElement.dataset.initialized = 'true';
-   const root = ReactDOM.createRoot(rootElement);
-   root.render(<App />);
-
-   PerformanceMonitor.logUserAction('app_initialized');
+    PerformanceMonitor.logUserAction('app_initialized');
 });
-}
 
-if (document.readyState === 'loading') {
-   document.addEventListener('DOMContentLoaded', initializeApp, { once: true });
-} else {
-   initializeApp();
-}
+window.SocialSpot = {
+    supabase,
+    PerformanceMonitor,
+    version: '2.1.0'
+};
 
-if ('serviceWorker' in navigator) {
-   window.addEventListener('load', () => {
-       navigator.serviceWorker.register('/sw.js')
-           .then((registration) => {
-               console.log('✅ Service Worker registered:', registration.scope);
-               
-               registration.addEventListener('updatefound', () => {
-                   const newWorker = registration.installing;
-                   newWorker.addEventListener('statechange', () => {
-                       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                           window.addNotification?.({
-                               type: 'info',
-                               icon: 'fas fa-download',
-                               title: 'Aggiornamento disponibile',
-                               message: 'Ricarica la pagina per la nuova versione!'
-                           });
-                       }
-                   });
-               });
-           })
-           .catch((error) => {
-               console.error('❌ Service Worker registration failed:', error);
-           });
-   });
+console.log('SocialSpot v2.1.0 initialized successfully!');
